@@ -1,0 +1,22 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: alerterator
+  namespace: nais
+  labels:
+    app: alerterator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alerterator
+  template:
+    metadata:
+      labels:
+        app: alerterator
+    spec:
+      serviceAccountName: alerterator
+      containers:
+      - name: alerterator
+        image: navikt/alerterator:latest
