@@ -25,6 +25,9 @@ jobs:
   release:
     <<: *defaults
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "11:06:e6:57:b5:39:e1:4d:89:c5:28:cd:44:87:cd:8c"
       - setup_remote_docker
       - checkout
       - attach_workspace:
