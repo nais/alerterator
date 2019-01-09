@@ -1,0 +1,66 @@
+defaults: &defaults
+  docker:
+  - image: circleci/golang:1.11
+
+version: 2
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Create workspace
+          command: mkdir -p /tmp/workspace
+      - run:
+          name: Build Docker container
+          command: docker build -t navikt/alerterator:latest .
+      - run:
+          name: Save Docker container
+          command: docker save navikt/alerterator:latest -o /tmp/workspace/docker-image.tar
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker-image.tar
+  release:
+    <<: *defaults
+    steps:
+      - setup_remote_docker
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load Docker container
+          command: docker load -i /tmp/workspace/docker-image.tar
+      - run:
+          name: Login to Dockerhub
+          command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+      - run:
+          name: Bump version
+          command: ./bump.sh
+      - run:
+          name: Release new version
+          command: |
+            version=$(cat version)
+            git commit version -m "Release version ${version} [skip ci]"
+            git tag ${version}
+            git push
+            git push --tags
+      - run:
+          name: Push Docker container
+          command: |
+            docker tag navikt/alerterator:latest navikt/alerterator:$(cat version)
+            docker push navikt/alerterator:latest
+            docker push navikt/alerterator:$(cat version)
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - release:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
