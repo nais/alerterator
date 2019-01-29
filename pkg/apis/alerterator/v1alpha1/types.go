@@ -48,11 +48,11 @@ type AlertSpec struct {
 	Alerts    []AlertConf `json:"alerts"`
 }
 
-func (in *Alert) CreateEvent(reason, message, typeStr string, namespace string) *corev1.Event {
+func (in *Alert) CreateEvent(reason, message, typeStr string) *corev1.Event {
 	return &corev1.Event{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "alerterator-event",
-			Namespace:    namespace,
+			Namespace:    in.Namespace,
 		},
 		ReportingController: "alerterator",
 		ReportingInstance:   "alerterator",

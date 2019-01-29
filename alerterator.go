@@ -43,14 +43,13 @@ func NewAlerterator(clientSet kubernetes.Interface, appClient *clientV1Alpha1.Cl
 
 // Creates a Kubernetes event.
 func (n *Alerterator) reportEvent(event *corev1.Event) (*corev1.Event, error) {
-	glog.Info(event)
 	return n.ClientSet.CoreV1().Events(event.Namespace).Create(event)
 }
 
 // Reports an error through the error log, a Kubernetes event, and possibly logs a failure in event creation.
 func (n *Alerterator) reportError(source string, err error, alert *v1alpha1.Alert) {
 	glog.Error(err)
-	ev := alert.CreateEvent(source, err.Error(), "Warning", "default")
+	ev := alert.CreateEvent(source, err.Error(), "Warning")
 	_, err = n.reportEvent(ev)
 	if err != nil {
 		glog.Errorf("While creating an event for this error, another error occurred: %s", err)
@@ -66,6 +65,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 		glog.Infof("%s: no changes", alert.Name)
 		return nil
 	}
+	alert.Namespace = "default"
 
 	// TODO: Retrieve configMap, and update alerts
 
@@ -83,7 +83,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 		return fmt.Errorf("while storing alert sync metadata: %s", err)
 	}
 
-	_, err = n.reportEvent(alert.CreateEvent("synchronize", fmt.Sprintf("successfully synchronized alert resources (hash = %s)", hash), "Normal", "default"))
+	_, err = n.reportEvent(alert.CreateEvent("synchronize", fmt.Sprintf("successfully synchronized alert resources (hash = %s)", hash), "Normal"))
 	if err != nil {
 		glog.Errorf("While creating an event for this error, another error occurred: %s", err)
 	}
