@@ -2,6 +2,8 @@ package updater
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 )
@@ -35,8 +37,8 @@ func getDefaultSlackConfig() slackConfig {
 	return slackConfig{
 		SendResolved: true,
 		Title:        "{{ template \"nais-alert.title\" . }}", // TODO: Add prepend-text
-		Text:         "{{template \"nais-alert.text\" . }}",   // TODO: Add prepend-text
-		Username:     "Alertmanager in <env>",                 // TODO: Specify env
+		Text:         "{{ template \"nais-alert.text\" . }}",  // TODO: Add prepend-text
+		Username:     fmt.Sprintf("Alertmanager in %s", os.Getenv("NAIS_CLUSTER_NAME")),
 	}
 }
 
