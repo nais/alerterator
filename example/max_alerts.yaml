@@ -7,11 +7,12 @@ metadata:
     team: aura
 spec:
   receivers: # receivers for all alerts below
-    - slack:
-        channel: '#aura_alerts_dev-fss'
-        prependText: '@here | ' # this text will be prepended to the Slack alert title
-    - email:
-        to: 'auravakt@nav.no' # sends email as well
+    slack:
+      channel: '#aura_alerts_dev-fss'
+      prependText: '@here | ' # this text will be prepended to the Slack alert title
+    email:
+      to: 'auravakt@nav.no' # sends email as well
+      send_resolved: false # notify about resolved alerts
   alerts:
     - description: nais-testapp unavailable
       expr: 'kube_deployment_status_replicas_unavailable{deployment="nais-testapp"} > 0'
