@@ -7,9 +7,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/nais/alerterator"
-
 	"github.com/golang/glog"
+	"github.com/nais/alerterator"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 	clientV1Alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
 	informers "github.com/nais/alerterator/pkg/client/informers/externalversions"

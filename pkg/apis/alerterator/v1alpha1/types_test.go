@@ -20,7 +20,6 @@ func TestApplication_Hash(t *testing.T) {
 
 func TestNilFix(t *testing.T) {
 	alert := v1alpha1.Alert{}
-	assert.Nil(t, alert.Spec.Receivers)
 	assert.Nil(t, alert.Spec.Alerts)
 	alert.NilFix()
 	assert.NotNil(t, alert.Spec.Receivers)
