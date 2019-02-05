@@ -32,19 +32,19 @@ jobs:
             - "11:06:e6:57:b5:39:e1:4d:89:c5:28:cd:44:87:cd:8c"
       - attach_workspace:
           at: /tmp/workspace
-            - run:
-                name: Load Docker container
-                command: docker load -i /tmp/workspace/docker-image.tar
-            - run:
-                name: Login to Dockerhub
-                command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
-            - run:
-                name: Push Docker container
-                command: |
-                  version=$(./version.sh)
-                  docker tag navikt/naiserator:latest navikt/naiserator:${version}
-                  docker push navikt/naiserator:latest
-                  docker push navikt/naiserator:${version}
+      - run:
+          name: Load Docker container
+          command: docker load -i /tmp/workspace/docker-image.tar
+      - run:
+          name: Login to Dockerhub
+          command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+      - run:
+          name: Push Docker container
+          command: |
+            version=$(./version.sh)
+            docker tag navikt/naiserator:latest navikt/naiserator:${version}
+            docker push navikt/naiserator:latest
+            docker push navikt/naiserator:${version}
       - run:
           name: Deploy new version to Kubernetes
           command: |
