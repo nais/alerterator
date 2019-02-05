@@ -25,36 +25,41 @@ jobs:
   release:
     <<: *defaults
     steps:
+      - setup_remote_docker
+      - checkout
       - add_ssh_keys:
           fingerprints:
             - "11:06:e6:57:b5:39:e1:4d:89:c5:28:cd:44:87:cd:8c"
-      - setup_remote_docker
-      - checkout
       - attach_workspace:
           at: /tmp/workspace
+            - run:
+                name: Load Docker container
+                command: docker load -i /tmp/workspace/docker-image.tar
+            - run:
+                name: Login to Dockerhub
+                command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+            - run:
+                name: Push Docker container
+                command: |
+                  version=$(./version.sh)
+                  docker tag navikt/naiserator:latest navikt/naiserator:${version}
+                  docker push navikt/naiserator:latest
+                  docker push navikt/naiserator:${version}
       - run:
-          name: Load Docker container
-          command: docker load -i /tmp/workspace/docker-image.tar
-      - run:
-          name: Login to Dockerhub
-          command: docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
-      - run:
-          name: Bump version
-          command: ./bump.sh
-      - run:
-          name: Release new version
+          name: Deploy new version to Kubernetes
           command: |
-            version=$(cat version)
-            git commit version -m "Release version ${version} [skip ci]"
-            git tag ${version}
+            version=$(./version.sh)
+            naisyaml=$(mktemp -d)
+            res="hack/resources"
+            static_file="${naisyaml}/templates/zz-generated-alerterator.yaml"
+            git clone git@github.com:navikt/nais-yaml $naisyaml
+            cat $res/00-namespace.yaml $res/01-serviceaccount.yaml $res/02-clusterrolebinding.yaml pkg/apis/alerterator/v1alpha1/application.yaml > $static_file
+            cd $naisyaml
+            sed -E -i "s#image: navikt/alerterator:.+#image: navikt/alerterator:${version}#" vars/alerterator.yaml
+            git add .
+            git --no-pager diff --cached
+            git commit -a -m "Bump Alerterator to version ${version}"
             git push
-            git push --tags
-      - run:
-          name: Push Docker container
-          command: |
-            docker tag navikt/alerterator:latest navikt/alerterator:$(cat version)
-            docker push navikt/alerterator:latest
-            docker push navikt/alerterator:$(cat version)
 
 workflows:
   version: 2
