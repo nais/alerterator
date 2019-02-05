@@ -31,21 +31,37 @@ type AlertList struct {
 	Items []Alert `json:"items"`
 }
 
-type Receivers struct {
+type Slack struct {
+	Channel     string `json:"channel"`
+	PrependText string `json:"prependText"`
 }
 
-type AlertConf struct {
-	Description   string `json:"description"`
-	Expr          string `json:"expr"`
-	For           string `json:"for"`
-	Action        string `json:"action"`
-	Documentation string `json:"documentation"`
-	SLA           string `json:"sla"`
+type Email struct {
+	To string `json:"to"`
+}
+
+type Receivers struct {
+	Slack Slack `json:"slack"`
+	Email Email `json:"email"`
+}
+
+type Rule struct {
+	Description   string            `json:"description"`
+	Expr          string            `json:"expr"`
+	For           string            `json:"for"`
+	Action        string            `json:"action"`
+	Documentation string            `json:"documentation"`
+	SLA           string            `json:"sla"`
+	Labels        map[string]string `json:"labels"`
 }
 
 type AlertSpec struct {
-	Receivers []Receivers `json:"receivers"`
-	Alerts    []AlertConf `json:"alerts"`
+	Receivers Receivers `json:"receivers"`
+	Alerts    []Rule    `json:"alerts"`
+}
+
+func (in *Alert) GetTeamName() string {
+	return in.Labels["team"]
 }
 
 func (in *Alert) CreateEvent(reason, message, typeStr string) *corev1.Event {
@@ -95,11 +111,8 @@ func (in *Alert) GetOwnerReference() metav1.OwnerReference {
 // This is done in order to workaround the k8s client serializer
 // which crashes when these fields are uninitialized.
 func (in *Alert) NilFix() {
-	if in.Spec.Receivers == nil {
-		in.Spec.Receivers = make([]Receivers, 0)
-	}
 	if in.Spec.Alerts == nil {
-		in.Spec.Alerts = make([]AlertConf, 0)
+		in.Spec.Alerts = make([]Rule, 0)
 	}
 }
 

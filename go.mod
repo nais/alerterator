@@ -13,6 +13,7 @@ require (
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/mitchellh/hashstructure v1.0.0
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
@@ -24,8 +25,9 @@ require (
 	golang.org/x/sys v0.0.0-20190129075346-302c3dd5f1cc // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/yaml.v2 v2.2.2 // indirect
+	gopkg.in/yaml.v2 v2.2.2
 	k8s.io/api v0.0.0-20181128191700-6db15a15d2d3 // kubernetes-1.12.5
 	k8s.io/apimachinery v0.0.0-20181128191346-49ce2735e507 // kubernetes-1.12.5
 	k8s.io/client-go v9.0.0+incompatible
+	k8s.io/kube-openapi v0.0.0-20190202092118-df6fb93e6113 // indirect
 )

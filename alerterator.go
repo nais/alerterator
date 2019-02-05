@@ -2,6 +2,7 @@ package alerterator
 
 import (
 	"fmt"
+	"github.com/nais/alerterator/api"
 
 	"github.com/golang/glog"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
@@ -11,6 +12,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+)
+
+const (
+	configMapNamespace = "nais"
 )
 
 // Alerterator is a singleton that holds Kubernetes client instances.
@@ -70,11 +75,16 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	}
 	alert.Namespace = "default"
 
-	// TODO: Retrieve configMap, and update alerts
+	err = api.UpdateAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	if err != nil {
+		return fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
+	}
 
-	// At this point, the deployment is complete. All that is left is to register the application hash and cache it,
-	// so that the deployment does not happen again. Thus, we update the metrics before the end of the function.
-	// metrics.ResourcesGenerated.Add(float64(len(resources)))
+	err = api.UpdateAppRulesConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	if err != nil {
+		return fmt.Errorf("while adding rules to configMap: %s", err)
+	}
+
 	metrics.Alerts.Inc()
 
 	alert.SetLastSyncedHash(hash)
