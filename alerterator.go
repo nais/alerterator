@@ -118,6 +118,8 @@ func (n *Alerterator) update(old, new interface{}) {
 }
 
 func (n *Alerterator) add(alert interface{}) {
+	glog.Info("Applying new alert")
+	metrics.AlertsApplied.Inc()
 	n.update(nil, alert)
 }
 
