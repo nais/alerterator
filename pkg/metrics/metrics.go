@@ -20,6 +20,11 @@ var (
 		Namespace: "alerterator",
 		Help:      "number of HTTP requests made to the health and liveness checks",
 	})
+	AlertsDeleted = prometheus.NewCounter(prometheus.CounterOpts{
+		Name:      "alerts_deleted",
+		Namespace: "alerterator",
+		Help:      "number of nais.io.Alert resources that have been deleted",
+	})
 	AlertsProcessed = prometheus.NewCounter(prometheus.CounterOpts{
 		Name:      "applications_processed",
 		Namespace: "alerterator",
@@ -40,6 +45,7 @@ var (
 func init() {
 	prometheus.MustRegister(Alerts)
 	prometheus.MustRegister(HttpRequests)
+	prometheus.MustRegister(AlertsDeleted)
 	prometheus.MustRegister(AlertsProcessed)
 	prometheus.MustRegister(AlertsFailed)
 }

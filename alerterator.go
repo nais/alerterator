@@ -36,6 +36,9 @@ func NewAlerterator(clientSet kubernetes.Interface, appClient *clientV1Alpha1.Cl
 			UpdateFunc: func(oldPod, newPod interface{}) {
 				alerterator.update(oldPod, newPod)
 			},
+			DeleteFunc: func(delPod interface{}) {
+				alerterator.delete(delPod)
+			},
 		})
 
 	return &alerterator
@@ -116,6 +119,11 @@ func (n *Alerterator) update(old, new interface{}) {
 
 func (n *Alerterator) add(alert interface{}) {
 	n.update(nil, alert)
+}
+
+func (n *Alerterator) delete(alert interface{}) {
+	glog.Infof("%s: deleted", alert.(*v1alpha1.Alert).Name)
+	metrics.AlertsDeleted.Inc()
 }
 
 func (n *Alerterator) Run(stop <-chan struct{}) {
