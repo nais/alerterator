@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	configMapAlerts       = "app-rules"
+	configMapAlerts       = "alerterator-rules"
 	configMapAlertmanager = "nais-prometheus-prometheus-alertmanager"
 )
 
