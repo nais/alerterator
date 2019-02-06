@@ -41,16 +41,12 @@ spec:
             receivers:
               properties:
                 slack:
-                  required:
-                    - channel
                   properties:
                     channel:
                       type: string
                     prependText:
                       type: string
                 email:
-                  required:
-                    - to
                   properties:
                     to:
                       type: string
