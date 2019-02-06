@@ -42,9 +42,9 @@ jobs:
           name: Push Docker container
           command: |
             version=$(./version.sh)
-            docker tag navikt/naiserator:latest navikt/naiserator:${version}
-            docker push navikt/naiserator:latest
-            docker push navikt/naiserator:${version}
+            docker tag navikt/alerterator:latest navikt/alerterator:${version}
+            docker push navikt/alerterator:latest
+            docker push navikt/alerterator:${version}
       - run:
           name: Deploy new version to Kubernetes
           command: |
