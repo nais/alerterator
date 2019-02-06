@@ -58,6 +58,7 @@ spec:
                 - for
                 - expr
                 - description
+                - action
               properties:
                 description:
                   type: string
