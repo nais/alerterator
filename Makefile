@@ -4,7 +4,7 @@ LATEST     := ${TAG}:latest
 ROOT_DIR   := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 
-.PHONY: build docker docker-push local install test codegen-crd codegen-updater
+.PHONY: build docker docker-push local install test codegen-crd
 
 build:
 	cd cmd/alerterator && go build
@@ -25,7 +25,4 @@ test:
 	go test ./... --coverprofile=cover.out
 
 codegen-crd:
-	${ROOT_DIR}/hack/update-codegen.sh
-
-codegen-updater:
-	go generate ${ROOT_DIR}/hack/generator/updater.go | goimports > ${ROOT_DIR}/updater/zz_generated.go
+	${ROOT_DIR}/codegen/update-codegen.sh
