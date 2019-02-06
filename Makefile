@@ -10,7 +10,7 @@ build:
 	cd cmd/alerterator && go build
 
 docker:
-    VERSION := $(shell ./version)
+	VERSION := $(shell ./version)
 	docker image build -t ${TAG}:${VERSION} -t ${TAG} -t ${NAME} -t ${LATEST} -f Dockerfile .
 	docker image push ${TAG}:${VERSION}
 	docker image push ${LATEST}
