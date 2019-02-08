@@ -54,7 +54,7 @@ jobs:
             static_file="${naisyaml}/templates/zz-generated-alerterator.yaml"
             git clone git@github.com:navikt/nais-yaml $naisyaml
             cat $res/03-deployment.yaml > $naisyaml/templates/alerterator.yaml
-            cat $res/00-namespace.yaml $res/01-serviceaccount.yaml $res/02-clusterrolebinding.yaml pkg/apis/alerterator/v1alpha1/application.yaml > $static_file
+            cat $res/00-namespace.yaml $res/01-serviceaccount.yaml $res/02-clusterrolebinding.yaml pkg/apis/alerterator/v1alpha1/alert.yaml > $static_file
             cd $naisyaml
             sed -E -i "s#image: navikt/alerterator:.+#image: navikt/alerterator:${version}#" vars/alerterator.yaml
             git add .
