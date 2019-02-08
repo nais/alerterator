@@ -13,10 +13,15 @@ spec:
       app: alerterator
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
       labels:
         app: alerterator
     spec:
       serviceAccountName: alerterator
       containers:
       - name: alerterator
-        image: navikt/alerterator:latest
+        image: {{ .image }}
+        imagePullPolicy: Always
