@@ -53,6 +53,7 @@ type Rule struct {
 	Documentation string            `json:"documentation"`
 	SLA           string            `json:"sla"`
 	Labels        map[string]string `json:"labels"`
+	Annotations   map[string]string `json:"annotations"`
 }
 
 type AlertSpec struct {

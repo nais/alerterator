@@ -26,8 +26,23 @@ func addTeamLabel(rules []v1alpha1.Rule, teamName string) {
 	}
 }
 
+func addBackwardCompatibility(spec v1alpha1.AlertSpec) {
+	for i := range spec.Alerts {
+		rule := spec.Alerts[i]
+		if spec.Alerts[i].Annotations == nil {
+			spec.Alerts[i].Annotations = make(map[string]string)
+		}
+		rule.Annotations["action"] = rule.Action
+		rule.Annotations["description"] = rule.Description
+		rule.Annotations["documentation"] = rule.Documentation
+		rule.Annotations["sla"] = rule.SLA
+		rule.Annotations["prependText"] = spec.Receivers.Slack.PrependText
+	}
+}
+
 func AddOrUpdateAlerts(alert *v1alpha1.Alert, configMap *v1.ConfigMap) (*v1.ConfigMap, error) {
 	addTeamLabel(alert.Spec.Alerts, alert.GetTeamName())
+	addBackwardCompatibility(alert.Spec)
 	alertGroup := AlertGroup{Name: alert.Name, Rules: alert.Spec.Alerts}
 	alertGroups := AlertGroups{Groups: []AlertGroup{alertGroup}}
 
