@@ -32,11 +32,11 @@ func addBackwardCompatibility(spec v1alpha1.AlertSpec) {
 		if spec.Alerts[i].Annotations == nil {
 			spec.Alerts[i].Annotations = make(map[string]string)
 		}
-		rule.Annotations["action"] = rule.Action
-		rule.Annotations["description"] = rule.Description
-		rule.Annotations["documentation"] = rule.Documentation
-		rule.Annotations["sla"] = rule.SLA
-		rule.Annotations["prependText"] = spec.Receivers.Slack.PrependText
+		spec.Alerts[i].Annotations["action"] = rule.Action
+		spec.Alerts[i].Annotations["description"] = rule.Description
+		spec.Alerts[i].Annotations["documentation"] = rule.Documentation
+		spec.Alerts[i].Annotations["sla"] = rule.SLA
+		spec.Alerts[i].Annotations["prependText"] = spec.Receivers.Slack.PrependText
 	}
 }
 
