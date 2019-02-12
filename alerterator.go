@@ -73,6 +73,8 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 		glog.Infof("%s: no changes", alert.Name)
 		return nil
 	}
+	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
+	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
 	alert.Namespace = "default"
 
 	err = api.UpdateAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
