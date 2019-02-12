@@ -5,69 +5,7 @@ Alerterator is a Kubernetes operator for managing Prometheus Alertmanager alerts
 
 As alerts are namespace agnostic, you don't have to have different files for each namespace you are running (although we don't recommend running you application in different namespaces). You can even make your own personal alert-resources that only notifes you!
 
-## Spec
-
-| Parameter | Description | Default | Required |
-| --------- | ----------- | ------- | :--------: |
-| metadata.name | Name for the group of alerts | | x |
-| metadata.labels.team | [mailnick/tag](https://github.com/nais/doc/blob/master/content/getting-started/teamadministration.md) | | x |
-| spec.receivers.slack.channel | Slack channel to send notifications to | | |
-| spec.receivers.slack.preprend_text | Text to prepend every Slack-message (for ex. @here) | | |
-| spec.receivers.email.to | The email address to send notifications to| | |
-| spec.receivers.email.send_resolved | Whether or not to notify about resolved alerts | | false |
-| spec.alerts[].description | Simple description of the triggered alert | | x |
-| spec.alerts[].expr | Prometheus expression that triggers an alert | | x |
-| spec.alerts[].for | Duration before the alert should trigger | | x |
-| spec.alerts[].action | How to resolve this alert | | x |
-| spec.alerts[].documentation | URL for docmentation for this alert| | |
-| spec.alerts[].sla | Time before the alert should be resolved| | |
-| spec.alerts[].severity | Alert level for Slack-messages| | Error |
-
-
-See [example directory](/example/) for an example-alert.
-
-
-### Tips
-
-You can also use `annotations` and `labels` from the Prometheus-`expr` result.
-
-For example:
-```
-{{ $labels.node }} is marked as unschedulable
-```
-
-turns into the following when posted to Slack/email:
-```
-b27apvl00178.preprod.local is marked as unschedulable
-```
-
-
-## Migrating from Naisd
-
-It's pretty straight forward to move alerts from Naisd to Alerterator, and the most notable difference is the removal of name/alert and that annotation-fields has been move to the top-level.
-
-```
-alerts:
-- alert: appNotAvailable
-  expr: kube_deployment_status_replicas_unavailable{deployment="app-name"} > 0
-  for: 5m
-  annotations:
-    action: Read app logs(kubectl logs appname). Read Application events (kubectl descibe deployment appname)
-    severity: Warning
-```
-
-should be transformed to
-
-```
-alerts:
-- expr: kube_deployment_status_replicas_unavailable{deployment="app-name"} > 0
-  for: 5m
-  description: It looks like the app is down
-  action: Read app logs(kubectl logs appname). Read Application events (kubectl descibe deployment appname)
-  severity: Warning
-```
-
-Check out the complete [spec](/#spec) for more information about the different keys.
+The documentation for how to start using alerts are over at [nais.io/doc](https://github.com/nais/doc/tree/master/content/alerts).
 
 
 ## Deployment
