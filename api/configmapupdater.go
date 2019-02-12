@@ -37,6 +37,9 @@ func AddOrUpdateReceivers(alert *v1alpha1.Alert, configMap *corev1.ConfigMap) (*
 	}
 
 	data, err := yaml.Marshal(&alertManager)
+	if err != nil {
+		return nil, err
+	}
 	configMap.Data["alertmanager.yml"] = string(data)
 
 	return configMap, nil
