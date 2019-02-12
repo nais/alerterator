@@ -43,6 +43,7 @@ data:
           send_resolved: true
           title: '{{ template "nais-alert.title" . }}'
           text: '{{ template "nais-alert.text" . }}'
+          username: 'Alertmanager in preprod-fss'
       - name: aura-slack
         slack_configs:
         - channel: '#nais-alerts-dev'
