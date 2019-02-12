@@ -36,8 +36,8 @@ type receiverConfig struct {
 func getDefaultSlackConfig() slackConfig {
 	return slackConfig{
 		SendResolved: true,
-		Title:        "{{ template \"nais-alert.title\" . }}", // TODO: Add prepend-text
-		Text:         "{{ template \"nais-alert.text\" . }}",  // TODO: Add prepend-text
+		Title:        "{{ template \"nais-alert.title\" . }}",
+		Text:         "{{ template \"nais-alert.text\" . }}",
 		Username:     fmt.Sprintf("Alertmanager in %s", os.Getenv("NAIS_CLUSTER_NAME")),
 	}
 }
