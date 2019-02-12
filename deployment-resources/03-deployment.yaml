@@ -25,3 +25,6 @@ spec:
       - name: alerterator
         image: {{ .image }}
         imagePullPolicy: Always
+        env:
+          - name: NAIS_CLUSTER_NAME
+            value: {{ .env }}
