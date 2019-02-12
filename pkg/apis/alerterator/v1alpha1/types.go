@@ -46,14 +46,12 @@ type Receivers struct {
 }
 
 type Rule struct {
-	Description   string            `json:"description"`
-	Expr          string            `json:"expr"`
-	For           string            `json:"for"`
-	Action        string            `json:"action"`
-	Documentation string            `json:"documentation"`
-	SLA           string            `json:"sla"`
-	Labels        map[string]string `json:"labels"`
-	Annotations   map[string]string `json:"annotations"`
+	Description   string `json:"description"`
+	Expr          string `json:"expr"`
+	For           string `json:"for"`
+	Action        string `json:"action"`
+	Documentation string `json:"documentation"`
+	SLA           string `json:"sla"`
 }
 
 type AlertSpec struct {

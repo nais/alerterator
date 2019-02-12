@@ -13,37 +13,41 @@ type AlertGroups struct {
 
 type AlertGroup struct {
 	Name  string
-	Rules []v1alpha1.Rule
+	Rules []AlertRule
 }
 
-func addTeamLabel(rules []v1alpha1.Rule, teamName string) {
-	for i := range rules {
-		if rules[i].Labels == nil {
-			rules[i].Labels = make(map[string]string)
-		}
-
-		rules[i].Labels["team"] = teamName
-	}
+type AlertRule struct {
+	For         string            `json:"for"`
+	Expr        string            `json:"expr"`
+	Annotations map[string]string `json:"annotations"`
+	Labels      map[string]string `json:"labels"`
 }
 
-func addBackwardCompatibility(spec v1alpha1.AlertSpec) {
-	for i := range spec.Alerts {
-		rule := spec.Alerts[i]
-		if spec.Alerts[i].Annotations == nil {
-			spec.Alerts[i].Annotations = make(map[string]string)
+func createAlertRules(alert *v1alpha1.Alert) (alertRules []AlertRule) {
+	for i := range alert.Spec.Alerts {
+		rule := alert.Spec.Alerts[i]
+		alertRule := AlertRule{
+			Expr: rule.Expr,
+			For: rule.For,
+			Labels: map[string]string{
+				"team": alert.GetTeamName(),
+			},
+			Annotations: map[string]string{
+				"action":        rule.Action,
+				"description":   rule.Description,
+				"documentation": rule.Documentation,
+				"prependText":   alert.Spec.Receivers.Slack.PrependText,
+				"sla":           rule.SLA,
+			},
 		}
-		spec.Alerts[i].Annotations["action"] = rule.Action
-		spec.Alerts[i].Annotations["description"] = rule.Description
-		spec.Alerts[i].Annotations["documentation"] = rule.Documentation
-		spec.Alerts[i].Annotations["sla"] = rule.SLA
-		spec.Alerts[i].Annotations["prependText"] = spec.Receivers.Slack.PrependText
+		alertRules = append(alertRules, alertRule)
 	}
+	return
 }
 
 func AddOrUpdateAlerts(alert *v1alpha1.Alert, configMap *v1.ConfigMap) (*v1.ConfigMap, error) {
-	addTeamLabel(alert.Spec.Alerts, alert.GetTeamName())
-	addBackwardCompatibility(alert.Spec)
-	alertGroup := AlertGroup{Name: alert.Name, Rules: alert.Spec.Alerts}
+	alertRules := createAlertRules(alert)
+	alertGroup := AlertGroup{Name: alert.Name, Rules: alertRules}
 	alertGroups := AlertGroups{Groups: []AlertGroup{alertGroup}}
 
 	alertGroupYamlBytes, err := yaml.Marshal(alertGroups)
