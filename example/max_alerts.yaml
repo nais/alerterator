@@ -8,8 +8,8 @@ metadata:
 spec:
   receivers: # receivers for all alerts below
     slack:
-      channel: '#aura_alerts_dev-fss'
-      prependText: '@here | ' # this text will be prepended to the Slack alert title
+      channel: '#nais-alerts-dev'
+      prependText: '<!here> | ' # this text will be prepended to the Slack alert title
     email:
       to: 'auravakt@nav.no' # sends email as well
       send_resolved: false # notify about resolved alerts
