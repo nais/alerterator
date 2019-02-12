@@ -42,14 +42,14 @@ func getDefaultSlackConfig() slackConfig {
 	}
 }
 
-func getReceiverByName(alert string, receivers []receiverConfig) (receiverConfig, int) {
+func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
 	for i := 0; i < len(receivers); i++ {
 		receiver := receivers[i]
 		if receiver.Name == alert {
-			return receiver, i
+			return i
 		}
 	}
-	return receiverConfig{}, -1
+	return -1
 }
 
 func AddOrUpdateReceivers(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
@@ -59,33 +59,24 @@ func AddOrUpdateReceivers(alert *v1alpha1.Alert, alertManager map[interface{}]in
 		return fmt.Errorf("failed while decoding map structure: %s", err)
 	}
 
-	receiver, index := getReceiverByName(alert.Name, receivers)
-	if receiver.Name != "" {
-		if alert.Spec.Receivers.Slack.Channel != "" {
-			slack := getDefaultSlackConfig()
-			slack.Channel = alert.Spec.Receivers.Slack.Channel
-			receiver.SlackConfigs = []slackConfig{slack}
-		}
-		if alert.Spec.Receivers.Email.To != "" {
-			email := getDefaultEmailConfig()
-			email.To = alert.Spec.Receivers.Email.To
-			receiver.EmailConfigs = []emailConfig{email}
-		}
+	receiver := receiverConfig{
+		Name: alert.Name,
+	}
+	if alert.Spec.Receivers.Slack.Channel != "" {
+		slack := getDefaultSlackConfig()
+		slack.Channel = alert.Spec.Receivers.Slack.Channel
+		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
+	}
+	if alert.Spec.Receivers.Email.To != "" {
+		email := getDefaultEmailConfig()
+		email.To = alert.Spec.Receivers.Email.To
+		receiver.EmailConfigs = append(receiver.EmailConfigs, email)
+	}
+
+	index := getReceiverIndexByName(alert.Name, receivers)
+	if index != -1 {
 		receivers[index] = receiver
 	} else {
-		receiver := receiverConfig{
-			Name: alert.Name,
-		}
-		if alert.Spec.Receivers.Slack.Channel != "" {
-			slack := getDefaultSlackConfig()
-			slack.Channel = alert.Spec.Receivers.Slack.Channel
-			receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
-		}
-		if alert.Spec.Receivers.Email.To != "" {
-			email := getDefaultEmailConfig()
-			email.To = alert.Spec.Receivers.Email.To
-			receiver.EmailConfigs = append(receiver.EmailConfigs, email)
-		}
 		receivers = append(receivers, receiver)
 	}
 
