@@ -10,12 +10,7 @@ import (
 	"k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
-const (
-	configMapAlerts       = "alerterator-rules"
-	configMapAlertmanager = "nais-prometheus-prometheus-alertmanager"
-)
-
-func addOrUpdateReceivers(alert *v1alpha1.Alert, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
+func deleteReceivers(alert *v1alpha1.Alert, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 	if configMap.Data == nil {
 		return nil, fmt.Errorf("alertmanager is not properly set up, missing alertmanager.yml")
 	}
@@ -26,12 +21,12 @@ func addOrUpdateReceivers(alert *v1alpha1.Alert, configMap *corev1.ConfigMap) (*
 		return nil, fmt.Errorf("failed while unmarshling alertmanager.yml: %s", err)
 	}
 
-	err = updater.AddOrUpdateRoutes(alert, alertManager)
+	err = updater.DeleteRoute(alert, alertManager)
 	if err != nil {
 		return nil, err
 	}
 
-	err = updater.AddOrUpdateReceivers(alert, alertManager)
+	err = updater.DeleteReceiver(alert, alertManager)
 	if err != nil {
 		return nil, err
 	}
@@ -45,15 +40,15 @@ func addOrUpdateReceivers(alert *v1alpha1.Alert, configMap *corev1.ConfigMap) (*
 	return configMap, nil
 }
 
-func UpdateAlertManagerConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
+func DeleteReceiversFromAlertManagerConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
 	configMap, err := configMapInterface.Get(configMapAlertmanager, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failing while retrieving %s configMap: %s", configMapAlertmanager, err)
 	}
 
-	configMap, err = addOrUpdateReceivers(alert, configMap)
+	configMap, err = deleteReceivers(alert, configMap)
 	if err != nil {
-		return fmt.Errorf("failed while adding/updating receivers: %s", err)
+		return fmt.Errorf("failed while deleting receivers: %s", err)
 	}
 
 	_, err = configMapInterface.Update(configMap)
@@ -64,16 +59,13 @@ func UpdateAlertManagerConfigMap(configMapInterface v1.ConfigMapInterface, alert
 	return nil
 }
 
-func UpdateAppRulesConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
+func DeleteAlertFromConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
 	configMap, err := configMapInterface.Get(configMapAlerts, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failing while retrieving %s configMap: %s", configMapAlerts, err)
 	}
 
-	configMap, err = updater.AddOrUpdateAlerts(alert, configMap)
-	if err != nil {
-		return err
-	}
+	configMap = updater.DeleteAlert(alert.Name, configMap)
 
 	_, err = configMapInterface.Update(configMap)
 	if err != nil {

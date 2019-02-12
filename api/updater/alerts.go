@@ -28,7 +28,7 @@ func createAlertRules(alert *v1alpha1.Alert) (alertRules []AlertRule) {
 		rule := alert.Spec.Alerts[i]
 		alertRule := AlertRule{
 			Expr: rule.Expr,
-			For: rule.For,
+			For:  rule.For,
 			Labels: map[string]string{
 				"team": alert.GetTeamName(),
 			},
@@ -62,4 +62,9 @@ func AddOrUpdateAlerts(alert *v1alpha1.Alert, configMap *v1.ConfigMap) (*v1.Conf
 	configMap.Data[alert.Name+".yml"] = string(alertGroupYamlBytes)
 
 	return configMap, nil
+}
+
+func DeleteAlert(alertName string, configMap *v1.ConfigMap) *v1.ConfigMap {
+	delete(configMap.Data, alertName+".yml")
+	return configMap
 }

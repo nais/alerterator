@@ -84,3 +84,17 @@ func AddOrUpdateReceivers(alert *v1alpha1.Alert, alertManager map[interface{}]in
 
 	return nil
 }
+
+func DeleteReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
+	var receivers []receiverConfig
+	err := mapstructure.Decode(alertManager["receivers"], &receivers)
+	if err != nil {
+		return fmt.Errorf("failed while decoding map structure: %s", err)
+	}
+
+	index := getReceiverIndexByName(alert.Name, receivers)
+	receivers = append(receivers[:index], receivers[index+1:]...)
+	alertManager["receivers"] = receivers
+
+	return nil
+}

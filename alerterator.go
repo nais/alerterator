@@ -135,9 +135,34 @@ func (n *Alerterator) add(alert interface{}) {
 	n.update(nil, alert)
 }
 
-func (n *Alerterator) delete(alert interface{}) {
-	glog.Infof("%s: deleted", alert.(*v1alpha1.Alert).Name)
+func (n *Alerterator) delete(delete interface{}) {
+	alert := delete.(*v1alpha1.Alert)
+
+	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
+	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
+	alert.Namespace = "default"
+
+	err := api.DeleteReceiversFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	if err != nil {
+		metrics.AlertsFailed.Inc()
+		glog.Errorf("while deleting %s from AlertManager.yml configMap: %s", alert.Name, err)
+		return
+	}
+
+	err = api.DeleteAlertFromConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	if err != nil {
+		metrics.AlertsFailed.Inc()
+		glog.Errorf("while deleting rules for %s from the configMap: %s", alert.Name, err)
+		return
+	}
+
+	glog.Infof("%s: deleted", alert.Name)
 	metrics.AlertsDeleted.Inc()
+
+	_, err = n.reportEvent(alert.CreateEvent("synchronize", fmt.Sprintf("successfully deleted alert resources (name = %s)", alert.Name), "Normal"))
+	if err != nil {
+		glog.Errorf("While creating an event for this error, another error occurred: %s", err)
+	}
 }
 
 func (n *Alerterator) Run(stop <-chan struct{}) {
