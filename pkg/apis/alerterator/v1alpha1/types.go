@@ -46,6 +46,7 @@ type Receivers struct {
 }
 
 type Rule struct {
+	Alert         string `json:"alert"`
 	Description   string `json:"description"`
 	Expr          string `json:"expr"`
 	For           string `json:"for"`

@@ -14,14 +14,16 @@ spec:
       to: 'auravakt@nav.no' # sends email as well
       send_resolved: false # notify about resolved alerts
   alerts:
-    - description: nais-testapp unavailable
+    - alert: Nais-testapp unavailable
+      description: Oh noes, it looks like Nais-testapp is down
       expr: 'kube_deployment_status_replicas_unavailable{deployment="nais-testapp"} > 0'
       for: 2m
       action: kubectl describe pod -l app=nais-testapp
       documentation: https://github.com/navikt/aura-doc/naisvakt/alerts.md#app_unavailable
       sla: respond within 1h, during office hours
       severity: critical
-    - description: CoreDNS unavailable, there are zero replicas
+    - alert: CoreDNS unavailable
+      description: CoreDNS unavailable, there are zero replicas
       expr: 'kube_deployment_status_replicas_available{namespace="kube-system", deployment="coredns"} == 0'
       for: 1m
       action: kubectl describe pod -l app=nais-testapp

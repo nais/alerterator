@@ -55,11 +55,13 @@ spec:
             alerts:
               type: array
               required:
+                - alert
                 - for
                 - expr
-                - description
                 - action
               properties:
+                alert:
+                  type: string
                 description:
                   type: string
                 expr:

@@ -17,16 +17,18 @@ type AlertGroup struct {
 }
 
 type AlertRule struct {
-	For         string            `json:"for"`
-	Expr        string            `json:"expr"`
-	Annotations map[string]string `json:"annotations"`
-	Labels      map[string]string `json:"labels"`
+	Alert       string            `yaml:"alert"`
+	For         string            `yaml:"for"`
+	Expr        string            `yaml:"expr"`
+	Annotations map[string]string `yaml:"annotations"`
+	Labels      map[string]string `yaml:"labels"`
 }
 
 func createAlertRules(alert *v1alpha1.Alert) (alertRules []AlertRule) {
 	for i := range alert.Spec.Alerts {
 		rule := alert.Spec.Alerts[i]
 		alertRule := AlertRule{
+			Alert: rule.Alert,
 			Expr: rule.Expr,
 			For:  rule.For,
 			Labels: map[string]string{
