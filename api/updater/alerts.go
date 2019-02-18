@@ -29,8 +29,8 @@ func createAlertRules(alert *v1alpha1.Alert) (alertRules []AlertRule) {
 		rule := alert.Spec.Alerts[i]
 		alertRule := AlertRule{
 			Alert: rule.Alert,
-			Expr: rule.Expr,
-			For:  rule.For,
+			Expr:  rule.Expr,
+			For:   rule.For,
 			Labels: map[string]string{
 				"team": alert.GetTeamName(),
 			},
