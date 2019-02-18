@@ -3,6 +3,7 @@ package updater
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
@@ -65,6 +66,9 @@ func AddOrUpdateReceivers(alert *v1alpha1.Alert, alertManager map[interface{}]in
 	if alert.Spec.Receivers.Slack.Channel != "" {
 		slack := getDefaultSlackConfig()
 		slack.Channel = alert.Spec.Receivers.Slack.Channel
+		if !strings.HasPrefix(slack.Channel, "#") {
+			slack.Channel = "#"+slack.Channel
+		}
 		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
 	}
 	if alert.Spec.Receivers.Email.To != "" {
