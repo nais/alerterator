@@ -8,12 +8,12 @@ import (
 )
 
 type AlertGroups struct {
-	Groups []AlertGroup
+	Groups []AlertGroup `yaml:"groups"`
 }
 
 type AlertGroup struct {
-	Name  string
-	Rules []AlertRule
+	Name  string      `yaml:"name"`
+	Rules []AlertRule `yaml:"rules"`
 }
 
 type AlertRule struct {
