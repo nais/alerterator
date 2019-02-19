@@ -10,6 +10,9 @@ jobs:
       - setup_remote_docker
       - checkout
       - run:
+          name: Run tests before release
+          command: make test
+      - run:
           name: Create workspace
           command: mkdir -p /tmp/workspace
       - run:
