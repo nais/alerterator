@@ -104,14 +104,6 @@ templates:
 		},
 	}
 
-	t.Run("Test that alerts get deleted", func(t *testing.T) {
-		ok := configMap.Data["test.yml"]
-		assert.NotEmpty(t, ok)
-		configMap := updater.DeleteAlert("test", configMap)
-		ok = configMap.Data["test.yml"]
-		assert.Empty(t, ok)
-	})
-
 	t.Run("Test for error if alertmanager.yml is missing", func(t *testing.T) {
 		_, err := deleteReceivers(nil, &v1.ConfigMap{})
 		assert.Error(t, err)
