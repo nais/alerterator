@@ -11,20 +11,20 @@ import (
 
 type slackConfig struct {
 	Channel      string `mapstructure:"channel" yaml:"channel"`
-	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolve"`
+	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
 	Title        string `mapstructure:"title" yaml:"title"`
 	Text         string `mapstructure:"text" yaml:"text"`
 	Username     string `mapstructure:"username" yaml:"username"`
 }
 
 type emailConfig struct {
-	To          string `mapstructure:"to" yaml:"to"`
-	SendResolve bool   `mapstructure:"send_resolve" yaml:"send_resolve"`
+	To           string `mapstructure:"to" yaml:"to"`
+	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
 }
 
 func getDefaultEmailConfig() emailConfig {
 	return emailConfig{
-		SendResolve: true,
+		SendResolved: true,
 	}
 }
 
