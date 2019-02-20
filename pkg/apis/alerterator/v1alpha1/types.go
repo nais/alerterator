@@ -37,7 +37,8 @@ type Slack struct {
 }
 
 type Email struct {
-	To string `json:"to"`
+	To           string `json:"to"`
+	SendResolved bool   `json:"send_resolved"`
 }
 
 type Receivers struct {

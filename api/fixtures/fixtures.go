@@ -2,7 +2,7 @@ package fixtures
 
 import (
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
-	v1 "k8s.io/api/core/v1"
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -190,7 +190,7 @@ receivers:
     username: 'Alertmanager in '
   email:
   - to: test@example.com
-    send_resolved: true
+    send_resolved: false
 route:
   group_by:
   - alertname
