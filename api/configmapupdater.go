@@ -2,22 +2,19 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/nais/alerterator/api/updater"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes/typed/core/v1"
+	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 const (
 	configMapAlerts       = "alerterator-rules"
 	configMapAlertmanager = "nais-prometheus-prometheus-alertmanager"
 )
-
-func validate() {
-
-}
 
 func addOrUpdateReceivers(alert *v1alpha1.Alert, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 	if configMap.Data == nil {
