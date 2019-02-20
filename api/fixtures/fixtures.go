@@ -212,6 +212,7 @@ receivers:
     send_resolved: true
     title: '{{ template "nais-alert.title" . }}'
     text: '{{ template "nais-alert.text" . }}'
+    color: '{{ template "nais-alert.color" . }}'
     username: 'Alertmanager in '
   email:
   - to: test@example.com

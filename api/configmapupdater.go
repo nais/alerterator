@@ -15,6 +15,10 @@ const (
 	configMapAlertmanager = "nais-prometheus-prometheus-alertmanager"
 )
 
+func validate() {
+
+}
+
 func addOrUpdateReceivers(alert *v1alpha1.Alert, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 	if configMap.Data == nil {
 		return nil, fmt.Errorf("alertmanager is not properly set up, missing alertmanager.yml")

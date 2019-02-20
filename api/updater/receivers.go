@@ -13,6 +13,7 @@ type slackConfig struct {
 	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
 	Title        string `mapstructure:"title" yaml:"title"`
 	Text         string `mapstructure:"text" yaml:"text"`
+	Color        string `mapstructure:"color" yaml:"color,omitempty"`
 	Username     string `mapstructure:"username" yaml:"username"`
 }
 
@@ -38,6 +39,7 @@ func getDefaultSlackConfig() slackConfig {
 		SendResolved: true,
 		Title:        "{{ template \"nais-alert.title\" . }}",
 		Text:         "{{ template \"nais-alert.text\" . }}",
+		Color:        "{{ template \"nais-alert.color\" . }}",
 		Username:     fmt.Sprintf("Alertmanager in %s", os.Getenv("NAIS_CLUSTER_NAME")),
 	}
 }
@@ -58,7 +60,7 @@ func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
 		slack := getDefaultSlackConfig()
 		slack.Channel = alert.Spec.Receivers.Slack.Channel
 		if !strings.HasPrefix(slack.Channel, "#") {
-			slack.Channel = "#"+slack.Channel
+			slack.Channel = "#" + slack.Channel
 		}
 		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
 	}
