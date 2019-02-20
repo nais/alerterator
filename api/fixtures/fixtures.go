@@ -32,6 +32,31 @@ var AlertResource = &v1alpha1.Alert{
 				Action:        "kubectl describe pod -l app=my-app",
 				Description:   "this is a description of the alert",
 				SLA:           "we need to fix this ASAP",
+				Severity:      "#eeeeee",
+			},
+		},
+	},
+}
+
+var MinimalAlertResource = &v1alpha1.Alert{
+	ObjectMeta: metav1.ObjectMeta{
+		Name: "aura",
+		Labels: map[string]string{
+			"team": "aura",
+		},
+	},
+	Spec: v1alpha1.AlertSpec{
+		Receivers: v1alpha1.Receivers{
+			Slack: v1alpha1.Slack{
+				Channel: "#nais-alerts-dev",
+			},
+		},
+		Alerts: []v1alpha1.Rule{
+			{
+				Alert:  "app is down",
+				For:    "2m",
+				Expr:   "kube_deployment_status_replicas_unavailable{deployment=\"my-app\"} > 0",
+				Action: "kubectl describe pod -l app=my-app",
 			},
 		},
 	},
@@ -232,6 +257,7 @@ var ExpectedConfigMapAfterAlerts = &v1.ConfigMap{
       description: this is a description of the alert
       documentation: some documentation, or link to documentation
       prependText: <!here>
+      severity: '#eeeeee'
       sla: we need to fix this ASAP
     labels:
       team: aura

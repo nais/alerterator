@@ -54,6 +54,7 @@ type Rule struct {
 	Action        string `json:"action"`
 	Documentation string `json:"documentation"`
 	SLA           string `json:"sla"`
+	Severity      string `json:"severity"`
 }
 
 type AlertSpec struct {

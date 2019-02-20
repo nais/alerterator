@@ -23,5 +23,14 @@ func TestAlerts(t *testing.T) {
 		assert.Equal(t, alert.Action, alertRule.Annotations["action"])
 		assert.Equal(t, alert.SLA, alertRule.Annotations["sla"])
 		assert.Equal(t, fixtures.AlertResource.Spec.Receivers.Slack.PrependText, alertRule.Annotations["prependText"])
+		assert.Equal(t, alert.Severity, alertRule.Annotations["severity"])
+	})
+
+	t.Run("If severity not set, it is danger", func(t *testing.T) {
+		alertRules := createAlertRules(fixtures.MinimalAlertResource)
+		assert.Len(t, alertRules, 1)
+
+		alertRule := alertRules[0]
+		assert.Equal(t, "danger", alertRule.Annotations["severity"])
 	})
 }

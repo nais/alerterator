@@ -40,7 +40,11 @@ func createAlertRules(alert *v1alpha1.Alert) (alertRules []AlertRule) {
 				"documentation": rule.Documentation,
 				"prependText":   alert.Spec.Receivers.Slack.PrependText,
 				"sla":           rule.SLA,
+				"severity":      rule.Severity,
 			},
+		}
+		if alertRule.Annotations["severity"] == "" {
+			alertRule.Annotations["severity"] = "danger"
 		}
 		alertRules = append(alertRules, alertRule)
 	}
