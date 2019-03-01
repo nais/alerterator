@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -54,7 +54,7 @@ func init() {
 func isAlive(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "Alive.")
 	if err != nil {
-		glog.Error("Failing when responding with Alive", err)
+		log.Error("Failing when responding with Alive", err)
 	}
 	HttpRequests.Inc()
 }
@@ -62,7 +62,7 @@ func isAlive(w http.ResponseWriter, r *http.Request) {
 func isReady(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "Ready.")
 	if err != nil {
-		glog.Error("Failing when responding with Ready", err)
+		log.Error("Failing when responding with Ready", err)
 	}
 	HttpRequests.Inc()
 }
@@ -73,9 +73,9 @@ func Serve(addr, metrics, ready, alive string) {
 	h.Handle(metrics, promhttp.Handler())
 	h.HandleFunc(ready, isReady)
 	h.HandleFunc(alive, isAlive)
-	glog.Infof("HTTP server started on %s", addr)
-	glog.Infof("Serving metrics on %s", metrics)
-	glog.Infof("Serving readiness check on %s", ready)
-	glog.Infof("Serving liveness check on %s", alive)
-	glog.Info(http.ListenAndServe(addr, h))
+	log.Infof("HTTP server started on %s", addr)
+	log.Infof("Serving metrics on %s", metrics)
+	log.Infof("Serving readiness check on %s", ready)
+	log.Infof("Serving liveness check on %s", alive)
+	log.Info(http.ListenAndServe(addr, h))
 }

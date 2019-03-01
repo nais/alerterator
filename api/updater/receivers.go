@@ -2,10 +2,11 @@ package updater
 
 import (
 	"fmt"
-	"github.com/mitchellh/mapstructure"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 	"os"
 	"strings"
+
+	"github.com/mitchellh/mapstructure"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 )
 
 type slackConfig struct {

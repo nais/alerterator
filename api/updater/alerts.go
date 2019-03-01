@@ -2,6 +2,7 @@ package updater
 
 import (
 	"fmt"
+
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 	"gopkg.in/yaml.v2"
 	"k8s.io/api/core/v1"

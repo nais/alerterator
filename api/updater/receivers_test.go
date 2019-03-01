@@ -1,9 +1,10 @@
 package updater
 
 import (
+	"testing"
+
 	"github.com/nais/alerterator/api/fixtures"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestReceivers(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/nais/alerterator/api"
 
-	"github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 	clientV1Alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
 	informers "github.com/nais/alerterator/pkg/client/informers/externalversions/alerterator/v1alpha1"
@@ -56,11 +56,11 @@ func (n *Alerterator) reportEvent(event *corev1.Event) (*corev1.Event, error) {
 
 // Reports an error through the error log, a Kubernetes event, and possibly logs a failure in event creation.
 func (n *Alerterator) reportError(source string, err error, alert *v1alpha1.Alert) {
-	glog.Error(err)
+	log.Error(err)
 	ev := alert.CreateEvent(source, err.Error(), "Warning")
 	_, err = n.reportEvent(ev)
 	if err != nil {
-		glog.Errorf("While creating an event for this error, another error occurred: %s", err)
+		log.Errorf("While creating an event for this error, another error occurred: %s", err)
 	}
 }
 
@@ -70,7 +70,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 		return fmt.Errorf("while hashing alert spec: %s", err)
 	}
 	if alert.LastSyncedHash() == hash {
-		glog.Infof("%s: no changes", alert.Name)
+		log.Infof("%s: no changes", alert.Name)
 		return nil
 	}
 	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
@@ -90,7 +90,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	metrics.Alerts.Inc()
 
 	alert.SetLastSyncedHash(hash)
-	glog.Infof("%s: setting new hash %s", alert.Name, hash)
+	log.Infof("%s: setting new hash %s", alert.Name, hash)
 
 	alert.NilFix()
 	_, err = n.AppClient.AlerteratorV1alpha1().Alerts().Update(alert)
@@ -100,7 +100,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 
 	_, err = n.reportEvent(alert.CreateEvent("synchronize", fmt.Sprintf("successfully synchronized alert resources (hash = %s)", hash), "Normal"))
 	if err != nil {
-		glog.Errorf("While creating an event for this error, another error occurred: %s", err)
+		log.Errorf("While creating an event for this error, another error occurred: %s", err)
 	}
 
 	return nil
@@ -116,21 +116,21 @@ func (n *Alerterator) update(old, new interface{}) {
 	}
 
 	metrics.AlertsProcessed.Inc()
-	glog.Infof("%s: synchronizing alert", alert.Name)
+	log.Infof("%s: synchronizing alert", alert.Name)
 
 	if err := n.synchronize(previous, alert); err != nil {
 		metrics.AlertsFailed.Inc()
-		glog.Errorf("%s: error %s", alert.Name, err)
+		log.Errorf("%s: error %s", alert.Name, err)
 		n.reportError("synchronize", err, alert)
 	} else {
-		glog.Infof("%s: synchronized successfully", alert.Name)
+		log.Infof("%s: synchronized successfully", alert.Name)
 	}
 
-	glog.Infof("%s: finished synchronizing", alert.Name)
+	log.Infof("%s: finished synchronizing", alert.Name)
 }
 
 func (n *Alerterator) add(alert interface{}) {
-	glog.Info("Applying new alert")
+	log.Info("Applying new alert")
 	metrics.AlertsApplied.Inc()
 	n.update(nil, alert)
 }
@@ -145,30 +145,30 @@ func (n *Alerterator) delete(delete interface{}) {
 	err := api.DeleteReceiversFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		metrics.AlertsFailed.Inc()
-		glog.Errorf("while deleting %s from AlertManager.yml configMap: %s", alert.Name, err)
+		log.Errorf("while deleting %s from AlertManager.yml configMap: %s", alert.Name, err)
 		return
 	}
 
 	err = api.DeleteAlertFromConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		metrics.AlertsFailed.Inc()
-		glog.Errorf("while deleting rules for %s from the configMap: %s", alert.Name, err)
+		log.Errorf("while deleting rules for %s from the configMap: %s", alert.Name, err)
 		return
 	}
 
-	glog.Infof("%s: deleted", alert.Name)
+	log.Infof("%s: deleted", alert.Name)
 	metrics.AlertsDeleted.Inc()
 
 	_, err = n.reportEvent(alert.CreateEvent("synchronize", fmt.Sprintf("successfully deleted alert resources (name = %s)", alert.Name), "Normal"))
 	if err != nil {
-		glog.Errorf("While creating an event for this error, another error occurred: %s", err)
+		log.Errorf("While creating an event for this error, another error occurred: %s", err)
 	}
 }
 
 func (n *Alerterator) Run(stop <-chan struct{}) {
-	glog.Info("Starting alert synchronization")
+	log.Info("Starting alert synchronization")
 	if !cache.WaitForCacheSync(stop, n.AlertInformerSynced) {
-		glog.Error("timed out waiting for cache sync")
+		log.Error("timed out waiting for cache sync")
 		return
 	}
 }

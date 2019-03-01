@@ -2,7 +2,8 @@ package updater
 
 import (
 	"fmt"
-	"github.com/golang/glog"
+
+	log "github.com/sirupsen/logrus"
 	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 )
@@ -54,7 +55,7 @@ func AddOrUpdateRoutes(alert *v1alpha1.Alert, alertManager map[interface{}]inter
 	}
 
 	if missingAlertRoute(alert.Name, route.Routes) {
-		glog.Infof("Route missing for %s", alert.Name)
+		log.Infof("Route missing for %s", alert.Name)
 		routes := routeConfig{
 			Receiver: alert.Name,
 			Continue: true,
@@ -78,10 +79,10 @@ func DeleteRoute(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}
 
 	index := getAlertRouteIndex(alert.Name, route.Routes)
 	if index == -1 {
-		glog.Infof("No route with the name %s", alert.Name)
+		log.Infof("No route with the name %s", alert.Name)
 		return nil
 	}
-	glog.Info(route.GroupWait)
+	log.Info(route.GroupWait)
 	route.Routes = append(route.Routes[:index], route.Routes[index+1:]...)
 	alertManager["route"] = route
 

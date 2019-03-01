@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/nais/alerterator/api/updater"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 	"gopkg.in/yaml.v2"

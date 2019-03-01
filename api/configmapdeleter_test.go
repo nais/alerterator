@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/nais/alerterator/api/fixtures"
 	"testing"
 
+	"github.com/nais/alerterator/api/fixtures"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/api/core/v1"
 )
