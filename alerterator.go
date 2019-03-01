@@ -2,13 +2,13 @@ package alerterator
 
 import (
 	"fmt"
-	"github.com/nais/alerterator/api"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/nais/alerterator/api"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 	clientV1Alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
 	informers "github.com/nais/alerterator/pkg/client/informers/externalversions/alerterator/v1alpha1"
 	"github.com/nais/alerterator/pkg/metrics"
+	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
@@ -87,10 +87,9 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 		return fmt.Errorf("while adding rules to configMap: %s", err)
 	}
 
-	metrics.Alerts.Inc()
-
 	alert.SetLastSyncedHash(hash)
 	log.Infof("%s: setting new hash %s", alert.Name, hash)
+	metrics.AlertsProcessed.Inc()
 
 	alert.NilFix()
 	_, err = n.AppClient.AlerteratorV1alpha1().Alerts().Update(alert)
@@ -101,6 +100,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	_, err = n.reportEvent(alert.CreateEvent("synchronize", fmt.Sprintf("successfully synchronized alert resources (hash = %s)", hash), "Normal"))
 	if err != nil {
 		log.Errorf("While creating an event for this error, another error occurred: %s", err)
+		metrics.AlertsFailedEvent.Inc()
 	}
 
 	return nil
@@ -115,7 +115,6 @@ func (n *Alerterator) update(old, new interface{}) {
 		alert = new.(*v1alpha1.Alert)
 	}
 
-	metrics.AlertsProcessed.Inc()
 	log.Infof("%s: synchronizing alert", alert.Name)
 
 	if err := n.synchronize(previous, alert); err != nil {
@@ -124,15 +123,28 @@ func (n *Alerterator) update(old, new interface{}) {
 		n.reportError("synchronize", err, alert)
 	} else {
 		log.Infof("%s: synchronized successfully", alert.Name)
+		metrics.AlertsUpdate.Inc()
 	}
 
 	log.Infof("%s: finished synchronizing", alert.Name)
 }
 
-func (n *Alerterator) add(alert interface{}) {
+func (n *Alerterator) add(newAlert interface{}) {
 	log.Info("Applying new alert")
-	metrics.AlertsApplied.Inc()
-	n.update(nil, alert)
+	alert := newAlert.(*v1alpha1.Alert)
+
+	log.Infof("%s: adding alert", alert.Name)
+
+	if err := n.synchronize(nil, alert); err != nil {
+		metrics.AlertsFailed.Inc()
+		log.Errorf("%s: error %s", alert.Name, err)
+		n.reportError("adding", err, alert)
+	} else {
+		log.Infof("%s: adding successfully", alert.Name)
+		metrics.AlertsApplied.Inc()
+	}
+
+	log.Infof("%s: finished adding", alert.Name)
 }
 
 func (n *Alerterator) delete(delete interface{}) {
@@ -162,6 +174,7 @@ func (n *Alerterator) delete(delete interface{}) {
 	_, err = n.reportEvent(alert.CreateEvent("synchronize", fmt.Sprintf("successfully deleted alert resources (name = %s)", alert.Name), "Normal"))
 	if err != nil {
 		log.Errorf("While creating an event for this error, another error occurred: %s", err)
+		metrics.AlertsFailedEvent.Inc()
 	}
 }
 
