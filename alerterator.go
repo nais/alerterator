@@ -69,10 +69,6 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	if err != nil {
 		return fmt.Errorf("while hashing alert spec: %s", err)
 	}
-	if alert.LastSyncedHash() == hash {
-		log.Infof("%s: no changes", alert.Name)
-		return nil
-	}
 	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
 	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
 	alert.Namespace = "default"
@@ -80,6 +76,11 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	err = api.UpdateAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		return fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
+	}
+
+	if alert.LastSyncedHash() == hash {
+		log.Infof("%s: no changes", alert.Name)
+		return nil
 	}
 
 	err = api.UpdateAppRulesConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
