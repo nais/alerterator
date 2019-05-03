@@ -80,6 +80,8 @@ func (in *Alert) CreateEvent(reason, message, typeStr string) *corev1.Event {
 		Source:              corev1.EventSource{Component: "alerterator"},
 		Message:             message,
 		EventTime:           metav1.MicroTime{Time: time.Now()},
+		FirstTimestamp:      metav1.Time{Time: time.Now()},
+		LastTimestamp:       metav1.Time{Time: time.Now()},
 		Type:                typeStr,
 	}
 }
