@@ -8,14 +8,10 @@ import (
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
 )
 
-type matchConfig struct {
-	Alert string `mapstructure:"alert" yaml:"alert"`
-}
-
 type routeConfig struct {
-	Receiver string      `mapstructure:"receiver" yaml:"receiver"`
-	Continue bool        `mapstructure:"continue" yaml:"continue"`
-	Match    matchConfig `mapstructure:"match" yaml:"match"`
+	Receiver string            `mapstructure:"receiver" yaml:"receiver"`
+	Continue bool              `mapstructure:"continue" yaml:"continue"`
+	Match    map[string]string `mapstructure:"match" yaml:"match"`
 }
 
 type routesConfig struct {
@@ -59,8 +55,8 @@ func AddOrUpdateRoutes(alert *v1alpha1.Alert, alertManager map[interface{}]inter
 		routes := routeConfig{
 			Receiver: alert.Name,
 			Continue: true,
-			Match: matchConfig{
-				Alert: alert.Name,
+			Match: map[string]string{
+				"alert": alert.Name,
 			},
 		}
 		route.Routes = append(route.Routes, routes)
