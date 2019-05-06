@@ -241,6 +241,58 @@ templates:
 	},
 }
 
+
+var ConfigMapMixed = &v1.ConfigMap{
+	Data: map[string]string{
+		"alertmanager.yml": `global:
+  http_config:
+    proxy_url: http://webproxy.nais:8088
+  slack_api_url: web-site.com
+  smtp_auth_password: blorg
+  smtp_auth_username: blarg
+  smtp_from: srvKubernetesAlarm@nav.no
+  smtp_require_tls: false
+  smtp_smarthost: smtp.preprod.local:26
+receivers:
+- name: testmann-slack
+  slack_configs:
+  - channel: '#nais-alerts-testmann'
+    send_resolved: true
+    title: '{{ template "nais-alert.title" . }}'
+    text: '{{ template "nais-alert.text" . }}'
+    username: Alertmanager in preprod-fss
+- name: aura
+  slack_configs:
+  - channel: '#nais-alerts-dev'
+    send_resolved: true
+    title: '{{ template "nais-alert.title" . }}'
+    text: '{{ template "nais-alert.text" . }}'
+    color: '{{ template "nais-alert.color" . }}'
+    username: 'Alertmanager in '
+route:
+  group_by:
+  - alertname
+  - team
+  - kubernetes_namespace
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: default-receiver
+  routes:
+  - receiver: testmann-slack
+    continue: true
+    match:
+      team: testmann
+  - receiver: aura
+    continue: true
+    match:
+      alert: aura
+templates:
+- /etc/config/alert.tmpl
+`,
+	},
+}
+
 var ConfigMapBeforeAlerts = &v1.ConfigMap{
 	Data: map[string]string{},
 }

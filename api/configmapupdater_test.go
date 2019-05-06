@@ -26,4 +26,10 @@ func TestConfigMapUpdater(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, fixtures.ExpectedConfigMapAfterReceivers.Data["alertmanager.yml"], configMap.Data["alertmanager.yml"])
 	})
+
+	t.Run("Test that Naisd-alerts is not affected by Alerterator", func(t *testing.T) {
+		configMap, err := addOrUpdateReceivers(fixtures.AlertResource, fixtures.ConfigMapMixed)
+		assert.NoError(t, err)
+		assert.Equal(t, fixtures.ConfigMapMixed.Data["alertmanager.yml"], configMap.Data["alertmanager.yml"])
+	})
 }
