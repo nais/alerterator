@@ -10,7 +10,7 @@ var AlertResource = &v1alpha1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "aura",
 		Labels: map[string]string{
-			"team": "aura",
+			"alert": "aura",
 		},
 	},
 	Spec: v1alpha1.AlertSpec{
@@ -42,7 +42,7 @@ var MinimalAlertResource = &v1alpha1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "aura",
 		Labels: map[string]string{
-			"team": "aura",
+			"alert": "aura",
 		},
 	},
 	Spec: v1alpha1.AlertSpec{
@@ -101,11 +101,11 @@ route:
     - receiver: aura
       continue: true
       match:
-        team: aura
+        alert: aura
     - receiver: testmann
       continue: true
       match:
-        team: testmann`,
+        alert: testmann`,
 	},
 }
 
@@ -141,7 +141,7 @@ route:
   - receiver: testmann
     continue: true
     match:
-      team: testmann
+      alert: testmann
 templates:
 - /etc/config/alert.tmpl
 `,
@@ -181,7 +181,7 @@ route:
   - receiver: testmann
     continue: true
     match:
-      team: testmann
+      alert: testmann
 templates:
 - /etc/config/alert.tmpl`,
 	},
@@ -230,11 +230,11 @@ route:
   - receiver: testmann
     continue: true
     match:
-      team: testmann
+      alert: testmann
   - receiver: aura
     continue: true
     match:
-      team: aura
+      alert: aura
 templates:
 - /etc/config/alert.tmpl
 `,
@@ -261,7 +261,7 @@ var ExpectedConfigMapAfterAlerts = &v1.ConfigMap{
       severity: '#eeeeee'
       sla: we need to fix this ASAP
     labels:
-      team: aura
+      alert: aura
 `,
 	},
 }

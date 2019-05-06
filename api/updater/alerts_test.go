@@ -13,7 +13,7 @@ func TestAlerts(t *testing.T) {
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
-		assert.Equal(t, fixtures.AlertResource.GetTeamName(), alertRule.Labels["team"])
+		assert.Equal(t, fixtures.AlertResource.Name, alertRule.Labels["alert"])
 
 		alert := fixtures.AlertResource.Spec.Alerts[0]
 		assert.Equal(t, alert.For, alertRule.For)

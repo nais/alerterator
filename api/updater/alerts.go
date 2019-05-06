@@ -33,7 +33,7 @@ func createAlertRules(alert *v1alpha1.Alert) (alertRules []AlertRule) {
 			Expr:  rule.Expr,
 			For:   rule.For,
 			Labels: map[string]string{
-				"team": alert.GetTeamName(),
+				"alert": alert.Name,
 			},
 			Annotations: map[string]string{
 				"action":        rule.Action,

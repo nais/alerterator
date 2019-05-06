@@ -9,7 +9,7 @@ import (
 )
 
 type matchConfig struct {
-	Team string `mapstructure:"team" yaml:"team"`
+	Alert string `mapstructure:"alert" yaml:"alert"`
 }
 
 type routeConfig struct {
@@ -60,7 +60,7 @@ func AddOrUpdateRoutes(alert *v1alpha1.Alert, alertManager map[interface{}]inter
 			Receiver: alert.Name,
 			Continue: true,
 			Match: matchConfig{
-				Team: alert.GetTeamName(),
+				Alert: alert.Name,
 			},
 		}
 		route.Routes = append(route.Routes, routes)

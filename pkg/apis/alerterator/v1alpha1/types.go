@@ -62,10 +62,6 @@ type AlertSpec struct {
 	Alerts    []Rule    `json:"alerts"`
 }
 
-func (in *Alert) GetTeamName() string {
-	return in.Labels["team"]
-}
-
 func (in *Alert) CreateEvent(reason, message, typeStr string) *corev1.Event {
 	return &corev1.Event{
 		ObjectMeta: metav1.ObjectMeta{
