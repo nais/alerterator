@@ -116,7 +116,7 @@ func (n *Alerterator) update(old, new interface{}) {
 		alert = new.(*v1alpha1.Alert)
 	}
 
-	log.Infof("%s: synchronizing alert", alert.Name)
+	log.Infof("%s: synchronizing alert-resource", alert.Name)
 
 	if err := n.synchronize(previous, alert); err != nil {
 		metrics.AlertsFailed.Inc()
@@ -131,10 +131,9 @@ func (n *Alerterator) update(old, new interface{}) {
 }
 
 func (n *Alerterator) add(newAlert interface{}) {
-	log.Info("Applying new alert")
 	alert := newAlert.(*v1alpha1.Alert)
 
-	log.Infof("%s: adding alert", alert.Name)
+	log.Infof("%s: adding alert-resource", alert.Name)
 
 	if err := n.synchronize(nil, alert); err != nil {
 		metrics.AlertsFailed.Inc()
