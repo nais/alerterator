@@ -145,4 +145,5 @@ func (in *Alert) SetLastSyncedHash(hash string) {
 		a = make(map[string]string)
 	}
 	a[LastSyncedHashAnnotation] = hash
+	in.SetAnnotations(a)
 }
