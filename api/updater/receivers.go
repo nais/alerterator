@@ -32,7 +32,7 @@ func getDefaultEmailConfig() emailConfig {
 type receiverConfig struct {
 	Name         string        `mapstructure:"name" yaml:"name"`
 	SlackConfigs []slackConfig `mapstructure:"slack_configs" yaml:"slack_configs,omitempty"`
-	EmailConfigs []emailConfig `mapstructure:"email" yaml:"email,omitempty"`
+	EmailConfigs []emailConfig `mapstructure:"email_configs" yaml:"email,omitempty"`
 }
 
 func getDefaultSlackConfig() slackConfig {
