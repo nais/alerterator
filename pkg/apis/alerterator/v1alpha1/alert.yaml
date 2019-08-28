@@ -39,14 +39,17 @@ spec:
             - alerts
           properties:
             receivers:
+              type: object
               properties:
                 slack:
+                  type: object
                   properties:
                     channel:
                       type: string
                     prependText:
                       type: string
                 email:
+                  type: object
                   properties:
                     to:
                       type: string
