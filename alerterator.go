@@ -79,7 +79,6 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	}
 
 	if alert.LastSyncedHash() == hash {
-		log.Infof("%s: no changes", alert.Name)
 		return nil
 	}
 
@@ -116,35 +115,26 @@ func (n *Alerterator) update(old, new interface{}) {
 		alert = new.(*v1alpha1.Alert)
 	}
 
-	log.Infof("%s: synchronizing alert-resource", alert.Name)
-
 	if err := n.synchronize(previous, alert); err != nil {
 		metrics.AlertsFailed.Inc()
 		log.Errorf("%s: error %s", alert.Name, err)
 		n.reportError("synchronize", err, alert)
 	} else {
-		log.Infof("%s: synchronized successfully", alert.Name)
 		metrics.AlertsUpdate.Inc()
 	}
-
-	log.Infof("%s: finished synchronizing", alert.Name)
 }
 
 func (n *Alerterator) add(newAlert interface{}) {
 	alert := newAlert.(*v1alpha1.Alert)
-
-	log.Infof("%s: adding alert-resource", alert.Name)
 
 	if err := n.synchronize(nil, alert); err != nil {
 		metrics.AlertsFailed.Inc()
 		log.Errorf("%s: error %s", alert.Name, err)
 		n.reportError("adding", err, alert)
 	} else {
-		log.Infof("%s: adding successfully", alert.Name)
+		log.Infof("%s: added successfully", alert.Name)
 		metrics.AlertsApplied.Inc()
 	}
-
-	log.Infof("%s: finished adding", alert.Name)
 }
 
 func (n *Alerterator) delete(delete interface{}) {
