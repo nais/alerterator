@@ -22,7 +22,7 @@ func TestReceivers(t *testing.T) {
 		assert.Equal(t, receivers.Slack.PrependText, fixtures.AlertResource.Spec.Receivers.Slack.PrependText)
 	})
 
-	t.Run("Valider at send_resolved for email is kept", func(t *testing.T) {
+	t.Run("Valider at send_resolved for email blir beholdt", func(t *testing.T) {
 		alert := fixtures.AlertResource
 		alert.Spec.Receivers.Email.SendResolved = true
 		receiver := createReceiver(alert)
