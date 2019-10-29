@@ -25,3 +25,32 @@ func TestNilFix(t *testing.T) {
 	assert.NotNil(t, alert.Spec.Receivers)
 	assert.NotNil(t, alert.Spec.Alerts)
 }
+
+func TestAlertRulesValidationWithEmptyForValue(t *testing.T) {
+	alert := GenerateAlertWithForValue("")
+	err := alert.ValidateAlertFields()
+	assert.Error(t, err)
+}
+
+func TestAlertRulesValidationWithValidForValue(t *testing.T) {
+	alert := GenerateAlertWithForValue("1m")
+	err := alert.ValidateAlertFields()
+	assert.NoError(t, err)
+}
+
+func TestAlertRulersValidationWithInvalidForValue(t *testing.T) {
+	alert := GenerateAlertWithForValue("foo")
+	err := alert.ValidateAlertFields()
+	assert.Error(t, err)
+}
+
+func GenerateAlertWithForValue(forValue string) v1alpha1.Alert {
+	return v1alpha1.Alert{Spec: v1alpha1.AlertSpec{Alerts: []v1alpha1.Rule{
+		{
+			Alert:  "app is down",
+			For:    forValue,
+			Expr:   "kube_deployment_status_replicas_unavailable{deployment=\"my-app\"} > 0",
+			Action: "kubectl describe pod -l app=my-app",
+		},
+	}}}
+}

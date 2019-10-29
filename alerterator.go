@@ -73,6 +73,11 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
 	alert.Namespace = "default"
 
+	err = alert.ValidateAlertFields()
+	if err != nil {
+		return fmt.Errorf("while validating alert fields: %s", err)
+	}
+
 	err = api.UpdateAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		return fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
