@@ -40,9 +40,6 @@ spec:
           properties:
             receivers:
               type: object
-              required:
-                - slack
-                - email
               properties:
                 slack:
                   type: object
