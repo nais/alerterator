@@ -104,7 +104,9 @@ func DeleteReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interfac
 	}
 
 	index := getReceiverIndexByName(alert.Name, receivers)
-	receivers = append(receivers[:index], receivers[index+1:]...)
+	if index != -1 {
+		receivers = append(receivers[:index], receivers[index+1:]...)
+	}
 	alertManager["receivers"] = receivers
 
 	return nil

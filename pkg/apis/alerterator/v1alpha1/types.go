@@ -1,16 +1,24 @@
 package v1alpha1
 
 import (
+	"regexp"
 	"strconv"
 	"time"
 
 	hash "github.com/mitchellh/hashstructure"
+	"gopkg.in/go-playground/validator.v9"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 const LastSyncedHashAnnotation = "nais.io/lastSyncedHash"
+const PrometheusRangeRegexPattern = "\\d+[smhdwy]"
+
+var (
+	Validate *validator.Validate
+	PrometheusRangeRegex = regexp.MustCompile(PrometheusRangeRegexPattern)
+)
 
 // +genclient:nonNamespaced
 
@@ -50,7 +58,7 @@ type Rule struct {
 	Alert         string `json:"alert"`
 	Description   string `json:"description"`
 	Expr          string `json:"expr"`
-	For           string `json:"for"`
+	For           string `json:"for" validate:"required,prometheus_range"`
 	Action        string `json:"action"`
 	Documentation string `json:"documentation"`
 	SLA           string `json:"sla"`
@@ -59,7 +67,7 @@ type Rule struct {
 
 type AlertSpec struct {
 	Receivers Receivers `json:"receivers"`
-	Alerts    []Rule    `json:"alerts"`
+	Alerts    []Rule    `json:"alerts" validate:"dive"`
 }
 
 func (in *Alert) CreateEvent(reason, message, typeStr string) *corev1.Event {
@@ -146,4 +154,14 @@ func (in *Alert) SetLastSyncedHash(hash string) {
 	}
 	a[LastSyncedHashAnnotation] = hash
 	in.SetAnnotations(a)
+}
+
+func (in *Alert) ValidateAlertFields() error {
+	Validate = validator.New()
+	_ = Validate.RegisterValidation("prometheus_range", IsValidPrometheusRange)
+	return Validate.Struct(in)
+}
+
+func IsValidPrometheusRange(fl validator.FieldLevel) bool {
+	return PrometheusRangeRegex.MatchString(fl.Field().String())
 }
