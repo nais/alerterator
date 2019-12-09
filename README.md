@@ -5,7 +5,7 @@ Alerterator is a Kubernetes operator for managing Prometheus Alertmanager alerts
 
 As alerts are namespace agnostic, you don't have to have different files for each namespace you are running (although we don't recommend running you application in different namespaces). You can even make your own personal alert-resources that only notifes you!
 
-The documentation for how to start using alerts are over at [nais.io/doc](https://github.com/nais/doc/tree/master/content/alerts).
+The documentation for how to start using alerts are over at https://doc.nais.io/observability/alerts.
 
 
 ## Deployment
