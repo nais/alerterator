@@ -65,9 +65,7 @@ make test
 #### Local
 
 ```
-kubectl apply -f ./hack/resources/00-namespace.yaml
-kubeclt apply -f ./testing/default-app-rules.yaml
-kubectl apply -f ./testing/default-alertmanager.yaml
+kubeclt apply -f ./testing/
 kubeclt apply -f ./pkg/apis/alerterator/v1alpha1/alert.yaml
 
 make build
