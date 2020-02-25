@@ -62,9 +62,7 @@ var MinimalAlertResource = &v1alpha1.Alert{
 	},
 }
 
-var ConfigMapBeforeDelete = &v1.ConfigMap{
-	Data: map[string]string{
-		"alertmanager.yml": `
+var AlertmanagerConfigYaml = `
 global:
   slack_api_url: web-site.com
   http_config:
@@ -105,193 +103,16 @@ route:
     - receiver: testmann
       continue: true
       match:
-        alert: testmann`,
-	},
-}
+        alert: testmann`
 
-var ExpectedConfigMapAfterDelete = &v1.ConfigMap{
-	Data: map[string]string{
-		"alertmanager.yml": `global:
-  http_config:
-    proxy_url: http://webproxy.nais:8088
-  slack_api_url: web-site.com
-  smtp_auth_password: blorg
-  smtp_auth_username: blarg
-  smtp_from: srvKubernetesAlarm@nav.no
-  smtp_require_tls: false
-  smtp_smarthost: smtp.preprod.local:26
-receivers:
-- name: default-receiver
-  slack_configs:
-  - channel: '#nais-alerts-default'
-    send_resolved: true
-    title: '{{ template "nais-alert.title" . }}'
-    text: '{{ template "nais-alert.text" . }}'
-    username: Alertmanager in preprod-fss
+var AlertmanagerConfigYamlDifferentRoutes = `
 route:
-  group_by:
-  - alertname
-  - team
-  - kubernetes_namespace
-  group_wait: 10s
-  group_interval: 5m
-  repeat_interval: 1h
+  group_by: ['alertname','team', 'kubernetes_namespace']
+  group_wait: 100s
+  group_interval: 50m
+  repeat_interval: 10h
   receiver: default-receiver
-  routes:
-  - receiver: testmann
-    continue: true
-    match:
-      alert: testmann
-templates:
-- /etc/config/alert.tmpl
-`,
-	},
-}
-
-var ConfigMapBeforeAdd = &v1.ConfigMap{
-	Data: map[string]string{
-		"alertmanager.yml": `
-global:
-  http_config:
-    proxy_url: http://webproxy.nais:8088
-  slack_api_url: web-site.com
-  smtp_auth_password: blorg
-  smtp_auth_username: blarg
-  smtp_from: srvKubernetesAlarm@nav.no
-  smtp_require_tls: false
-  smtp_smarthost: smtp.preprod.local:26
-receivers:
-- name: default-receiver
-  slack_configs:
-  - channel: '#nais-alerts-default'
-    send_resolved: true
-    title: '{{ template "nais-alert.title" . }}'
-    text: '{{ template "nais-alert.text" . }}'
-    username: Alertmanager in preprod-fss
-route:
-  group_by:
-  - alertname
-  - team
-  - kubernetes_namespace
-  group_wait: 10s
-  group_interval: 5m
-  repeat_interval: 1h
-  receiver: default-receiver
-  routes:
-  - receiver: testmann
-    continue: true
-    match:
-      alert: testmann
-templates:
-- /etc/config/alert.tmpl`,
-	},
-}
-
-var ExpectedConfigMapAfterReceivers = &v1.ConfigMap{
-	Data: map[string]string{
-		"alertmanager.yml": `global:
-  http_config:
-    proxy_url: http://webproxy.nais:8088
-  slack_api_url: web-site.com
-  smtp_auth_password: blorg
-  smtp_auth_username: blarg
-  smtp_from: srvKubernetesAlarm@nav.no
-  smtp_require_tls: false
-  smtp_smarthost: smtp.preprod.local:26
-receivers:
-- name: default-receiver
-  slack_configs:
-  - channel: '#nais-alerts-default'
-    send_resolved: true
-    title: '{{ template "nais-alert.title" . }}'
-    text: '{{ template "nais-alert.text" . }}'
-    username: Alertmanager in preprod-fss
-- name: aura
-  slack_configs:
-  - channel: '#nais-alerts-dev'
-    send_resolved: true
-    title: '{{ template "nais-alert.title" . }}'
-    text: '{{ template "nais-alert.text" . }}'
-    color: '{{ template "nais-alert.color" . }}'
-    username: 'Alertmanager in '
-  email:
-  - to: test@example.com
-    send_resolved: false
-route:
-  group_by:
-  - alertname
-  - team
-  - kubernetes_namespace
-  group_wait: 10s
-  group_interval: 5m
-  repeat_interval: 1h
-  receiver: default-receiver
-  routes:
-  - receiver: testmann
-    continue: true
-    match:
-      alert: testmann
-  - receiver: aura
-    continue: true
-    match:
-      alert: aura
-templates:
-- /etc/config/alert.tmpl
-`,
-	},
-}
-
-
-var ConfigMapMixed = &v1.ConfigMap{
-	Data: map[string]string{
-		"alertmanager.yml": `global:
-  http_config:
-    proxy_url: http://webproxy.nais:8088
-  slack_api_url: web-site.com
-  smtp_auth_password: blorg
-  smtp_auth_username: blarg
-  smtp_from: srvKubernetesAlarm@nav.no
-  smtp_require_tls: false
-  smtp_smarthost: smtp.preprod.local:26
-receivers:
-- name: testmann-slack
-  slack_configs:
-  - channel: '#nais-alerts-testmann'
-    send_resolved: true
-    title: '{{ template "nais-alert.title" . }}'
-    text: '{{ template "nais-alert.text" . }}'
-    username: Alertmanager in preprod-fss
-- name: aura
-  slack_configs:
-  - channel: '#nais-alerts-dev'
-    send_resolved: true
-    title: '{{ template "nais-alert.title" . }}'
-    text: '{{ template "nais-alert.text" . }}'
-    color: '{{ template "nais-alert.color" . }}'
-    username: 'Alertmanager in '
-route:
-  group_by:
-  - alertname
-  - team
-  - kubernetes_namespace
-  group_wait: 10s
-  group_interval: 5m
-  repeat_interval: 1h
-  receiver: default-receiver
-  routes:
-  - receiver: testmann-slack
-    continue: true
-    match:
-      team: testmann
-  - receiver: aura
-    continue: true
-    match:
-      alert: aura
-templates:
-- /etc/config/alert.tmpl
-`,
-	},
-}
+  routes: []`
 
 var ConfigMapBeforeAlerts = &v1.ConfigMap{
 	Data: map[string]string{},

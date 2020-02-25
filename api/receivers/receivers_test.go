@@ -1,4 +1,4 @@
-package updater
+package receivers
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestReceivers(t *testing.T) {
-	t.Run("Validerer at Receivers blir opprettet riktig", func(t *testing.T) {
+	t.Run("Validating that receivers are created correctly", func(t *testing.T) {
 		receiver := createReceiver(fixtures.AlertResource)
 		assert.Equal(t, fixtures.AlertResource.Name, receiver.Name)
 		assert.Len(t, receiver.EmailConfigs, 1)
@@ -22,7 +22,7 @@ func TestReceivers(t *testing.T) {
 		assert.Equal(t, receivers.Slack.PrependText, fixtures.AlertResource.Spec.Receivers.Slack.PrependText)
 	})
 
-	t.Run("Valider at send_resolved for email blir beholdt", func(t *testing.T) {
+	t.Run("Valider at send_resolved for e-post blir beholdt", func(t *testing.T) {
 		alert := fixtures.AlertResource
 		alert.Spec.Receivers.Email.SendResolved = true
 		receiver := createReceiver(alert)
