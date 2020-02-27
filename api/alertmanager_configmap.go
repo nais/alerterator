@@ -57,7 +57,13 @@ func updateConfigMap(config map[interface{}]interface{}, configMapInterface v1.C
 
 func AddOrUpdateAlertmanagerConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
 	currentConfig, err := getConfig(alertmanagerConfigMapName, configMapInterface)
+	if err != nil {
+		return err
+	}
 	latestConfig, err := getConfig(alertmanagerTemplateConfigMapName, configMapInterface)
+	if err != nil {
+		return err
+	}
 
 	updatedRoutes, err := routes.AddOrUpdateRoutes(alert, currentConfig, latestConfig)
 	if err != nil {
@@ -78,6 +84,9 @@ func AddOrUpdateAlertmanagerConfigMap(configMapInterface v1.ConfigMapInterface, 
 
 func DeleteReceiversFromAlertManagerConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
 	config, err := getConfig(alertmanagerConfigMapName, configMapInterface)
+	if err != nil {
+		return err
+	}
 
 	err = routes.DeleteRoute(alert, config)
 	if err != nil {
