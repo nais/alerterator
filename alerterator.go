@@ -2,6 +2,7 @@ package alerterator
 
 import (
 	"fmt"
+	"github.com/nais/alerterator/api/rules"
 
 	"github.com/nais/alerterator/api"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
@@ -69,6 +70,11 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	if err != nil {
 		return fmt.Errorf("while hashing alert spec: %s", err)
 	}
+
+	if alert.LastSyncedHash() == hash {
+		return nil
+	}
+
 	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
 	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
 	alert.Namespace = "default"
@@ -78,16 +84,12 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 		return fmt.Errorf("while validating alert fields: %s", err)
 	}
 
-	err = api.UpdateAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	err = api.AddOrUpdateAlertmanagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		return fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
 	}
 
-	if alert.LastSyncedHash() == hash {
-		return nil
-	}
-
-	err = api.UpdateAppRulesConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	err = rules.AddOrUpdateAlert(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		return fmt.Errorf("while adding rules to configMap: %s", err)
 	}
@@ -149,14 +151,14 @@ func (n *Alerterator) delete(delete interface{}) {
 	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
 	alert.Namespace = "default"
 
-	err := api.DeleteReceiversFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	err := api.DeleteRouteAndReceiverFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		metrics.AlertsFailed.Inc()
 		log.Errorf("while deleting %s from AlertManager.yml configMap: %s", alert.Name, err)
 		return
 	}
 
-	err = api.DeleteAlertFromConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	err = rules.DeleteAlert(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		metrics.AlertsFailed.Inc()
 		log.Errorf("while deleting rules for %s from the configMap: %s", alert.Name, err)

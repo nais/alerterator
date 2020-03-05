@@ -1,4 +1,4 @@
-package updater
+package routes
 
 import (
 	"fmt"
@@ -33,6 +33,36 @@ func missingAlertRoute(alertName string, routes []routeConfig) bool {
 	return true
 }
 
+func AddOrUpdateRoute(alert *v1alpha1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (routesConfig, error) {
+	var routes routesConfig
+	err := mapstructure.Decode(currentConfig["route"], &routes)
+	if err != nil {
+		return routesConfig{}, fmt.Errorf("failed while decoding map structure: %s", err)
+	}
+
+	if missingAlertRoute(alert.Name, routes.Routes) {
+		log.Infof("Route missing for %s", alert.Name)
+		route := routeConfig{
+			Receiver: alert.Name,
+			Continue: true,
+			Match: map[string]string{
+				"alert": alert.Name,
+			},
+		}
+		routes.Routes = append(routes.Routes, route)
+	}
+
+	var latestRoutes routesConfig
+	err = mapstructure.Decode(latestConfig["route"], &latestRoutes)
+	if err != nil {
+		return routesConfig{}, fmt.Errorf("failed while decoding map structure: %s", err)
+	}
+
+	latestRoutes.Routes = routes.Routes
+
+	return latestRoutes, nil
+}
+
 func getAlertRouteIndex(alertName string, routes []routeConfig) int {
 	for i := 0; i < len(routes); i++ {
 		route := routes[i]
@@ -41,29 +71,6 @@ func getAlertRouteIndex(alertName string, routes []routeConfig) int {
 		}
 	}
 	return -1
-}
-
-func AddOrUpdateRoutes(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
-	var route routesConfig
-	err := mapstructure.Decode(alertManager["route"], &route)
-	if err != nil {
-		return fmt.Errorf("failed while decoding map structure: %s", err)
-	}
-
-	if missingAlertRoute(alert.Name, route.Routes) {
-		log.Infof("Route missing for %s", alert.Name)
-		routes := routeConfig{
-			Receiver: alert.Name,
-			Continue: true,
-			Match: map[string]string{
-				"alert": alert.Name,
-			},
-		}
-		route.Routes = append(route.Routes, routes)
-		alertManager["route"] = route
-	}
-
-	return nil
 }
 
 func DeleteRoute(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {

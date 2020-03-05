@@ -1,4 +1,4 @@
-package updater
+package rules
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestAlerts(t *testing.T) {
-	t.Run("Validerer at AlertRules blir opprettet riktig", func(t *testing.T) {
+	t.Run("Validated that alert rules are created correctly", func(t *testing.T) {
 		alertRules := createAlertRules(fixtures.AlertResource)
 		assert.Len(t, alertRules, 1)
 
@@ -27,7 +27,7 @@ func TestAlerts(t *testing.T) {
 		assert.Equal(t, alert.Severity, alertRule.Annotations["severity"])
 	})
 
-	t.Run("If severity not set, it is danger", func(t *testing.T) {
+	t.Run("If severity is not set, default to danger", func(t *testing.T) {
 		alertRules := createAlertRules(fixtures.MinimalAlertResource)
 		assert.Len(t, alertRules, 1)
 

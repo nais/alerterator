@@ -1,12 +1,11 @@
-package updater
+package receivers
 
 import (
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
+	"os"
+	"strings"
 )
 
 type slackConfig struct {
@@ -23,20 +22,26 @@ type emailConfig struct {
 	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
 }
 
-func getDefaultEmailConfig() emailConfig {
-	return emailConfig{
-		SendResolved: false,
-	}
-}
-
 type receiverConfig struct {
 	Name         string        `mapstructure:"name" yaml:"name"`
 	SlackConfigs []slackConfig `mapstructure:"slack_configs" yaml:"slack_configs,omitempty"`
 	EmailConfigs []emailConfig `mapstructure:"email_configs" yaml:"email,omitempty"`
 }
 
-func getDefaultSlackConfig() slackConfig {
+func getDefaultEmailConfig(to string) emailConfig {
+	return emailConfig{
+		To:           to,
+		SendResolved: false,
+	}
+}
+
+func getDefaultSlackConfig(channel string) slackConfig {
+	if !strings.HasPrefix(channel, "#") {
+		channel = "#" + channel
+	}
+
 	return slackConfig{
+		Channel:      channel,
 		SendResolved: true,
 		Title:        "{{ template \"nais-alert.title\" . }}",
 		Text:         "{{ template \"nais-alert.text\" . }}",
@@ -57,17 +62,14 @@ func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
 
 func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
 	receiver.Name = alert.Name
+
 	if alert.Spec.Receivers.Slack.Channel != "" {
-		slack := getDefaultSlackConfig()
-		slack.Channel = alert.Spec.Receivers.Slack.Channel
-		if !strings.HasPrefix(slack.Channel, "#") {
-			slack.Channel = "#" + slack.Channel
-		}
+		slack := getDefaultSlackConfig(alert.Spec.Receivers.Slack.Channel)
 		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
 	}
+
 	if alert.Spec.Receivers.Email.To != "" {
-		email := getDefaultEmailConfig()
-		email.To = alert.Spec.Receivers.Email.To
+		email := getDefaultEmailConfig(alert.Spec.Receivers.Email.To)
 		if alert.Spec.Receivers.Email.SendResolved {
 			email.SendResolved = true
 		}
@@ -76,11 +78,11 @@ func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
 	return
 }
 
-func AddOrUpdateReceivers(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
+func AddOrUpdateReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
 	var receivers []receiverConfig
 	err := mapstructure.Decode(alertManager["receivers"], &receivers)
 	if err != nil {
-		return fmt.Errorf("failed while decoding map structure: %s", err)
+		return nil, fmt.Errorf("failed while decoding map structure: %s", err)
 	}
 
 	receiver := createReceiver(alert)
@@ -91,9 +93,7 @@ func AddOrUpdateReceivers(alert *v1alpha1.Alert, alertManager map[interface{}]in
 		receivers = append(receivers, receiver)
 	}
 
-	alertManager["receivers"] = receivers
-
-	return nil
+	return receivers, nil
 }
 
 func DeleteReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
