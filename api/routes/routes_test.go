@@ -17,7 +17,7 @@ func TestRoutes(t *testing.T) {
 		err = yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYamlDifferentRoutes), latestConfig)
 		assert.NoError(t, err)
 
-		routesConfig, err := AddOrUpdateRoutes(fixtures.AlertResource, config, latestConfig)
+		routesConfig, err := AddOrUpdateRoute(fixtures.AlertResource, config, latestConfig)
 		assert.NoError(t, err)
 
 		assert.Equal(t, []string{"alertname", "team", "kubernetes_namespace"}, routesConfig.GroupBy)

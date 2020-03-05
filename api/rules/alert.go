@@ -52,7 +52,7 @@ func createAlertRules(alert *v1alpha1.Alert) (alertRules []Alert) {
 	return
 }
 
-func addOrUpdateAlerts(alert *v1alpha1.Alert, configMap *v1.ConfigMap) (*v1.ConfigMap, error) {
+func addOrUpdateAlert(alert *v1alpha1.Alert, configMap *v1.ConfigMap) (*v1.ConfigMap, error) {
 	alertRules := createAlertRules(alert)
 	alertGroups := Groups{
 		Groups: []Group{

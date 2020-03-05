@@ -78,7 +78,7 @@ func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
 	return
 }
 
-func AddOrUpdateReceivers(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
+func AddOrUpdateReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
 	var receivers []receiverConfig
 	err := mapstructure.Decode(alertManager["receivers"], &receivers)
 	if err != nil {

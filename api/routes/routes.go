@@ -33,7 +33,7 @@ func missingAlertRoute(alertName string, routes []routeConfig) bool {
 	return true
 }
 
-func AddOrUpdateRoutes(alert *v1alpha1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (routesConfig, error) {
+func AddOrUpdateRoute(alert *v1alpha1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (routesConfig, error) {
 	var routes routesConfig
 	err := mapstructure.Decode(currentConfig["route"], &routes)
 	if err != nil {

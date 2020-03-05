@@ -89,7 +89,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 		return fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
 	}
 
-	err = rules.AddOrUpdateAlerts(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	err = rules.AddOrUpdateAlert(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		return fmt.Errorf("while adding rules to configMap: %s", err)
 	}
@@ -151,14 +151,14 @@ func (n *Alerterator) delete(delete interface{}) {
 	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
 	alert.Namespace = "default"
 
-	err := api.DeleteReceiversFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	err := api.DeleteRouteAndReceiverFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		metrics.AlertsFailed.Inc()
 		log.Errorf("while deleting %s from AlertManager.yml configMap: %s", alert.Name, err)
 		return
 	}
 
-	err = rules.DeleteAlerts(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
+	err = rules.DeleteAlert(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		metrics.AlertsFailed.Inc()
 		log.Errorf("while deleting rules for %s from the configMap: %s", alert.Name, err)

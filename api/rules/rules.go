@@ -9,13 +9,13 @@ import (
 
 const ConfigMapAlerts = "alerterator-rules"
 
-func AddOrUpdateAlerts(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
+func AddOrUpdateAlert(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
 	configMap, err := configMapInterface.Get(ConfigMapAlerts, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failing while retrieving %s configMap: %s", ConfigMapAlerts, err)
 	}
 
-	configMap, err = addOrUpdateAlerts(alert, configMap)
+	configMap, err = addOrUpdateAlert(alert, configMap)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func AddOrUpdateAlerts(configMapInterface v1.ConfigMapInterface, alert *v1alpha1
 	return nil
 }
 
-func DeleteAlerts(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
+func DeleteAlert(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
 	configMap, err := configMapInterface.Get(ConfigMapAlerts, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failing while retrieving %s configMap: %s", ConfigMapAlerts, err)

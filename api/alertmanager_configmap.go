@@ -65,13 +65,13 @@ func AddOrUpdateAlertmanagerConfigMap(configMapInterface v1.ConfigMapInterface, 
 		return err
 	}
 
-	updatedRoutes, err := routes.AddOrUpdateRoutes(alert, currentConfig, latestConfig)
+	updatedRoutes, err := routes.AddOrUpdateRoute(alert, currentConfig, latestConfig)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating routes: %s", err)
 	}
 	latestConfig["route"] = updatedRoutes
 
-	updatedReceivers, err := receivers.AddOrUpdateReceivers(alert, currentConfig)
+	updatedReceivers, err := receivers.AddOrUpdateReceiver(alert, currentConfig)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating receivers: %s", err)
 	}
@@ -82,7 +82,7 @@ func AddOrUpdateAlertmanagerConfigMap(configMapInterface v1.ConfigMapInterface, 
 	return nil
 }
 
-func DeleteReceiversFromAlertManagerConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
+func DeleteRouteAndReceiverFromAlertManagerConfigMap(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
 	config, err := getConfig(alertmanagerConfigMapName, configMapInterface)
 	if err != nil {
 		return err
