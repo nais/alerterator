@@ -2,7 +2,7 @@ NAME       := alerterator
 TAG        := navikt/${NAME}
 LATEST     := ${TAG}:latest
 ROOT_DIR   := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-
+docker : VERSION = $(shell ./version.sh)
 
 .PHONY: build docker docker-push local install test codegen-crd
 
@@ -10,7 +10,6 @@ build:
 	cd cmd/alerterator && go build
 
 docker:
-	VERSION := $(shell ./version.sh)
 	docker image build -t ${TAG}:${VERSION} -t ${TAG} -t ${NAME} -t ${LATEST} -f Dockerfile .
 	docker image push ${TAG}:${VERSION}
 	docker image push ${LATEST}
