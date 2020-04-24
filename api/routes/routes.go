@@ -41,7 +41,6 @@ func AddOrUpdateRoute(alert *v1.Alert, currentConfig, latestConfig map[interface
 	}
 
 	if missingAlertRoute(alert.Name, routes.Routes) {
-		log.Infof("Route missing for %s", alert.Name)
 		route := routeConfig{
 			Receiver: alert.Name,
 			Continue: true,
