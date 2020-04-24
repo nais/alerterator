@@ -95,7 +95,7 @@ func (n *Alerterator) synchronize(previous, alert *v1.Alert) error {
 	metrics.AlertsProcessed.Inc()
 
 	alert.NilFix()
-	_, err = n.AppClient.AlerteratorV1().Alerts().Update(alert)
+	_, err = n.AppClient.AlerteratorV1().Alerts(alert.Namespace).Update(alert)
 	if err != nil {
 		return fmt.Errorf("while storing alert sync metadata: %s", err)
 	}

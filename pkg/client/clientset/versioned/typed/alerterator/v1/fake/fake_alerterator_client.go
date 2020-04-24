@@ -12,8 +12,8 @@ type FakeAlerteratorV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeAlerteratorV1) Alerts() v1.AlertInterface {
-	return &FakeAlerts{c}
+func (c *FakeAlerteratorV1) Alerts(namespace string) v1.AlertInterface {
+	return &FakeAlerts{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

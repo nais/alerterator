@@ -20,8 +20,6 @@ var (
 	PrometheusRangeRegex = regexp.MustCompile(PrometheusRangeRegexPattern)
 )
 
-// +genclient:nonNamespaced
-
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +genclient
 type Alert struct {

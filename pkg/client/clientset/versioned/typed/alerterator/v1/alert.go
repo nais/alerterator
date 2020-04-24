@@ -16,7 +16,7 @@ import (
 // AlertsGetter has a method to return a AlertInterface.
 // A group's client should implement this interface.
 type AlertsGetter interface {
-	Alerts() AlertInterface
+	Alerts(namespace string) AlertInterface
 }
 
 // AlertInterface has methods to work with Alert resources.
@@ -35,12 +35,14 @@ type AlertInterface interface {
 // alerts implements AlertInterface
 type alerts struct {
 	client rest.Interface
+	ns     string
 }
 
 // newAlerts returns a Alerts
-func newAlerts(c *AlerteratorV1Client) *alerts {
+func newAlerts(c *AlerteratorV1Client, namespace string) *alerts {
 	return &alerts{
 		client: c.RESTClient(),
+		ns:     namespace,
 	}
 }
 
@@ -48,6 +50,7 @@ func newAlerts(c *AlerteratorV1Client) *alerts {
 func (c *alerts) Get(name string, options metav1.GetOptions) (result *v1.Alert, err error) {
 	result = &v1.Alert{}
 	err = c.client.Get().
+		Namespace(c.ns).
 		Resource("alerts").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
@@ -64,6 +67,7 @@ func (c *alerts) List(opts metav1.ListOptions) (result *v1.AlertList, err error)
 	}
 	result = &v1.AlertList{}
 	err = c.client.Get().
+		Namespace(c.ns).
 		Resource("alerts").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -80,6 +84,7 @@ func (c *alerts) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 	}
 	opts.Watch = true
 	return c.client.Get().
+		Namespace(c.ns).
 		Resource("alerts").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -90,6 +95,7 @@ func (c *alerts) Watch(opts metav1.ListOptions) (watch.Interface, error) {
 func (c *alerts) Create(alert *v1.Alert) (result *v1.Alert, err error) {
 	result = &v1.Alert{}
 	err = c.client.Post().
+		Namespace(c.ns).
 		Resource("alerts").
 		Body(alert).
 		Do().
@@ -101,6 +107,7 @@ func (c *alerts) Create(alert *v1.Alert) (result *v1.Alert, err error) {
 func (c *alerts) Update(alert *v1.Alert) (result *v1.Alert, err error) {
 	result = &v1.Alert{}
 	err = c.client.Put().
+		Namespace(c.ns).
 		Resource("alerts").
 		Name(alert.Name).
 		Body(alert).
@@ -112,6 +119,7 @@ func (c *alerts) Update(alert *v1.Alert) (result *v1.Alert, err error) {
 // Delete takes name of the alert and deletes it. Returns an error if one occurs.
 func (c *alerts) Delete(name string, options *metav1.DeleteOptions) error {
 	return c.client.Delete().
+		Namespace(c.ns).
 		Resource("alerts").
 		Name(name).
 		Body(options).
@@ -126,6 +134,7 @@ func (c *alerts) DeleteCollection(options *metav1.DeleteOptions, listOptions met
 		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
+		Namespace(c.ns).
 		Resource("alerts").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -138,6 +147,7 @@ func (c *alerts) DeleteCollection(options *metav1.DeleteOptions, listOptions met
 func (c *alerts) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1.Alert, err error) {
 	result = &v1.Alert{}
 	err = c.client.Patch(pt).
+		Namespace(c.ns).
 		Resource("alerts").
 		SubResource(subresources...).
 		Name(name).

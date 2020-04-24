@@ -18,8 +18,8 @@ type AlerteratorV1Client struct {
 	restClient rest.Interface
 }
 
-func (c *AlerteratorV1Client) Alerts() AlertInterface {
-	return newAlerts(c)
+func (c *AlerteratorV1Client) Alerts(namespace string) AlertInterface {
+	return newAlerts(c, namespace)
 }
 
 // NewForConfig creates a new AlerteratorV1Client for the given config.

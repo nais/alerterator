@@ -15,6 +15,7 @@ import (
 // FakeAlerts implements AlertInterface
 type FakeAlerts struct {
 	Fake *FakeAlerteratorV1
+	ns   string
 }
 
 var alertsResource = schema.GroupVersionResource{Group: "alerterator.nais.io", Version: "v1", Resource: "alerts"}
@@ -24,7 +25,8 @@ var alertsKind = schema.GroupVersionKind{Group: "alerterator.nais.io", Version: 
 // Get takes name of the alert, and returns the corresponding alert object, and an error if there is any.
 func (c *FakeAlerts) Get(name string, options v1.GetOptions) (result *alerteratorv1.Alert, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(alertsResource, name), &alerteratorv1.Alert{})
+		Invokes(testing.NewGetAction(alertsResource, c.ns, name), &alerteratorv1.Alert{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -34,7 +36,8 @@ func (c *FakeAlerts) Get(name string, options v1.GetOptions) (result *alerterato
 // List takes label and field selectors, and returns the list of Alerts that match those selectors.
 func (c *FakeAlerts) List(opts v1.ListOptions) (result *alerteratorv1.AlertList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(alertsResource, alertsKind, opts), &alerteratorv1.AlertList{})
+		Invokes(testing.NewListAction(alertsResource, alertsKind, c.ns, opts), &alerteratorv1.AlertList{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -55,13 +58,15 @@ func (c *FakeAlerts) List(opts v1.ListOptions) (result *alerteratorv1.AlertList,
 // Watch returns a watch.Interface that watches the requested alerts.
 func (c *FakeAlerts) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
-		InvokesWatch(testing.NewRootWatchAction(alertsResource, opts))
+		InvokesWatch(testing.NewWatchAction(alertsResource, c.ns, opts))
+
 }
 
 // Create takes the representation of a alert and creates it.  Returns the server's representation of the alert, and an error, if there is any.
 func (c *FakeAlerts) Create(alert *alerteratorv1.Alert) (result *alerteratorv1.Alert, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(alertsResource, alert), &alerteratorv1.Alert{})
+		Invokes(testing.NewCreateAction(alertsResource, c.ns, alert), &alerteratorv1.Alert{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -71,7 +76,8 @@ func (c *FakeAlerts) Create(alert *alerteratorv1.Alert) (result *alerteratorv1.A
 // Update takes the representation of a alert and updates it. Returns the server's representation of the alert, and an error, if there is any.
 func (c *FakeAlerts) Update(alert *alerteratorv1.Alert) (result *alerteratorv1.Alert, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(alertsResource, alert), &alerteratorv1.Alert{})
+		Invokes(testing.NewUpdateAction(alertsResource, c.ns, alert), &alerteratorv1.Alert{})
+
 	if obj == nil {
 		return nil, err
 	}
@@ -81,13 +87,14 @@ func (c *FakeAlerts) Update(alert *alerteratorv1.Alert) (result *alerteratorv1.A
 // Delete takes name of the alert and deletes it. Returns an error if one occurs.
 func (c *FakeAlerts) Delete(name string, options *v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteAction(alertsResource, name), &alerteratorv1.Alert{})
+		Invokes(testing.NewDeleteAction(alertsResource, c.ns, name), &alerteratorv1.Alert{})
+
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
 func (c *FakeAlerts) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewRootDeleteCollectionAction(alertsResource, listOptions)
+	action := testing.NewDeleteCollectionAction(alertsResource, c.ns, listOptions)
 
 	_, err := c.Fake.Invokes(action, &alerteratorv1.AlertList{})
 	return err
@@ -96,7 +103,8 @@ func (c *FakeAlerts) DeleteCollection(options *v1.DeleteOptions, listOptions v1.
 // Patch applies the patch and returns the patched alert.
 func (c *FakeAlerts) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *alerteratorv1.Alert, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(alertsResource, name, pt, data, subresources...), &alerteratorv1.Alert{})
+		Invokes(testing.NewPatchSubresourceAction(alertsResource, c.ns, name, pt, data, subresources...), &alerteratorv1.Alert{})
+
 	if obj == nil {
 		return nil, err
 	}

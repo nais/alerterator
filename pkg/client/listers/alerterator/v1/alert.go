@@ -13,8 +13,8 @@ import (
 type AlertLister interface {
 	// List lists all Alerts in the indexer.
 	List(selector labels.Selector) (ret []*v1.Alert, err error)
-	// Get retrieves the Alert from the index for a given name.
-	Get(name string) (*v1.Alert, error)
+	// Alerts returns an object that can list and get Alerts.
+	Alerts(namespace string) AlertNamespaceLister
 	AlertListerExpansion
 }
 
@@ -36,9 +36,38 @@ func (s *alertLister) List(selector labels.Selector) (ret []*v1.Alert, err error
 	return ret, err
 }
 
-// Get retrieves the Alert from the index for a given name.
-func (s *alertLister) Get(name string) (*v1.Alert, error) {
-	obj, exists, err := s.indexer.GetByKey(name)
+// Alerts returns an object that can list and get Alerts.
+func (s *alertLister) Alerts(namespace string) AlertNamespaceLister {
+	return alertNamespaceLister{indexer: s.indexer, namespace: namespace}
+}
+
+// AlertNamespaceLister helps list and get Alerts.
+type AlertNamespaceLister interface {
+	// List lists all Alerts in the indexer for a given namespace.
+	List(selector labels.Selector) (ret []*v1.Alert, err error)
+	// Get retrieves the Alert from the indexer for a given namespace and name.
+	Get(name string) (*v1.Alert, error)
+	AlertNamespaceListerExpansion
+}
+
+// alertNamespaceLister implements the AlertNamespaceLister
+// interface.
+type alertNamespaceLister struct {
+	indexer   cache.Indexer
+	namespace string
+}
+
+// List lists all Alerts in the indexer for a given namespace.
+func (s alertNamespaceLister) List(selector labels.Selector) (ret []*v1.Alert, err error) {
+	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
+		ret = append(ret, m.(*v1.Alert))
+	})
+	return ret, err
+}
+
+// Get retrieves the Alert from the indexer for a given namespace and name.
+func (s alertNamespaceLister) Get(name string) (*v1.Alert, error) {
+	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
 	if err != nil {
 		return nil, err
 	}

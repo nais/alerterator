@@ -25,5 +25,5 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 
 // Alerts returns a AlertInformer.
 func (v *version) Alerts() AlertInformer {
-	return &alertInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+	return &alertInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

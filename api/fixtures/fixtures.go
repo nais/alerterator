@@ -9,6 +9,7 @@ import (
 var AlertResource = &v1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "aura",
+		Namespace: "aura",
 		Labels: map[string]string{
 			"alert": "aura",
 		},
@@ -41,6 +42,7 @@ var AlertResource = &v1.Alert{
 var MinimalAlertResource = &v1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "aura",
+		Namespace: "aura",
 		Labels: map[string]string{
 			"alert": "aura",
 		},
@@ -120,7 +122,7 @@ var ConfigMapBeforeAlerts = &corev1.ConfigMap{
 
 var ExpectedConfigMapAfterAlerts = &corev1.ConfigMap{
 	Data: map[string]string{
-		"aura.yml": `groups:
+		"aura-aura.yml": `groups:
 - name: aura
   rules:
   - alert: app is down
