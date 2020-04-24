@@ -75,10 +75,6 @@ func (n *Alerterator) synchronize(previous, alert *v1.Alert) error {
 		return nil
 	}
 
-	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
-	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
-	alert.Namespace = "default"
-
 	err = alert.ValidateAlertFields()
 	if err != nil {
 		return fmt.Errorf("while validating alert fields: %s", err)
@@ -146,10 +142,6 @@ func (n *Alerterator) add(newAlert interface{}) {
 
 func (n *Alerterator) delete(delete interface{}) {
 	alert := delete.(*v1.Alert)
-
-	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
-	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
-	alert.Namespace = "default"
 
 	err := api.DeleteRouteAndReceiverFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
