@@ -71,7 +71,8 @@ func addOrUpdateAlert(alert *v1.Alert, configMap *corev1.ConfigMap) (*corev1.Con
 		configMap.Data = make(map[string]string)
 	}
 
-	configMap.Data[alert.Name+".yml"] = string(alertGroupYamlBytes)
+	fileName := fmt.Sprintf("%s-%s.yml", alert.Namespace, alert.Name)
+	configMap.Data[fileName] = string(alertGroupYamlBytes)
 
 	return configMap, nil
 }
