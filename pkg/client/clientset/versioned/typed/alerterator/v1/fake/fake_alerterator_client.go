@@ -3,22 +3,22 @@
 package fake
 
 import (
-	v1alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned/typed/alerterator/v1alpha1"
+	v1 "github.com/nais/alerterator/pkg/client/clientset/versioned/typed/alerterator/v1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeAlerteratorV1alpha1 struct {
+type FakeAlerteratorV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeAlerteratorV1alpha1) Alerts() v1alpha1.AlertInterface {
+func (c *FakeAlerteratorV1) Alerts() v1.AlertInterface {
 	return &FakeAlerts{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeAlerteratorV1alpha1) RESTClient() rest.Interface {
+func (c *FakeAlerteratorV1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

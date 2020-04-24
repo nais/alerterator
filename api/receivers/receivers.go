@@ -3,7 +3,7 @@ package receivers
 import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	"os"
 	"strings"
 )
@@ -60,7 +60,7 @@ func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
 	return -1
 }
 
-func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
+func createReceiver(alert *v1.Alert) (receiver receiverConfig) {
 	receiver.Name = alert.Name
 
 	if alert.Spec.Receivers.Slack.Channel != "" {
@@ -78,7 +78,7 @@ func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
 	return
 }
 
-func AddOrUpdateReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
+func AddOrUpdateReceiver(alert *v1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
 	var receivers []receiverConfig
 	err := mapstructure.Decode(alertManager["receivers"], &receivers)
 	if err != nil {
@@ -96,7 +96,7 @@ func AddOrUpdateReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]int
 	return receivers, nil
 }
 
-func DeleteReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
+func DeleteReceiver(alert *v1.Alert, alertManager map[interface{}]interface{}) error {
 	var receivers []receiverConfig
 	err := mapstructure.Decode(alertManager["receivers"], &receivers)
 	if err != nil {

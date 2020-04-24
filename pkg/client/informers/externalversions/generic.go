@@ -5,7 +5,7 @@ package externalversions
 import (
 	"fmt"
 
-	v1alpha1 "github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
+	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -36,9 +36,9 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=alerterator.nais.io, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("alerts"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Alerterator().V1alpha1().Alerts().Informer()}, nil
+	// Group=alerterator.nais.io, Version=v1
+	case v1.SchemeGroupVersion.WithResource("alerts"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Alerterator().V1().Alerts().Informer()}, nil
 
 	}
 

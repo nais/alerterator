@@ -66,7 +66,7 @@ make test
 
 ```
 kubeclt apply -f ./testing/
-kubeclt apply -f ./pkg/apis/alerterator/v1alpha1/alert.yaml
+kubeclt apply -f ./pkg/apis/alerterator/v1/alert.yaml
 
 make build
 make local

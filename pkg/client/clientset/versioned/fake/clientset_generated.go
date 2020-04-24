@@ -4,8 +4,8 @@ package fake
 
 import (
 	clientset "github.com/nais/alerterator/pkg/client/clientset/versioned"
-	alerteratorv1alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned/typed/alerterator/v1alpha1"
-	fakealerteratorv1alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned/typed/alerterator/v1alpha1/fake"
+	alerteratorv1 "github.com/nais/alerterator/pkg/client/clientset/versioned/typed/alerterator/v1"
+	fakealerteratorv1 "github.com/nais/alerterator/pkg/client/clientset/versioned/typed/alerterator/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -25,7 +25,7 @@ func NewSimpleClientset(objects ...runtime.Object) *Clientset {
 		}
 	}
 
-	cs := &Clientset{}
+	cs := &Clientset{tracker: o}
 	cs.discovery = &fakediscovery.FakeDiscovery{Fake: &cs.Fake}
 	cs.AddReactor("*", "*", testing.ObjectReaction(o))
 	cs.AddWatchReactor("*", func(action testing.Action) (handled bool, ret watch.Interface, err error) {
@@ -47,20 +47,20 @@ func NewSimpleClientset(objects ...runtime.Object) *Clientset {
 type Clientset struct {
 	testing.Fake
 	discovery *fakediscovery.FakeDiscovery
+	tracker   testing.ObjectTracker
 }
 
 func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 	return c.discovery
 }
 
-var _ clientset.Interface = &Clientset{}
-
-// AlerteratorV1alpha1 retrieves the AlerteratorV1alpha1Client
-func (c *Clientset) AlerteratorV1alpha1() alerteratorv1alpha1.AlerteratorV1alpha1Interface {
-	return &fakealerteratorv1alpha1.FakeAlerteratorV1alpha1{Fake: &c.Fake}
+func (c *Clientset) Tracker() testing.ObjectTracker {
+	return c.tracker
 }
 
-// Alerterator retrieves the AlerteratorV1alpha1Client
-func (c *Clientset) Alerterator() alerteratorv1alpha1.AlerteratorV1alpha1Interface {
-	return &fakealerteratorv1alpha1.FakeAlerteratorV1alpha1{Fake: &c.Fake}
+var _ clientset.Interface = &Clientset{}
+
+// AlerteratorV1 retrieves the AlerteratorV1Client
+func (c *Clientset) AlerteratorV1() alerteratorv1.AlerteratorV1Interface {
+	return &fakealerteratorv1.FakeAlerteratorV1{Fake: &c.Fake}
 }

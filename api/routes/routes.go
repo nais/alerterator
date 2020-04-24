@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/mitchellh/mapstructure"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
 )
 
 type routeConfig struct {
@@ -33,7 +33,7 @@ func missingAlertRoute(alertName string, routes []routeConfig) bool {
 	return true
 }
 
-func AddOrUpdateRoute(alert *v1alpha1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (routesConfig, error) {
+func AddOrUpdateRoute(alert *v1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (routesConfig, error) {
 	var routes routesConfig
 	err := mapstructure.Decode(currentConfig["route"], &routes)
 	if err != nil {
@@ -73,7 +73,7 @@ func getAlertRouteIndex(alertName string, routes []routeConfig) int {
 	return -1
 }
 
-func DeleteRoute(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
+func DeleteRoute(alert *v1.Alert, alertManager map[interface{}]interface{}) error {
 	var route routesConfig
 	err := mapstructure.Decode(alertManager["route"], &route)
 	if err != nil {

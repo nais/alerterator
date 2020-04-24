@@ -5,8 +5,8 @@ metadata:
   name: "alerts.nais.io"
 spec:
   group: "nais.io"
-  version: "v1alpha1"
-  scope: "Cluster"
+  version: "v1"
+  scope: "Namespaced"
   names:
     plural: "alerts"
     singular: "alert"

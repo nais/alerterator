@@ -1,4 +1,4 @@
-package v1alpha1
+package v1
 
 import (
 	"regexp"
@@ -96,7 +96,7 @@ func (in *Alert) GetObjectKind() schema.ObjectKind {
 
 func (in *Alert) GetObjectReference() corev1.ObjectReference {
 	return corev1.ObjectReference{
-		APIVersion:      "v1alpha1",
+		APIVersion:      "v1",
 		UID:             in.UID,
 		Name:            in.Name,
 		Kind:            "Alert",
@@ -107,7 +107,7 @@ func (in *Alert) GetObjectReference() corev1.ObjectReference {
 
 func (in *Alert) GetOwnerReference() metav1.OwnerReference {
 	return metav1.OwnerReference{
-		APIVersion: "v1alpha1",
+		APIVersion: "v1",
 		Kind:       "Alert",
 		Name:       in.Name,
 		UID:        in.UID,
