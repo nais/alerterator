@@ -1,5 +1,7 @@
 package v1
 
+// +groupName="nais.io"
+
 import (
 	"regexp"
 	"strconv"
@@ -20,8 +22,9 @@ var (
 	PrometheusRangeRegex = regexp.MustCompile(PrometheusRangeRegexPattern)
 )
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +genclient
+// +kubebuilder:subresource:status
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type Alert struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
