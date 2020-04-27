@@ -2,10 +2,11 @@ package routes
 
 import (
 	"fmt"
+	"github.com/nais/alerterator/utils"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	log "github.com/sirupsen/logrus"
 )
 
 type routeConfig struct {
@@ -42,10 +43,10 @@ func AddOrUpdateRoute(alert *v1.Alert, currentConfig, latestConfig map[interface
 
 	if missingAlertRoute(alert.Name, routes.Routes) {
 		route := routeConfig{
-			Receiver: alert.Name,
+			Receiver: utils.GetCombinedName(alert),
 			Continue: true,
 			Match: map[string]string{
-				"alert": alert.Name,
+				"alert": utils.GetCombinedName(alert),
 			},
 		}
 		routes.Routes = append(routes.Routes, route)

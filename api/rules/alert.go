@@ -2,6 +2,7 @@ package rules
 
 import (
 	"fmt"
+	"github.com/nais/alerterator/utils"
 
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	"gopkg.in/yaml.v2"
@@ -33,7 +34,7 @@ func createAlertRules(alert *v1.Alert) (alertRules []Alert) {
 			Expr:  rule.Expr,
 			For:   rule.For,
 			Labels: map[string]string{
-				"alert": alert.Name,
+				"alert": utils.GetCombinedName(alert),
 			},
 			Annotations: map[string]string{
 				"action":        rule.Action,
@@ -57,7 +58,7 @@ func addOrUpdateAlert(alert *v1.Alert, configMap *corev1.ConfigMap) (*corev1.Con
 	alertGroups := Groups{
 		Groups: []Group{
 			{
-				Name:  alert.Name,
+				Name:  utils.GetCombinedName(alert),
 				Rules: alertRules},
 		},
 	}
@@ -71,8 +72,7 @@ func addOrUpdateAlert(alert *v1.Alert, configMap *corev1.ConfigMap) (*corev1.Con
 		configMap.Data = make(map[string]string)
 	}
 
-	fileName := fmt.Sprintf("%s-%s.yml", alert.Namespace, alert.Name)
-	configMap.Data[fileName] = string(alertGroupYamlBytes)
+	configMap.Data[utils.GetCombinedName(alert)+".yml"] = string(alertGroupYamlBytes)
 
 	return configMap, nil
 }

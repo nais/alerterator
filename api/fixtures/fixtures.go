@@ -84,7 +84,7 @@ receivers:
       title: '{{ template "nais-alert.title" . }}'
       text: '{{ template "nais-alert.text" . }}'
       username: 'Alertmanager in preprod-fss'
-  - name: aura
+  - name: aura-aura
     slack_configs:
     - channel: '#nais-alerts-dev'
       username: 'Alertmanager in preprod-fss'
@@ -98,10 +98,10 @@ route:
   repeat_interval: 1h
   receiver: default-receiver
   routes:
-    - receiver: aura
+    - receiver: aura-aura
       continue: true
       match:
-        alert: aura
+        alert: aura-aura
     - receiver: testmann
       continue: true
       match:
@@ -136,7 +136,7 @@ var ExpectedConfigMapAfterAlerts = &corev1.ConfigMap{
       severity: '#eeeeee'
       sla: we need to fix this ASAP
     labels:
-      alert: aura
+      alert: aura-aura
 `,
 	},
 }

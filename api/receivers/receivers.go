@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/alerterator/utils"
 	"os"
 	"strings"
 )
@@ -61,7 +62,7 @@ func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
 }
 
 func createReceiver(alert *v1.Alert) (receiver receiverConfig) {
-	receiver.Name = alert.Name
+	receiver.Name = utils.GetCombinedName(alert)
 
 	if alert.Spec.Receivers.Slack.Channel != "" {
 		slack := getDefaultSlackConfig(alert.Spec.Receivers.Slack.Channel)
@@ -86,7 +87,7 @@ func AddOrUpdateReceiver(alert *v1.Alert, alertManager map[interface{}]interface
 	}
 
 	receiver := createReceiver(alert)
-	index := getReceiverIndexByName(alert.Name, receivers)
+	index := getReceiverIndexByName(utils.GetCombinedName(alert), receivers)
 	if index != -1 {
 		receivers[index] = receiver
 	} else {
@@ -103,7 +104,7 @@ func DeleteReceiver(alert *v1.Alert, alertManager map[interface{}]interface{}) e
 		return fmt.Errorf("failed while decoding map structure: %s", err)
 	}
 
-	index := getReceiverIndexByName(alert.Name, receivers)
+	index := getReceiverIndexByName(utils.GetCombinedName(alert), receivers)
 	if index != -1 {
 		receivers = append(receivers[:index], receivers[index+1:]...)
 	}
