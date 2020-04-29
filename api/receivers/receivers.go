@@ -3,7 +3,8 @@ package receivers
 import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/alerterator/utils"
 	"os"
 	"strings"
 )
@@ -60,8 +61,8 @@ func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
 	return -1
 }
 
-func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
-	receiver.Name = alert.Name
+func createReceiver(alert *v1.Alert) (receiver receiverConfig) {
+	receiver.Name = utils.GetCombinedName(alert)
 
 	if alert.Spec.Receivers.Slack.Channel != "" {
 		slack := getDefaultSlackConfig(alert.Spec.Receivers.Slack.Channel)
@@ -78,7 +79,7 @@ func createReceiver(alert *v1alpha1.Alert) (receiver receiverConfig) {
 	return
 }
 
-func AddOrUpdateReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
+func AddOrUpdateReceiver(alert *v1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
 	var receivers []receiverConfig
 	err := mapstructure.Decode(alertManager["receivers"], &receivers)
 	if err != nil {
@@ -86,7 +87,7 @@ func AddOrUpdateReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]int
 	}
 
 	receiver := createReceiver(alert)
-	index := getReceiverIndexByName(alert.Name, receivers)
+	index := getReceiverIndexByName(utils.GetCombinedName(alert), receivers)
 	if index != -1 {
 		receivers[index] = receiver
 	} else {
@@ -96,14 +97,14 @@ func AddOrUpdateReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]int
 	return receivers, nil
 }
 
-func DeleteReceiver(alert *v1alpha1.Alert, alertManager map[interface{}]interface{}) error {
+func DeleteReceiver(alert *v1.Alert, alertManager map[interface{}]interface{}) error {
 	var receivers []receiverConfig
 	err := mapstructure.Decode(alertManager["receivers"], &receivers)
 	if err != nil {
 		return fmt.Errorf("failed while decoding map structure: %s", err)
 	}
 
-	index := getReceiverIndexByName(alert.Name, receivers)
+	index := getReceiverIndexByName(utils.GetCombinedName(alert), receivers)
 	if index != -1 {
 		receivers = append(receivers[:index], receivers[index+1:]...)
 	}

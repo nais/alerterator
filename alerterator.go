@@ -5,9 +5,9 @@ import (
 	"github.com/nais/alerterator/api/rules"
 
 	"github.com/nais/alerterator/api"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
-	clientV1Alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
-	informers "github.com/nais/alerterator/pkg/client/informers/externalversions/alerterator/v1alpha1"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	clientV1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
+	informers "github.com/nais/alerterator/pkg/client/informers/externalversions/alerterator/v1"
 	"github.com/nais/alerterator/pkg/metrics"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
@@ -22,12 +22,12 @@ const (
 // Alerterator is a singleton that holds Kubernetes client instances.
 type Alerterator struct {
 	ClientSet           kubernetes.Interface
-	AppClient           *clientV1Alpha1.Clientset
+	AppClient           *clientV1.Clientset
 	AlertInformer       informers.AlertInformer
 	AlertInformerSynced cache.InformerSynced
 }
 
-func NewAlerterator(clientSet kubernetes.Interface, appClient *clientV1Alpha1.Clientset, alertInformer informers.AlertInformer) *Alerterator {
+func NewAlerterator(clientSet kubernetes.Interface, appClient *clientV1.Clientset, alertInformer informers.AlertInformer) *Alerterator {
 	alerterator := Alerterator{
 		ClientSet:           clientSet,
 		AppClient:           appClient,
@@ -56,7 +56,7 @@ func (n *Alerterator) reportEvent(event *corev1.Event) (*corev1.Event, error) {
 }
 
 // Reports an error through the error log, a Kubernetes event, and possibly logs a failure in event creation.
-func (n *Alerterator) reportError(source string, err error, alert *v1alpha1.Alert) {
+func (n *Alerterator) reportError(source string, err error, alert *v1.Alert) {
 	log.Error(err)
 	ev := alert.CreateEvent(source, err.Error(), "Warning")
 	_, err = n.reportEvent(ev)
@@ -65,7 +65,7 @@ func (n *Alerterator) reportError(source string, err error, alert *v1alpha1.Aler
 	}
 }
 
-func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
+func (n *Alerterator) synchronize(previous, alert *v1.Alert) error {
 	hash, err := alert.Hash()
 	if err != nil {
 		return fmt.Errorf("while hashing alert spec: %s", err)
@@ -74,10 +74,6 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	if alert.LastSyncedHash() == hash {
 		return nil
 	}
-
-	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
-	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
-	alert.Namespace = "default"
 
 	err = alert.ValidateAlertFields()
 	if err != nil {
@@ -99,7 +95,7 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 	metrics.AlertsProcessed.Inc()
 
 	alert.NilFix()
-	_, err = n.AppClient.AlerteratorV1alpha1().Alerts().Update(alert)
+	_, err = n.AppClient.AlerteratorV1().Alerts(alert.Namespace).Update(alert)
 	if err != nil {
 		return fmt.Errorf("while storing alert sync metadata: %s", err)
 	}
@@ -114,12 +110,12 @@ func (n *Alerterator) synchronize(previous, alert *v1alpha1.Alert) error {
 }
 
 func (n *Alerterator) update(old, new interface{}) {
-	var alert, previous *v1alpha1.Alert
+	var alert, previous *v1.Alert
 	if old != nil {
-		previous = old.(*v1alpha1.Alert)
+		previous = old.(*v1.Alert)
 	}
 	if new != nil {
-		alert = new.(*v1alpha1.Alert)
+		alert = new.(*v1.Alert)
 	}
 
 	if err := n.synchronize(previous, alert); err != nil {
@@ -132,7 +128,7 @@ func (n *Alerterator) update(old, new interface{}) {
 }
 
 func (n *Alerterator) add(newAlert interface{}) {
-	alert := newAlert.(*v1alpha1.Alert)
+	alert := newAlert.(*v1.Alert)
 
 	if err := n.synchronize(nil, alert); err != nil {
 		metrics.AlertsFailed.Inc()
@@ -145,11 +141,7 @@ func (n *Alerterator) add(newAlert interface{}) {
 }
 
 func (n *Alerterator) delete(delete interface{}) {
-	alert := delete.(*v1alpha1.Alert)
-
-	// Kubernetes events needs a namespace when created, and it needs to be the same as the alerts.
-	// Alerts are cluster-wide, so we just add the 'default'-namespace as an easy fix
-	alert.Namespace = "default"
+	alert := delete.(*v1.Alert)
 
 	err := api.DeleteRouteAndReceiverFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {

@@ -2,10 +2,11 @@ package rules
 
 import (
 	"fmt"
+	"github.com/nais/alerterator/utils"
 
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	"gopkg.in/yaml.v2"
-	"k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 type Groups struct {
@@ -25,7 +26,7 @@ type Alert struct {
 	Labels      map[string]string `yaml:"labels"`
 }
 
-func createAlertRules(alert *v1alpha1.Alert) (alertRules []Alert) {
+func createAlertRules(alert *v1.Alert) (alertRules []Alert) {
 	for i := range alert.Spec.Alerts {
 		rule := alert.Spec.Alerts[i]
 		alertRule := Alert{
@@ -33,7 +34,7 @@ func createAlertRules(alert *v1alpha1.Alert) (alertRules []Alert) {
 			Expr:  rule.Expr,
 			For:   rule.For,
 			Labels: map[string]string{
-				"alert": alert.Name,
+				"alert": utils.GetCombinedName(alert),
 			},
 			Annotations: map[string]string{
 				"action":        rule.Action,
@@ -52,12 +53,12 @@ func createAlertRules(alert *v1alpha1.Alert) (alertRules []Alert) {
 	return
 }
 
-func addOrUpdateAlert(alert *v1alpha1.Alert, configMap *v1.ConfigMap) (*v1.ConfigMap, error) {
+func addOrUpdateAlert(alert *v1.Alert, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 	alertRules := createAlertRules(alert)
 	alertGroups := Groups{
 		Groups: []Group{
 			{
-				Name:  alert.Name,
+				Name:  utils.GetCombinedName(alert),
 				Rules: alertRules},
 		},
 	}
@@ -71,7 +72,7 @@ func addOrUpdateAlert(alert *v1alpha1.Alert, configMap *v1.ConfigMap) (*v1.Confi
 		configMap.Data = make(map[string]string)
 	}
 
-	configMap.Data[alert.Name+".yml"] = string(alertGroupYamlBytes)
+	configMap.Data[utils.GetCombinedName(alert)+".yml"] = string(alertGroupYamlBytes)
 
 	return configMap, nil
 }

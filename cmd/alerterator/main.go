@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/nais/alerterator"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
-	clientV1Alpha1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	clientV1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
 	informers "github.com/nais/alerterator/pkg/client/informers/externalversions"
 	"github.com/nais/alerterator/pkg/metrics"
 	log "github.com/sirupsen/logrus"
@@ -37,7 +37,7 @@ func main() {
 	log.Info("Alerterator starting up")
 
 	// register custom types
-	err := v1alpha1.AddToScheme(scheme.Scheme)
+	err := v1.AddToScheme(scheme.Scheme)
 	if err != nil {
 		log.Fatal("unable to add custom type", err)
 	}
@@ -61,7 +61,7 @@ func main() {
 	n := alerterator.NewAlerterator(
 		createGenericClientset(kubeconfig),
 		createApplicationClientset(kubeconfig),
-		applicationInformerFactory.Alerterator().V1alpha1().Alerts())
+		applicationInformerFactory.Alerterator().V1().Alerts())
 
 	applicationInformerFactory.Start(stopCh)
 	n.Run(stopCh)
@@ -71,15 +71,15 @@ func main() {
 }
 
 func createApplicationInformerFactory(kubeconfig *rest.Config) informers.SharedInformerFactory {
-	config, err := clientV1Alpha1.NewForConfig(kubeconfig)
+	config, err := clientV1.NewForConfig(kubeconfig)
 	if err != nil {
 		log.Fatal("unable to create alerterator clientset")
 	}
 	return informers.NewSharedInformerFactory(config, time.Second*30)
 }
 
-func createApplicationClientset(kubeconfig *rest.Config) *clientV1Alpha1.Clientset {
-	clientSet, err := clientV1Alpha1.NewForConfig(kubeconfig)
+func createApplicationClientset(kubeconfig *rest.Config) *clientV1.Clientset {
+	clientSet, err := clientV1.NewForConfig(kubeconfig)
 	if err != nil {
 		log.Fatalf("unable to create new clientset")
 	}

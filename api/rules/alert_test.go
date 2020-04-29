@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"github.com/nais/alerterator/utils"
 	"testing"
 
 	"github.com/nais/alerterator/api/fixtures"
@@ -13,7 +14,7 @@ func TestAlerts(t *testing.T) {
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
-		assert.Equal(t, fixtures.AlertResource.Name, alertRule.Labels["alert"])
+		assert.Equal(t, utils.GetCombinedName(fixtures.AlertResource), alertRule.Labels["alert"])
 
 		alert := fixtures.AlertResource.Spec.Alerts[0]
 		assert.Equal(t, alert.For, alertRule.For)

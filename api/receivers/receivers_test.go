@@ -1,6 +1,7 @@
 package receivers
 
 import (
+	"github.com/nais/alerterator/utils"
 	"testing"
 
 	"github.com/nais/alerterator/api/fixtures"
@@ -10,7 +11,7 @@ import (
 func TestReceivers(t *testing.T) {
 	t.Run("Validating that receivers are created correctly", func(t *testing.T) {
 		receiver := createReceiver(fixtures.AlertResource)
-		assert.Equal(t, fixtures.AlertResource.Name, receiver.Name)
+		assert.Equal(t, utils.GetCombinedName(fixtures.AlertResource), receiver.Name)
 		assert.Len(t, receiver.EmailConfigs, 1)
 		assert.Len(t, receiver.SlackConfigs, 1)
 

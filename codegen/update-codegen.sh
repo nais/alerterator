@@ -13,7 +13,7 @@ if [[ -z "${GOPATH}" ]]; then
     export GOPATH=~/go
 fi
 
-git clone -b release-1.11 "https://github.com/kubernetes/code-generator" "$CODEGEN_PKG"
+git clone -b kubernetes-1.15.6 "https://github.com/kubernetes/code-generator" "$CODEGEN_PKG"
 
 # generate the code with:
 # --output-base    because this script should also be able to run inside the vendor dir of
@@ -21,7 +21,7 @@ git clone -b release-1.11 "https://github.com/kubernetes/code-generator" "$CODEG
 #                  instead of the $GOPATH directly. For normal projects this can be dropped.
 "${CODEGEN_PKG}"/generate-groups.sh "deepcopy,client,informer,lister" \
   github.com/nais/alerterator/pkg/client github.com/nais/alerterator/pkg/apis \
-  alerterator:v1alpha1 \
+  alerterator:v1 \
   --output-base "${TEMP_DIR}" \
   --go-header-file "${SCRIPT_ROOT}/codegen/boilerplate.go.txt"
 

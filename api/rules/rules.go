@@ -2,14 +2,14 @@ package rules
 
 import (
 	"fmt"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 const ConfigMapAlerts = "alerterator-rules"
 
-func AddOrUpdateAlert(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
+func AddOrUpdateAlert(configMapInterface corev1.ConfigMapInterface, alert *v1.Alert) error {
 	configMap, err := configMapInterface.Get(ConfigMapAlerts, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failing while retrieving %s configMap: %s", ConfigMapAlerts, err)
@@ -28,7 +28,7 @@ func AddOrUpdateAlert(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.
 	return nil
 }
 
-func DeleteAlert(configMapInterface v1.ConfigMapInterface, alert *v1alpha1.Alert) error {
+func DeleteAlert(configMapInterface corev1.ConfigMapInterface, alert *v1.Alert) error {
 	configMap, err := configMapInterface.Get(ConfigMapAlerts, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("failing while retrieving %s configMap: %s", ConfigMapAlerts, err)

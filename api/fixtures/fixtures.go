@@ -1,29 +1,30 @@
 package fixtures
 
 import (
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1alpha1"
-	"k8s.io/api/core/v1"
+	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var AlertResource = &v1alpha1.Alert{
+var AlertResource = &v1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "aura",
+		Namespace: "aura",
 		Labels: map[string]string{
 			"alert": "aura",
 		},
 	},
-	Spec: v1alpha1.AlertSpec{
-		Receivers: v1alpha1.Receivers{
-			Slack: v1alpha1.Slack{
+	Spec: v1.AlertSpec{
+		Receivers: v1.Receivers{
+			Slack: v1.Slack{
 				Channel:     "#nais-alerts-dev",
 				PrependText: "<!here>",
 			},
-			Email: v1alpha1.Email{
+			Email: v1.Email{
 				To: "test@example.com",
 			},
 		},
-		Alerts: []v1alpha1.Rule{
+		Alerts: []v1.Rule{
 			{
 				Alert:         "app is down",
 				For:           "2m",
@@ -38,20 +39,21 @@ var AlertResource = &v1alpha1.Alert{
 	},
 }
 
-var MinimalAlertResource = &v1alpha1.Alert{
+var MinimalAlertResource = &v1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "aura",
+		Namespace: "aura",
 		Labels: map[string]string{
 			"alert": "aura",
 		},
 	},
-	Spec: v1alpha1.AlertSpec{
-		Receivers: v1alpha1.Receivers{
-			Slack: v1alpha1.Slack{
+	Spec: v1.AlertSpec{
+		Receivers: v1.Receivers{
+			Slack: v1.Slack{
 				Channel: "#nais-alerts-dev",
 			},
 		},
-		Alerts: []v1alpha1.Rule{
+		Alerts: []v1.Rule{
 			{
 				Alert:  "app is down",
 				For:    "2m",
@@ -82,7 +84,7 @@ receivers:
       title: '{{ template "nais-alert.title" . }}'
       text: '{{ template "nais-alert.text" . }}'
       username: 'Alertmanager in preprod-fss'
-  - name: aura
+  - name: aura-aura
     slack_configs:
     - channel: '#nais-alerts-dev'
       username: 'Alertmanager in preprod-fss'
@@ -96,10 +98,10 @@ route:
   repeat_interval: 1h
   receiver: default-receiver
   routes:
-    - receiver: aura
+    - receiver: aura-aura
       continue: true
       match:
-        alert: aura
+        alert: aura-aura
     - receiver: testmann
       continue: true
       match:
@@ -114,13 +116,13 @@ route:
   receiver: default-receiver
   routes: []`
 
-var ConfigMapBeforeAlerts = &v1.ConfigMap{
+var ConfigMapBeforeAlerts = &corev1.ConfigMap{
 	Data: map[string]string{},
 }
 
-var ExpectedConfigMapAfterAlerts = &v1.ConfigMap{
+var ExpectedConfigMapAfterAlerts = &corev1.ConfigMap{
 	Data: map[string]string{
-		"aura.yml": `groups:
+		"aura-aura.yml": `groups:
 - name: aura
   rules:
   - alert: app is down
@@ -134,7 +136,7 @@ var ExpectedConfigMapAfterAlerts = &v1.ConfigMap{
       severity: '#eeeeee'
       sla: we need to fix this ASAP
     labels:
-      alert: aura
+      alert: aura-aura
 `,
 	},
 }
