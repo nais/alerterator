@@ -80,7 +80,7 @@ func DeleteRoute(alert *v1.Alert, alertManager map[interface{}]interface{}) erro
 		return fmt.Errorf("failed while decoding map structure: %s", err)
 	}
 
-	index := getAlertRouteIndex(alert.Name, route.Routes)
+	index := getAlertRouteIndex(utils.GetCombinedName(alert), route.Routes)
 	if index == -1 {
 		log.Infof("No route with the name %s", alert.Name)
 		return nil
