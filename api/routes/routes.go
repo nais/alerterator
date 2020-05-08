@@ -41,7 +41,7 @@ func AddOrUpdateRoute(alert *v1.Alert, currentConfig, latestConfig map[interface
 		return routesConfig{}, fmt.Errorf("failed while decoding map structure: %s", err)
 	}
 
-	if missingAlertRoute(alert.Name, routes.Routes) {
+	if missingAlertRoute(utils.GetCombinedName(alert), routes.Routes) {
 		route := routeConfig{
 			Receiver: utils.GetCombinedName(alert),
 			Continue: true,
@@ -82,7 +82,7 @@ func DeleteRoute(alert *v1.Alert, alertManager map[interface{}]interface{}) erro
 
 	index := getAlertRouteIndex(utils.GetCombinedName(alert), route.Routes)
 	if index == -1 {
-		log.Infof("No route with the name %s", alert.Name)
+		log.Infof("No route with the name %s", utils.GetCombinedName(alert))
 		return nil
 	}
 	log.Info(route.GroupWait)
