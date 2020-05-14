@@ -43,6 +43,7 @@ func createAlertRules(alert *v1.Alert) (alertRules []Alert) {
 				"prependText":   alert.Spec.Receivers.Slack.PrependText,
 				"sla":           rule.SLA,
 				"severity":      rule.Severity,
+				"recipients":    alert.Spec.Receivers.SMS.Recipients,
 			},
 		}
 		if alertRule.Annotations["severity"] == "" {

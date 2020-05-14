@@ -16,7 +16,7 @@ const LastSyncedHashAnnotation = "nais.io/lastSyncedHash"
 const PrometheusRangeRegexPattern = "\\d+[smhdwy]"
 
 var (
-	Validate *validator.Validate
+	Validate             *validator.Validate
 	PrometheusRangeRegex = regexp.MustCompile(PrometheusRangeRegexPattern)
 )
 
@@ -47,9 +47,15 @@ type Email struct {
 	SendResolved bool   `json:"send_resolved"`
 }
 
+type SMS struct {
+	Recipients   string `json:"recipients"`
+	SendResolved bool   `json:"send_resolved"`
+}
+
 type Receivers struct {
 	Slack Slack `json:"slack"`
 	Email Email `json:"email"`
+	SMS   SMS   `json:"sms"`
 }
 
 type Rule struct {

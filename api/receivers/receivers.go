@@ -23,16 +23,35 @@ type emailConfig struct {
 	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
 }
 
+type webhookConfig struct {
+	URL          string `mapstructure:"url" yaml:"url"`
+	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
+	HttpConfig   string `mapstructure:"http_config" yaml:"http_config"`
+}
+
 type receiverConfig struct {
-	Name         string        `mapstructure:"name" yaml:"name"`
-	SlackConfigs []slackConfig `mapstructure:"slack_configs" yaml:"slack_configs,omitempty"`
-	EmailConfigs []emailConfig `mapstructure:"email_configs" yaml:"email,omitempty"`
+	Name           string          `mapstructure:"name" yaml:"name"`
+	SlackConfigs   []slackConfig   `mapstructure:"slack_configs" yaml:"slack_configs,omitempty"`
+	EmailConfigs   []emailConfig   `mapstructure:"email_configs" yaml:"email_configs,omitempty"`
+	WebhookConfigs []webhookConfig `mapstructure:"webhook_config" yaml:"webhook_configs,omitempty"`
 }
 
 func getDefaultEmailConfig(to string) emailConfig {
 	return emailConfig{
 		To:           to,
 		SendResolved: false,
+	}
+}
+
+// getDefaultSMSConfig returns a webhookConfig that has an endpoint that will send alerts via SMS to the recipients
+// in the alert-request.
+//
+// HttpConfig needs to be an empty object to turn off the default httpConfig which uses proxy-settings
+func getDefaultSMSConfig() webhookConfig {
+	return webhookConfig{
+		URL:          "http://nais-prometheus-prometheus-alertmanager-webhook-sms/sms",
+		SendResolved: true,
+		HttpConfig:   "{}",
 	}
 }
 
@@ -62,19 +81,28 @@ func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
 }
 
 func createReceiver(alert *v1.Alert) (receiver receiverConfig) {
+	receivers := alert.Spec.Receivers
 	receiver.Name = utils.GetCombinedName(alert)
 
-	if alert.Spec.Receivers.Slack.Channel != "" {
-		slack := getDefaultSlackConfig(alert.Spec.Receivers.Slack.Channel)
+	if receivers.Slack.Channel != "" {
+		slack := getDefaultSlackConfig(receivers.Slack.Channel)
 		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
 	}
 
-	if alert.Spec.Receivers.Email.To != "" {
-		email := getDefaultEmailConfig(alert.Spec.Receivers.Email.To)
-		if alert.Spec.Receivers.Email.SendResolved {
+	if receivers.Email.To != "" {
+		email := getDefaultEmailConfig(receivers.Email.To)
+		if receivers.Email.SendResolved {
 			email.SendResolved = true
 		}
 		receiver.EmailConfigs = append(receiver.EmailConfigs, email)
+	}
+
+	if alert.Spec.Receivers.SMS.Recipients != "" {
+		sms := getDefaultSMSConfig()
+		if !receivers.SMS.SendResolved {
+			sms.SendResolved = false
+		}
+		receiver.WebhookConfigs = append(receiver.WebhookConfigs, sms)
 	}
 	return
 }
