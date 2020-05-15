@@ -23,6 +23,10 @@ var AlertResource = &v1.Alert{
 			Email: v1.Email{
 				To: "test@example.com",
 			},
+			SMS: v1.SMS{
+				Recipients: "12346789",
+				SendResolved: false,
+			},
 		},
 		Alerts: []v1.Rule{
 			{

@@ -61,6 +61,13 @@ spec:
                           type: string
                         send_resolve:
                           type: boolean
+                    sms:
+                      type: object
+                      properties:
+                        recipients:
+                          type: string
+                        send_resolve:
+                          type: boolean
                 alerts:
                   type: array
                   required:

@@ -21,6 +21,8 @@ func TestReceivers(t *testing.T) {
 
 		assert.Equal(t, receivers.Slack.Channel, receiver.SlackConfigs[0].Channel)
 		assert.Equal(t, receivers.Slack.PrependText, fixtures.AlertResource.Spec.Receivers.Slack.PrependText)
+
+		assert.Equal(t, receivers.SMS.SendResolved, receiver.WebhookConfigs[0].SendResolved)
 	})
 
 	t.Run("Valider at send_resolved for e-post blir beholdt", func(t *testing.T) {
@@ -28,5 +30,12 @@ func TestReceivers(t *testing.T) {
 		alert.Spec.Receivers.Email.SendResolved = true
 		receiver := createReceiver(alert)
 		assert.True(t, receiver.EmailConfigs[0].SendResolved)
+	})
+
+	t.Run("Valider at send_resolved for sms blir beholdt", func(t *testing.T) {
+		alert := fixtures.AlertResource
+		alert.Spec.Receivers.SMS.SendResolved = false
+		receiver := createReceiver(alert)
+		assert.False(t, receiver.WebhookConfigs[0].SendResolved)
 	})
 }
