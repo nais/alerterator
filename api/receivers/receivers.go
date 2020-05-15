@@ -49,7 +49,7 @@ func getDefaultEmailConfig(to string) emailConfig {
 // HttpConfig needs to be an empty object to turn off the default httpConfig which uses proxy-settings
 func getDefaultSMSConfig() webhookConfig {
 	return webhookConfig{
-		URL:          "http://nais-prometheus-prometheus-alertmanager-webhook-sms/sms",
+		URL:          "http://smsmanager/sms",
 		SendResolved: true,
 		HttpConfig:   "{}",
 	}
