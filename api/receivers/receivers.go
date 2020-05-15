@@ -24,9 +24,9 @@ type emailConfig struct {
 }
 
 type webhookConfig struct {
-	URL          string `mapstructure:"url" yaml:"url"`
-	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
-	HttpConfig   string `mapstructure:"http_config" yaml:"http_config"`
+	URL          string   `mapstructure:"url" yaml:"url"`
+	SendResolved bool     `mapstructure:"send_resolved" yaml:"send_resolved"`
+	HttpConfig   struct{} `mapstructure:"http_config" yaml:"http_config"`
 }
 
 type receiverConfig struct {
@@ -51,7 +51,7 @@ func getDefaultSMSConfig() webhookConfig {
 	return webhookConfig{
 		URL:          "http://smsmanager/sms",
 		SendResolved: true,
-		HttpConfig:   "{}",
+		HttpConfig:   struct{}{},
 	}
 }
 
