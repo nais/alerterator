@@ -85,7 +85,6 @@ func DeleteRoute(alert *v1.Alert, alertManager map[interface{}]interface{}) erro
 		log.Infof("No route with the name %s", utils.GetCombinedName(alert))
 		return nil
 	}
-	log.Info(route.GroupWait)
 	route.Routes = append(route.Routes[:index], route.Routes[index+1:]...)
 	alertManager["route"] = route
 
