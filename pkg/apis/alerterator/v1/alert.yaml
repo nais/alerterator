@@ -96,3 +96,19 @@ spec:
                       severity:
                         type: string
                         pattern: '^$|good|warning|danger|#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})'
+                inhibitRules:
+                  type: array
+                  required:
+                    - target
+                    - source
+                  items:
+                    type: object
+                    properties:
+                      target:
+                        type: string
+                      source:
+                        type: string
+                      labels:
+                        type: array
+                        items:
+                          type: string
