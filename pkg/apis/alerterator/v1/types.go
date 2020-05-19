@@ -70,14 +70,14 @@ type Rule struct {
 }
 
 type InhibitRules struct {
-	Target string `json:"target"`
-	Source string `json:"source"`
+	Targets map[string]string `json:"targets"`
+	Sources map[string]string `json:"sources"`
 	Labels []string
 }
 
 type AlertSpec struct {
-	Receivers Receivers `json:"receivers"`
-	Alerts    []Rule    `json:"alerts" validate:"dive"`
+	Receivers    Receivers      `json:"receivers"`
+	Alerts       []Rule         `json:"alerts" validate:"dive"`
 	InhibitRules []InhibitRules `json:"inhibitRules"`
 }
 
