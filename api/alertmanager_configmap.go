@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/nais/alerterator/api/inhibitions"
 	"github.com/nais/alerterator/api/receivers"
 	routes "github.com/nais/alerterator/api/routes"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
@@ -77,6 +78,12 @@ func AddOrUpdateAlertmanagerConfigMap(configMapInterface corev1.ConfigMapInterfa
 	}
 	latestConfig["receivers"] = updatedReceivers
 
+	updatedInhibitRules, err := inhibitions.AddOrUpdateInhibition(alert, currentConfig)
+	if err != nil {
+		return fmt.Errorf("failed while adding/updating inhibitions: %s", err)
+	}
+	latestConfig["inhibit_rules"] = updatedInhibitRules
+
 	updateConfigMap(latestConfig, configMapInterface)
 
 	return nil
@@ -94,6 +101,11 @@ func DeleteRouteAndReceiverFromAlertManagerConfigMap(configMapInterface corev1.C
 	}
 
 	err = receivers.DeleteReceiver(alert, config)
+	if err != nil {
+		return fmt.Errorf("failed while deleting receivers: %s", err)
+	}
+
+	err = inhibitions.DeleteInhibition(alert, config)
 	if err != nil {
 		return fmt.Errorf("failed while deleting receivers: %s", err)
 	}

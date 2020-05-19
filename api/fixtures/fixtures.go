@@ -40,6 +40,16 @@ var AlertResource = &v1.Alert{
 				Severity:      "#eeeeee",
 			},
 		},
+		InhibitRules: []v1.InhibitRules{
+			{
+				Targets: map[string]string{
+					"alert": "kube_deployment_status_replicas_unavailable",
+				},
+				Sources: map[string]string{
+					"alert": "naisCluster",
+				},
+			},
+		},
 	},
 }
 
@@ -109,7 +119,18 @@ route:
     - receiver: testmann
       continue: true
       match:
-        alert: testmann`
+        alert: testmann
+inhibit_rules:
+  - target_match:
+       alertname: 'applikasjon nede'
+    source_match:
+       alertname: 'nais_down'
+    equal: ['team']
+  - target_match:
+       alertname: 'http_500'
+    source_match:
+       alertname: 'brreg_down'
+    equal: ['team']`
 
 var AlertmanagerConfigYamlDifferentRoutes = `
 route:
