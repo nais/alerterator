@@ -69,9 +69,16 @@ type Rule struct {
 	Severity      string `json:"severity"`
 }
 
+type InhibitRules struct {
+	Targets map[string]string `json:"targets"`
+	Sources map[string]string `json:"sources"`
+	Labels []string
+}
+
 type AlertSpec struct {
-	Receivers Receivers `json:"receivers"`
-	Alerts    []Rule    `json:"alerts" validate:"dive"`
+	Receivers    Receivers      `json:"receivers"`
+	Alerts       []Rule         `json:"alerts" validate:"dive"`
+	InhibitRules []InhibitRules `json:"inhibitRules"`
 }
 
 func (in *Alert) CreateEvent(reason, message, typeStr string) *corev1.Event {

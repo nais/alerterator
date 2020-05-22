@@ -6,7 +6,6 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
-	log "github.com/sirupsen/logrus"
 )
 
 type routeConfig struct {
@@ -81,12 +80,10 @@ func DeleteRoute(alert *v1.Alert, alertManager map[interface{}]interface{}) erro
 	}
 
 	index := getAlertRouteIndex(utils.GetCombinedName(alert), route.Routes)
-	if index == -1 {
-		log.Infof("No route with the name %s", utils.GetCombinedName(alert))
-		return nil
+	if index != -1 {
+		route.Routes = append(route.Routes[:index], route.Routes[index+1:]...)
+		alertManager["route"] = route
 	}
-	route.Routes = append(route.Routes[:index], route.Routes[index+1:]...)
-	alertManager["route"] = route
 
 	return nil
 }
