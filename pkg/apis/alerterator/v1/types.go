@@ -70,9 +70,11 @@ type Rule struct {
 }
 
 type InhibitRules struct {
-	Targets map[string]string `json:"targets"`
-	Sources map[string]string `json:"sources"`
-	Labels  []string          `json:"labels"`
+	Targets      map[string]string `json:"targets"`
+	TargetsRegex map[string]string `json:"targetsRegex"`
+	Sources      map[string]string `json:"sources"`
+	SourcesRegex map[string]string `json:"sourcesRegex"`
+	Labels       []string          `json:"labels"`
 }
 
 type AlertSpec struct {

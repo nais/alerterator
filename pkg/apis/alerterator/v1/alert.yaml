@@ -106,7 +106,11 @@ spec:
                     properties:
                       targets:
                         type: object
+                      targetsRegex:
+                        type: object
                       sources:
+                        type: object
+                      sourcesRegex:
                         type: object
                       labels:
                         type: array

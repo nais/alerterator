@@ -17,9 +17,11 @@ type inhibitionConfig struct {
 
 func createInhibitConfig(rule v1.InhibitRules) inhibitionConfig {
 	return inhibitionConfig{
-		Targets: rule.Targets,
-		Sources: rule.Sources,
-		Labels:  append(rule.Labels, "team"),
+		Targets:   rule.Targets,
+		TargetsRe: rule.TargetsRegex,
+		Sources:   rule.Sources,
+		SourcesRe: rule.SourcesRegex,
+		Labels:    append(rule.Labels, "team"),
 	}
 }
 
