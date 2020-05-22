@@ -99,15 +99,19 @@ spec:
                 inhibitRules:
                   type: array
                   required:
-                    - target
-                    - source
+                    - targets
+                    - sources
                   items:
                     type: object
                     properties:
-                      target:
-                        type: string
-                      source:
-                        type: string
+                      targets:
+                        type: array
+                        items:
+                          type: string
+                      sources:
+                        type: array
+                        items:
+                          type: string
                       labels:
                         type: array
                         items:
