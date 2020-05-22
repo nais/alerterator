@@ -25,7 +25,7 @@ func createInhibitConfig(alert *v1.Alert, rule v1.InhibitRules) inhibitionConfig
 
 func AddOrUpdateInhibition(alert *v1.Alert, alertManager map[interface{}]interface{}) ([]inhibitionConfig, error) {
 	var inhibitions []inhibitionConfig
-	err := mapstructure.Decode(alertManager["receivers"], &inhibitions)
+	err := mapstructure.Decode(alertManager["inhibit_rules"], &inhibitions)
 	if err != nil {
 		return nil, fmt.Errorf("failed while decoding map structure: %s", err)
 	}
