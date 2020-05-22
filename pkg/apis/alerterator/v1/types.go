@@ -72,7 +72,7 @@ type Rule struct {
 type InhibitRules struct {
 	Targets map[string]string `json:"targets"`
 	Sources map[string]string `json:"sources"`
-	Labels []string
+	Labels  []string          `json:"labels"`
 }
 
 type AlertSpec struct {
