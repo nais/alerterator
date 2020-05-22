@@ -19,7 +19,7 @@ func createInhibitConfig(rule v1.InhibitRules) inhibitionConfig {
 	return inhibitionConfig{
 		Targets: rule.Targets,
 		Sources: rule.Sources,
-		Labels:  append([]string{"team"}, rule.Labels...),
+		Labels:  append(rule.Labels, "team"),
 	}
 }
 
