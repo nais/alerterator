@@ -133,6 +133,9 @@ func (in *Alert) NilFix() {
 	if in.Spec.Alerts == nil {
 		in.Spec.Alerts = make([]Rule, 0)
 	}
+	if in.Spec.InhibitRules == nil {
+		in.Spec.InhibitRules = make([]InhibitRules, 0)
+	}
 }
 
 func (in Alert) Hash() (string, error) {
