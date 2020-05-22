@@ -12,14 +12,14 @@ type inhibitionConfig struct {
 	TargetsRe map[string]string `mapstructure:"target_match_re" yaml:"target_match_re,omitempty"`
 	Sources   map[string]string `mapstructure:"source_match" yaml:"source_match,omitempty"`
 	SourcesRe map[string]string `mapstructure:"source_match_re" yaml:"source_match_re,omitempty"`
-	Labels   []string          `mapstructure:"equal" yaml:"equal,omitempty"`
+	Labels    []string          `mapstructure:"equal" yaml:"equal,omitempty"`
 }
 
-func createInhibitConfig(alert *v1.Alert, rule v1.InhibitRules) inhibitionConfig {
+func createInhibitConfig(rule v1.InhibitRules) inhibitionConfig {
 	return inhibitionConfig{
 		Targets: rule.Targets,
 		Sources: rule.Sources,
-		Labels: append([]string{"team"}, rule.Labels...),
+		Labels:  append([]string{"team"}, rule.Labels...),
 	}
 }
 
@@ -31,7 +31,7 @@ func AddOrUpdateInhibition(alert *v1.Alert, alertManager map[interface{}]interfa
 	}
 
 	for _, inhibitRule := range alert.Spec.InhibitRules {
-		inhibitConfig := createInhibitConfig(alert, inhibitRule)
+		inhibitConfig := createInhibitConfig(inhibitRule)
 		index := getInhibitionIndex(inhibitRule.Targets, inhibitions)
 		if index != -1 {
 			inhibitions[index] = inhibitConfig
