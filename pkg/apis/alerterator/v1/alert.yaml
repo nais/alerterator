@@ -105,13 +105,9 @@ spec:
                     type: object
                     properties:
                       targets:
-                        type: array
-                        items:
-                          type: string
+                        type: object
                       sources:
-                        type: array
-                        items:
-                          type: string
+                        type: object
                       labels:
                         type: array
                         items:
