@@ -31,14 +31,19 @@ jobs:
           repository: navikt/nais-yaml
           token: ${{ secrets.NAIS_YAML_TOKEN }}
           path: nais-yaml
-      - run: |
+      - name: Update nais-yaml
+        run: |
+          pwd
+          ls -la
           version=$(alerterator/version.sh)
+          echo $version
           res="alerterator/deployment-resources"
           static_file="nais-yaml/templates/zz-generated-alerterator.yaml"
           cat $res/04-deployment.yaml > nais-yaml/templates/alerterator.yaml
           cat $res/00-namespace.yaml $res/01-serviceaccount.yaml $res/02-clusterrolebinding.yaml $res/03-configmap.yaml pkg/apis/alerterator/v1/alert.yaml > $static_file
 
           cd nais-yaml
+          git status
           git config user.name github-actions
           git config user.email github-actions@github.com
 
