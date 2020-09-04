@@ -41,8 +41,8 @@ jobs:
           cat $res/00-namespace.yaml $res/01-serviceaccount.yaml $res/02-clusterrolebinding.yaml $res/03-configmap.yaml pkg/apis/alerterator/v1/alert.yaml > $static_file
 
           cd ../nais-yaml
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name alerterator-actions
+          git config user.email alerterator-actions@github.com
 
           sed -E -i "s#image: docker.pkg.github.com/"$GITHUB_REPOSITORY"/alerterator:.+#image: docker.pkg.github.com/"$GITHUB_REPOSITORY"/alerterator:${version}#" vars/alerterator.yaml
           git add .
