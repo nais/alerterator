@@ -21,12 +21,12 @@ spec:
         app: alerterator
     spec:
       serviceAccountName: alerterator
+      imagePullSecrets:
+        - name: gpr-credentials
       containers:
       - name: alerterator
         image: {{ .image }}
         imagePullPolicy: Always
-        imagePullSecrets:
-          - name: gpr-credentials
         env:
           - name: NAIS_CLUSTER_NAME
             value: {{ .env }}
