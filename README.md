@@ -1,9 +1,12 @@
 Alerterator
 ===========
 
-Alerterator is a Kubernetes operator for managing Prometheus Alertmanager alerts. With this resource you can easily get notified (either via Slack or email) when somethings is happening with your app. 
+Alerterator is a Kubernetes operator for managing Prometheus Alertmanager alerts. With this resource you can easily get
+notified (either via Slack or email) when somethings is happening with your app.
 
-As alerts are namespace agnostic, you don't have to have different files for each namespace you are running (although we don't recommend running you application in different namespaces). You can even make your own personal alert-resources that only notifes you!
+As alerts are namespace agnostic, you don't have to have different files for each namespace you are running (although we
+don't recommend running you application in different namespaces). You can even make your own personal alert-resources
+that only notifes you!
 
 The documentation for how to start using alerts are over at https://doc.nais.io/observability/alerts.
 
@@ -40,7 +43,9 @@ It's pretty simple getting started developing, download the code, run `make buil
 
 ### Code generation
 
-In order to use the Kubernetes Go library, we need to use classes that work together with the interfaces in that library. Those classes are mostly boilerplate code, and to ensure healthy and happy developers, we use code generators for that.
+In order to use the Kubernetes Go library, we need to use classes that work together with the interfaces in that
+library. Those classes are mostly boilerplate code, and to ensure healthy and happy developers, we use code generators
+for that.
 
 When the CRD changes, or additional Kubernetes resources need to be generated, you have to run code generation:
 
