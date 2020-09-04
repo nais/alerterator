@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout alerterator
         uses: actions/checkout@v2
+        with:
+          path: alerterator
       - name: Checkout nais-yaml
         uses: actions/checkout@v2
         with:
@@ -30,8 +32,8 @@ jobs:
           token: ${{ secrets.NAIS_YAML_TOKEN }}
           path: nais-yaml
       - run: |
-          version=$(./version.sh)
-          res="deployment-resources"
+          version=$(alerterator/version.sh)
+          res="alerterator/deployment-resources"
           static_file="nais-yaml/templates/zz-generated-alerterator.yaml"
           cat $res/04-deployment.yaml > nais-yaml/templates/alerterator.yaml
           cat $res/00-namespace.yaml $res/01-serviceaccount.yaml $res/02-clusterrolebinding.yaml $res/03-configmap.yaml pkg/apis/alerterator/v1/alert.yaml > $static_file
