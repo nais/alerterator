@@ -1,14 +1,14 @@
 package fixtures
 
 import (
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var AlertResource = &v1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
-		Name: "aura",
+		Name:      "aura",
 		Namespace: "aura",
 		Labels: map[string]string{
 			"alert": "aura",
@@ -24,7 +24,8 @@ var AlertResource = &v1.Alert{
 				To: "test@example.com",
 			},
 			SMS: v1.SMS{
-				Recipients: "12346789",
+				Recipients:   "12346789",
+				SendResolved: false,
 				SendResolved: false,
 			},
 		},
@@ -55,7 +56,7 @@ var AlertResource = &v1.Alert{
 
 var MinimalAlertResource = &v1.Alert{
 	ObjectMeta: metav1.ObjectMeta{
-		Name: "aura",
+		Name:      "aura",
 		Namespace: "aura",
 		Labels: map[string]string{
 			"alert": "aura",

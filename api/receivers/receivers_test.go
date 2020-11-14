@@ -1,8 +1,9 @@
 package receivers
 
 import (
-	"github.com/nais/alerterator/utils"
 	"testing"
+
+	"github.com/nais/alerterator/utils"
 
 	"github.com/nais/alerterator/api/fixtures"
 	"github.com/stretchr/testify/assert"

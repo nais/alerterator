@@ -2,11 +2,12 @@ package receivers
 
 import (
 	"fmt"
-	"github.com/mitchellh/mapstructure"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
-	"github.com/nais/alerterator/utils"
 	"os"
 	"strings"
+
+	"github.com/mitchellh/mapstructure"
+	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/alerterator/utils"
 )
 
 type slackConfig struct {
@@ -97,7 +98,7 @@ func createReceiver(alert *v1.Alert) (receiver receiverConfig) {
 		receiver.EmailConfigs = append(receiver.EmailConfigs, email)
 	}
 
-	if alert.Spec.Receivers.SMS.Recipients != "" {
+	if receivers.SMS.Recipients != "" {
 		sms := getDefaultSMSConfig()
 		if !receivers.SMS.SendResolved {
 			sms.SendResolved = false
