@@ -39,4 +39,10 @@ func TestReceivers(t *testing.T) {
 		receiver := createReceiver(alert)
 		assert.False(t, receiver.WebhookConfigs[0].SendResolved)
 	})
+
+	t.Run("Valider at user key blir satt", func(t *testing.T) {
+		alert := fixtures.AlertResource
+		receiver := createReceiver(alert)
+		assert.Equal(t, receiver.PushoverConfigs[0].UserKey, alert.Spec.Receivers.Pushover.UserKey)
+	})
 }

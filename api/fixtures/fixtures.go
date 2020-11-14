@@ -26,6 +26,9 @@ var AlertResource = &v1.Alert{
 			SMS: v1.SMS{
 				Recipients:   "12346789",
 				SendResolved: false,
+			},
+			Pushover: v1.Pushover{
+				UserKey:      "123Token",
 				SendResolved: false,
 			},
 		},
