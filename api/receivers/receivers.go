@@ -32,15 +32,14 @@ type webhookConfig struct {
 }
 
 type pushoverConfig struct {
-	SendResolved bool     `mapstructure:"send_resolved" yaml:"send_resolved"`
-	UserKey      string   `mapstructure:"user_key" yaml:"user_key"`
-	Token        string   `mapstructure:"token" yaml:"token"`
-	Title        string   `mapstructure:"title" yaml:"title"`
-	Message      string   `mapstructure:"message" yaml:"message"`
-	Priority     string   `mapstructure:"priority" yaml:"priority"`
-	Retry        string   `mapstructure:"retry" yaml:"retry"`
-	Expire       string   `mapstructure:"expire" yaml:"expire"`
-	HttpConfig   struct{} `mapstructure:"user_key" yaml:"user_key"`
+	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
+	UserKey      string `mapstructure:"user_key" yaml:"user_key"`
+	Token        string `mapstructure:"token" yaml:"token"`
+	Title        string `mapstructure:"title" yaml:"title"`
+	Message      string `mapstructure:"message" yaml:"message"`
+	Priority     string `mapstructure:"priority" yaml:"priority"`
+	Retry        string `mapstructure:"retry" yaml:"retry"`
+	Expire       string `mapstructure:"expire" yaml:"expire"`
 }
 
 type receiverConfig struct {
