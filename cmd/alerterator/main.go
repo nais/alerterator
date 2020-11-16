@@ -17,6 +17,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -35,6 +36,9 @@ func main() {
 		TimestampFormat: time.RFC3339Nano,
 	})
 	log.Info("Alerterator starting up")
+
+	viper.SetEnvPrefix("ALERTERATOR")
+	viper.AutomaticEnv()
 
 	// register custom types
 	err := v1.AddToScheme(scheme.Scheme)

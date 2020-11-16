@@ -8,6 +8,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	"github.com/nais/alerterator/utils"
+	"github.com/spf13/viper"
 )
 
 type slackConfig struct {
@@ -73,7 +74,7 @@ func getDefaultPushoverConfig(userKey string) pushoverConfig {
 	return pushoverConfig{
 		SendResolved: true,
 		UserKey:      userKey,
-		Token:        "",
+		Token:        viper.GetString("pushover_token"),
 		Title:        "{{ template \"nais-pushover.title\" }}",
 		Message:      "{{ template \"nais-pushover.text\" }}",
 		Priority:     "{{ template \"nais-pushover.priority\" }}",
