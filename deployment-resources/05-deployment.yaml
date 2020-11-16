@@ -30,3 +30,8 @@ spec:
         env:
           - name: NAIS_CLUSTER_NAME
             value: {{ .env }}
+          - name: ALERTERATOR_PUSHOVER_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: alerterator
+                key: pushover_token
