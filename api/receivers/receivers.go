@@ -97,7 +97,7 @@ func createReceiver(alert *v1.Alert) (receiver receiverConfig) {
 		receiver.EmailConfigs = append(receiver.EmailConfigs, email)
 	}
 
-	if alert.Spec.Receivers.SMS.Recipients != "" {
+	if receivers.SMS.Recipients != "" {
 		sms := getDefaultSMSConfig()
 		if !receivers.SMS.SendResolved {
 			sms.SendResolved = false

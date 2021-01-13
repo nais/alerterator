@@ -10,13 +10,11 @@ that only notifes you!
 
 The documentation for how to start using alerts are over at https://doc.nais.io/observability/alerts.
 
-
 ## Deployment
 
 ### Environment
 
 * Kubernetes v1.11.0 or later
-
 
 ### Installation
 
@@ -26,11 +24,9 @@ You can deploy the most recent release of Alerterator by applying to your cluste
 kubectl apply -f ./deployment-resources/
 ```
 
-
 ## Development
 
 It's pretty simple getting started developing, download the code, run `make build` and you should be set to Go.
-
 
 ### Prerequisites
 
@@ -39,7 +35,6 @@ It's pretty simple getting started developing, download the code, run `make buil
 * [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports)
 * Docker
 * Kubernetes running locally (Minikube), or a cluster to deploy too
-
 
 ### Code generation
 
@@ -53,19 +48,17 @@ When the CRD changes, or additional Kubernetes resources need to be generated, y
 make codegen-crd
 ```
 
-
 ### Testing
 
 There are two types of tests, automatic tests in Go, or running it locally (for example in Minikube)
 
-
 #### Tests
 
 To run all the automatic tests:
+
 ```
 make test
 ```
-
 
 #### Local
 

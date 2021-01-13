@@ -2,9 +2,9 @@ package inhibitions
 
 import (
 	"fmt"
-	"reflect"
 	"github.com/mitchellh/mapstructure"
 	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"reflect"
 )
 
 type inhibitionConfig struct {

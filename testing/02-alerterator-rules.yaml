@@ -5,4 +5,4 @@ metadata:
     app: alerterator-rules
   name: alerterator-rules
   namespace: nais
-data: {}
+data: { }

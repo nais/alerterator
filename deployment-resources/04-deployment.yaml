@@ -24,9 +24,9 @@ spec:
       imagePullSecrets:
         - name: gpr-credentials
       containers:
-      - name: alerterator
-        image: {{ .image }}
-        imagePullPolicy: Always
-        env:
-          - name: NAIS_CLUSTER_NAME
-            value: {{ .env }}
+        - name: alerterator
+          image: { { .image } }
+          imagePullPolicy: Always
+          env:
+            - name: NAIS_CLUSTER_NAME
+              value: { { .env } }
