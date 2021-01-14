@@ -49,7 +49,7 @@ spec:
                   properties:
                     group_wait:
                       type: string
-                        pattern: '[0-9]+(ms|[smhdwy])'
+                      pattern: '[0-9]+(ms|[smhdwy])'
                     group_interval:
                       type: string
                       pattern: '[0-9]+(ms|[smhdwy])'
