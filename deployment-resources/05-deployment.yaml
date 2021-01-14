@@ -25,8 +25,13 @@ spec:
         - name: gpr-credentials
       containers:
         - name: alerterator
-          image: { { .image } }
+          image: {{ .image }}
           imagePullPolicy: Always
           env:
             - name: NAIS_CLUSTER_NAME
-              value: { { .env } }
+              value: {{ .env }}
+            - name: ALERTERATOR_PUSHOVER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: alerterator
+                  key: pushover_token

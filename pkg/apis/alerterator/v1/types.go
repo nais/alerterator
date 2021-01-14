@@ -52,10 +52,16 @@ type SMS struct {
 	SendResolved bool   `json:"send_resolved"`
 }
 
+type Pushover struct {
+	UserKey      string `json:"user_key"`
+	SendResolved bool   `json:"send_resolved"`
+}
+
 type Receivers struct {
-	Slack Slack `json:"slack"`
-	Email Email `json:"email"`
-	SMS   SMS   `json:"sms"`
+	Slack    Slack    `json:"slack"`
+	Email    Email    `json:"email"`
+	SMS      SMS      `json:"sms"`
+	Pushover Pushover `json:"pushover"`
 }
 
 type Rule struct {
@@ -67,6 +73,7 @@ type Rule struct {
 	Documentation string `json:"documentation"`
 	SLA           string `json:"sla"`
 	Severity      string `json:"severity"`
+	Priority      string `json:"priority"`
 }
 
 type InhibitRules struct {

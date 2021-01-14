@@ -1,7 +1,7 @@
 package fixtures
 
 import (
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -17,8 +17,8 @@ var AlertResource = &v1.Alert{
 	Spec: v1.AlertSpec{
 		Route: v1.Route{
 			RepeatInterval: "4h",
-			GroupWait: "30s",
-			GroupInterval: "5m",
+			GroupWait:      "30s",
+			GroupInterval:  "5m",
 		},
 		Receivers: v1.Receivers{
 			Slack: v1.Slack{
@@ -30,6 +30,10 @@ var AlertResource = &v1.Alert{
 			},
 			SMS: v1.SMS{
 				Recipients:   "12346789",
+				SendResolved: false,
+			},
+			Pushover: v1.Pushover{
+				UserKey:      "123Token",
 				SendResolved: false,
 			},
 		},

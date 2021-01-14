@@ -2,11 +2,13 @@ package receivers
 
 import (
 	"fmt"
-	"github.com/mitchellh/mapstructure"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
-	"github.com/nais/alerterator/utils"
 	"os"
 	"strings"
+
+	"github.com/mitchellh/mapstructure"
+	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/alerterator/utils"
+	"github.com/spf13/viper"
 )
 
 type slackConfig struct {
@@ -29,11 +31,23 @@ type webhookConfig struct {
 	HttpConfig   struct{} `mapstructure:"http_config" yaml:"http_config"`
 }
 
+type pushoverConfig struct {
+	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
+	UserKey      string `mapstructure:"user_key" yaml:"user_key"`
+	Token        string `mapstructure:"token" yaml:"token"`
+	Title        string `mapstructure:"title" yaml:"title"`
+	Message      string `mapstructure:"message" yaml:"message"`
+	Priority     string `mapstructure:"priority" yaml:"priority"`
+	Retry        string `mapstructure:"retry" yaml:"retry"`
+	Expire       string `mapstructure:"expire" yaml:"expire"`
+}
+
 type receiverConfig struct {
-	Name           string          `mapstructure:"name" yaml:"name"`
-	SlackConfigs   []slackConfig   `mapstructure:"slack_configs" yaml:"slack_configs,omitempty"`
-	EmailConfigs   []emailConfig   `mapstructure:"email_configs" yaml:"email_configs,omitempty"`
-	WebhookConfigs []webhookConfig `mapstructure:"webhook_configs" yaml:"webhook_configs,omitempty"`
+	Name            string           `mapstructure:"name" yaml:"name"`
+	SlackConfigs    []slackConfig    `mapstructure:"slack_configs" yaml:"slack_configs,omitempty"`
+	EmailConfigs    []emailConfig    `mapstructure:"email_configs" yaml:"email_configs,omitempty"`
+	WebhookConfigs  []webhookConfig  `mapstructure:"webhook_configs" yaml:"webhook_configs,omitempty"`
+	PushoverConfigs []pushoverConfig `mapstructure:"pushover_configs" yaml:"pushover_configs,omitempty"`
 }
 
 func getDefaultEmailConfig(to string) emailConfig {
@@ -52,6 +66,19 @@ func getDefaultSMSConfig() webhookConfig {
 		URL:          "http://smsmanager/sms",
 		SendResolved: true,
 		HttpConfig:   struct{}{},
+	}
+}
+
+func getDefaultPushoverConfig(userKey string) pushoverConfig {
+	return pushoverConfig{
+		SendResolved: true,
+		UserKey:      userKey,
+		Token:        viper.GetString("pushover_token"),
+		Title:        "{{ template \"nais-pushover.title\" . }}",
+		Message:      "{{ template \"nais-pushover.text\" . }}",
+		Priority:     "{{ template \"nais-pushover.priority\" }}",
+		Retry:        "1m",
+		Expire:       "1h",
 	}
 }
 
@@ -104,6 +131,15 @@ func createReceiver(alert *v1.Alert) (receiver receiverConfig) {
 		}
 		receiver.WebhookConfigs = append(receiver.WebhookConfigs, sms)
 	}
+
+	if receivers.Pushover.UserKey != "" {
+		pushover := getDefaultPushoverConfig(receivers.Pushover.UserKey)
+		if !receivers.Pushover.SendResolved {
+			pushover.SendResolved = false
+		}
+		receiver.PushoverConfigs = append(receiver.PushoverConfigs, pushover)
+	}
+
 	return
 }
 

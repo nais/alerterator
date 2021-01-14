@@ -80,6 +80,13 @@ spec:
                           type: string
                         send_resolve:
                           type: boolean
+                    pushover:
+                      type: object
+                      properties:
+                        send_resolve:
+                          type: boolean
+                        user_key:
+                          type: string
                 alerts:
                   type: array
                   required:
