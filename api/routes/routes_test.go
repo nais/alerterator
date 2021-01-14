@@ -26,4 +26,18 @@ func TestRoutes(t *testing.T) {
 		assert.Equal(t, "default-receiver", routesConfig.Receiver)
 		assert.Equal(t, "10h", routesConfig.RepeatInterval)
 	})
+
+	t.Run("Valider at man kan sette route config per route", func(t *testing.T) {
+		config := make(map[interface{}]interface{})
+		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), config)
+		assert.NoError(t, err)
+
+		routesConfig, err := AddOrUpdateRoute(fixtures.AlertResource, config, config)
+		assert.NoError(t, err)
+
+		teamRoute := routesConfig.Routes[1]
+		assert.Equal(t, "5m", teamRoute.GroupInterval)
+		assert.Equal(t, "30s", teamRoute.GroupWait)
+		assert.Equal(t, "4h", teamRoute.RepeatInterval)
+	})
 }

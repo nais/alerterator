@@ -44,6 +44,18 @@ spec:
                 - receivers
                 - alerts
               properties:
+                route:
+                  type: object
+                  properties:
+                    group_wait:
+                      type: string
+                        pattern: '[0-9]+(ms|[smhdwy])'
+                    group_interval:
+                      type: string
+                      pattern: '[0-9]+(ms|[smhdwy])'
+                    repeat_interval:
+                      type: string
+                      pattern: '[0-9]+(ms|[smhdwy])'
                 receivers:
                   type: object
                   properties:

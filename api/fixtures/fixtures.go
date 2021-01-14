@@ -11,10 +11,15 @@ var AlertResource = &v1.Alert{
 		Name:      "aura",
 		Namespace: "aura",
 		Labels: map[string]string{
-			"alert": "aura",
+			"team": "aura",
 		},
 	},
 	Spec: v1.AlertSpec{
+		Route: v1.Route{
+			RepeatInterval: "4h",
+			GroupWait: "30s",
+			GroupInterval: "5m",
+		},
 		Receivers: v1.Receivers{
 			Slack: v1.Slack{
 				Channel:     "#nais-alerts-dev",
@@ -112,10 +117,6 @@ route:
   repeat_interval: 1h
   receiver: default-receiver
   routes:
-    - receiver: aura-aura
-      continue: true
-      match:
-        alert: aura-aura
     - receiver: testmann
       continue: true
       match:

@@ -77,7 +77,14 @@ type InhibitRules struct {
 	Labels       []string          `json:"labels"`
 }
 
+type Route struct {
+	GroupWait string `json:"groupWait"`
+	GroupInterval string `json:"groupInterval"`
+	RepeatInterval string `json:"repeatInterval"`
+}
+
 type AlertSpec struct {
+	Route        Route          `json:"route"`
 	Receivers    Receivers      `json:"receivers"`
 	Alerts       []Rule         `json:"alerts" validate:"dive"`
 	InhibitRules []InhibitRules `json:"inhibitRules"`

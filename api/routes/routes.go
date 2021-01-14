@@ -9,9 +9,12 @@ import (
 )
 
 type routeConfig struct {
-	Receiver string            `mapstructure:"receiver" yaml:"receiver"`
-	Continue bool              `mapstructure:"continue" yaml:"continue"`
-	Match    map[string]string `mapstructure:"match" yaml:"match"`
+	Receiver       string            `mapstructure:"receiver" yaml:"receiver"`
+	Continue       bool              `mapstructure:"continue" yaml:"continue"`
+	Match          map[string]string `mapstructure:"match" yaml:"match"`
+	GroupWait      string            `mapstructure:"group_wait" yaml:"group_wait,omitempty"`
+	GroupInterval  string            `mapstructure:"group_interval" yaml:"group_interval,omitempty"`
+	RepeatInterval string            `mapstructure:"repeat_interval" yaml:"repeat_interval,omitempty"`
 }
 
 type routesConfig struct {
@@ -42,6 +45,9 @@ func AddOrUpdateRoute(alert *v1.Alert, currentConfig, latestConfig map[interface
 
 	if missingAlertRoute(utils.GetCombinedName(alert), routes.Routes) {
 		route := routeConfig{
+			GroupInterval: alert.Spec.Route.GroupInterval,
+			GroupWait: alert.Spec.Route.GroupWait,
+			RepeatInterval: alert.Spec.Route.RepeatInterval,
 			Receiver: utils.GetCombinedName(alert),
 			Continue: true,
 			Match: map[string]string{
