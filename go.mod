@@ -1,20 +1,16 @@
 module github.com/nais/alerterator
 
 require (
-	github.com/Azure/go-autorest v11.1.2+incompatible // indirect
 	github.com/go-logr/logr v0.3.0 // indirect
-	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.5.4 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/googleapis/gnostic v0.5.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.1
 	github.com/mitchellh/mapstructure v1.4.1
-	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/prometheus/client_golang v1.9.0
 	github.com/prometheus/procfs v0.3.0 // indirect
 	github.com/sirupsen/logrus v1.7.0
@@ -29,13 +25,11 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
-	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/api v0.16.15 // kubernetes-1.16.15
-	k8s.io/apimachinery v0.16.15 // kubernetes-1.16.15
-	k8s.io/client-go v0.16.15 // kubernetes-1.16.15
-	k8s.io/klog v1.0.0 // indirect
+	k8s.io/api v0.17.16
+	k8s.io/apimachinery v0.17.16
+	k8s.io/client-go v0.17.16
 	k8s.io/utils v0.0.0-20210111153108-fddb29f9d009 // indirect
 )
 
