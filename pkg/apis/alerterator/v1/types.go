@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	hash "github.com/mitchellh/hashstructure"
+	hash "github.com/mitchellh/hashstructure/v2"
 	"gopkg.in/go-playground/validator.v9"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -151,7 +151,7 @@ func (in Alert) Hash() (string, error) {
 		in.Labels,
 	}
 
-	h, err := hash.Hash(relevantValues, nil)
+	h, err := hash.Hash(relevantValues, hash.FormatV2, nil)
 	return strconv.FormatUint(h, 10), err
 }
 
