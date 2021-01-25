@@ -2,9 +2,9 @@ package rules
 
 import (
 	"fmt"
-	"github.com/nais/alerterator/utils"
 
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/alerterator/utils"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -26,7 +26,7 @@ type Alert struct {
 	Labels      map[string]string `yaml:"labels"`
 }
 
-func createAlertRules(alert *v1.Alert) (alertRules []Alert) {
+func createAlertRules(alert *nais_io_v1.Alert) (alertRules []Alert) {
 	for i := range alert.Spec.Alerts {
 		rule := alert.Spec.Alerts[i]
 		alertRule := Alert{
@@ -58,7 +58,7 @@ func createAlertRules(alert *v1.Alert) (alertRules []Alert) {
 	return
 }
 
-func addOrUpdateAlert(alert *v1.Alert, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
+func addOrUpdateAlert(alert *nais_io_v1.Alert, configMap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
 	alertRules := createAlertRules(alert)
 	alertGroups := Groups{
 		Groups: []Group{

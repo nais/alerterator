@@ -1,6 +1,7 @@
 module github.com/nais/alerterator
 
 require (
+	github.com/nais/liberator v0.0.0-20210125122826-73619278d7c4
 	github.com/go-logr/logr v0.3.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect

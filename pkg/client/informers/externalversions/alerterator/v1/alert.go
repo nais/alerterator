@@ -5,7 +5,7 @@ package v1
 import (
 	time "time"
 
-	alerteratorv1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	alerteratorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	versioned "github.com/nais/alerterator/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/nais/alerterator/pkg/client/informers/externalversions/internalinterfaces"
 	v1 "github.com/nais/alerterator/pkg/client/listers/alerterator/v1"

@@ -2,11 +2,12 @@ package api
 
 import (
 	"fmt"
+
 	"github.com/nais/alerterator/api/inhibitions"
 	"github.com/nais/alerterator/api/receivers"
-	routes "github.com/nais/alerterator/api/routes"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
-	yaml "gopkg.in/yaml.v2"
+	"github.com/nais/alerterator/api/routes"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
@@ -56,7 +57,7 @@ func updateConfigMap(config map[interface{}]interface{}, configMapInterface core
 	return nil
 }
 
-func AddOrUpdateAlertmanagerConfigMap(configMapInterface corev1.ConfigMapInterface, alert *v1.Alert) error {
+func AddOrUpdateAlertmanagerConfigMap(configMapInterface corev1.ConfigMapInterface, alert *nais_io_v1.Alert) error {
 	currentConfig, err := getConfig(alertmanagerConfigMapName, configMapInterface)
 	if err != nil {
 		return err
@@ -89,7 +90,7 @@ func AddOrUpdateAlertmanagerConfigMap(configMapInterface corev1.ConfigMapInterfa
 	return nil
 }
 
-func DeleteRouteAndReceiverFromAlertManagerConfigMap(configMapInterface corev1.ConfigMapInterface, alert *v1.Alert) error {
+func DeleteRouteAndReceiverFromAlertManagerConfigMap(configMapInterface corev1.ConfigMapInterface, alert *nais_io_v1.Alert) error {
 	config, err := getConfig(alertmanagerConfigMapName, configMapInterface)
 	if err != nil {
 		return err

@@ -1,7 +1,7 @@
 package fixtures
 
 import (
-	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

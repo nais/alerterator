@@ -5,7 +5,7 @@ package v1
 import (
 	"time"
 
-	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	scheme "github.com/nais/alerterator/pkg/client/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"

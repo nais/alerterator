@@ -2,13 +2,13 @@ package alerterator
 
 import (
 	"fmt"
-	"github.com/nais/alerterator/api/rules"
 
 	"github.com/nais/alerterator/api"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/alerterator/api/rules"
 	clientV1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
 	informers "github.com/nais/alerterator/pkg/client/informers/externalversions/alerterator/v1"
 	"github.com/nais/alerterator/pkg/metrics"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -56,7 +56,7 @@ func (n *Alerterator) reportEvent(event *corev1.Event) (*corev1.Event, error) {
 }
 
 // Reports an error through the error log, a Kubernetes event, and possibly logs a failure in event creation.
-func (n *Alerterator) reportError(source string, err error, alert *v1.Alert) {
+func (n *Alerterator) reportError(source string, err error, alert *nais_io_v1.Alert) {
 	log.Error(err)
 	ev := alert.CreateEvent(source, err.Error(), "Warning")
 	_, err = n.reportEvent(ev)
@@ -65,7 +65,7 @@ func (n *Alerterator) reportError(source string, err error, alert *v1.Alert) {
 	}
 }
 
-func (n *Alerterator) synchronize(previous, alert *v1.Alert) error {
+func (n *Alerterator) synchronize(previous, alert *nais_io_v1.Alert) error {
 	hash, err := alert.Hash()
 	if err != nil {
 		return fmt.Errorf("while hashing alert spec: %s", err)
@@ -110,12 +110,12 @@ func (n *Alerterator) synchronize(previous, alert *v1.Alert) error {
 }
 
 func (n *Alerterator) update(old, new interface{}) {
-	var alert, previous *v1.Alert
+	var alert, previous *nais_io_v1.Alert
 	if old != nil {
-		previous = old.(*v1.Alert)
+		previous = old.(*nais_io_v1.Alert)
 	}
 	if new != nil {
-		alert = new.(*v1.Alert)
+		alert = new.(*nais_io_v1.Alert)
 	}
 
 	if err := n.synchronize(previous, alert); err != nil {
@@ -128,7 +128,7 @@ func (n *Alerterator) update(old, new interface{}) {
 }
 
 func (n *Alerterator) add(newAlert interface{}) {
-	alert := newAlert.(*v1.Alert)
+	alert := newAlert.(*nais_io_v1.Alert)
 
 	if err := n.synchronize(nil, alert); err != nil {
 		metrics.AlertsFailed.Inc()
@@ -141,7 +141,7 @@ func (n *Alerterator) add(newAlert interface{}) {
 }
 
 func (n *Alerterator) delete(delete interface{}) {
-	alert := delete.(*v1.Alert)
+	alert := delete.(*nais_io_v1.Alert)
 
 	err := api.DeleteRouteAndReceiverFromAlertManagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {

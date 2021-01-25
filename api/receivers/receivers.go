@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
-	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/nais/alerterator/utils"
 	"github.com/spf13/viper"
 )

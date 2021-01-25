@@ -2,10 +2,11 @@ package routes
 
 import (
 	"fmt"
+
 	"github.com/nais/alerterator/utils"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
 type routeConfig struct {
@@ -36,7 +37,7 @@ func missingAlertRoute(alertName string, routes []routeConfig) bool {
 	return true
 }
 
-func AddOrUpdateRoute(alert *v1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (routesConfig, error) {
+func AddOrUpdateRoute(alert *nais_io_v1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (routesConfig, error) {
 	var routes routesConfig
 	err := mapstructure.Decode(currentConfig["route"], &routes)
 	if err != nil {
@@ -45,11 +46,11 @@ func AddOrUpdateRoute(alert *v1.Alert, currentConfig, latestConfig map[interface
 
 	if missingAlertRoute(utils.GetCombinedName(alert), routes.Routes) {
 		route := routeConfig{
-			GroupInterval: alert.Spec.Route.GroupInterval,
-			GroupWait: alert.Spec.Route.GroupWait,
+			GroupInterval:  alert.Spec.Route.GroupInterval,
+			GroupWait:      alert.Spec.Route.GroupWait,
 			RepeatInterval: alert.Spec.Route.RepeatInterval,
-			Receiver: utils.GetCombinedName(alert),
-			Continue: true,
+			Receiver:       utils.GetCombinedName(alert),
+			Continue:       true,
 			Match: map[string]string{
 				"alert": utils.GetCombinedName(alert),
 			},
@@ -78,7 +79,7 @@ func getAlertRouteIndex(alertName string, routes []routeConfig) int {
 	return -1
 }
 
-func DeleteRoute(alert *v1.Alert, alertManager map[interface{}]interface{}) error {
+func DeleteRoute(alert *nais_io_v1.Alert, alertManager map[interface{}]interface{}) error {
 	var route routesConfig
 	err := mapstructure.Decode(alertManager["route"], &route)
 	if err != nil {

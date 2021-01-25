@@ -3,7 +3,7 @@
 package fake
 
 import (
-	alerteratorv1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	alerteratorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

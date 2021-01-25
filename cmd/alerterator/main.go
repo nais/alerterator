@@ -8,16 +8,16 @@ import (
 	"time"
 
 	"github.com/nais/alerterator"
-	"github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	clientV1 "github.com/nais/alerterator/pkg/client/clientset/versioned"
 	informers "github.com/nais/alerterator/pkg/client/informers/externalversions"
 	"github.com/nais/alerterator/pkg/metrics"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -41,7 +41,7 @@ func main() {
 	viper.AutomaticEnv()
 
 	// register custom types
-	err := v1.AddToScheme(scheme.Scheme)
+	err := nais_io_v1.AddToScheme(scheme.Scheme)
 	if err != nil {
 		log.Fatal("unable to add custom type", err)
 	}

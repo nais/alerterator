@@ -3,8 +3,8 @@
 package v1
 
 import (
-	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
 	"github.com/nais/alerterator/pkg/client/clientset/versioned/scheme"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
 	rest "k8s.io/client-go/rest"
 )
 
@@ -51,7 +51,7 @@ func New(c rest.Interface) *AlerteratorV1Client {
 }
 
 func setConfigDefaults(config *rest.Config) error {
-	gv := v1.SchemeGroupVersion
+	gv := nais_io_v1.GroupVersion
 	config.GroupVersion = &gv
 	config.APIPath = "/apis"
 	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()

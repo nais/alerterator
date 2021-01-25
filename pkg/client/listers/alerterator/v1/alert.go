@@ -3,7 +3,8 @@
 package v1
 
 import (
-	v1 "github.com/nais/alerterator/pkg/apis/alerterator/v1"
+	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
@@ -12,7 +13,7 @@ import (
 // AlertLister helps list Alerts.
 type AlertLister interface {
 	// List lists all Alerts in the indexer.
-	List(selector labels.Selector) (ret []*v1.Alert, err error)
+	List(selector labels.Selector) (ret []*nais_io_v1.Alert, err error)
 	// Alerts returns an object that can list and get Alerts.
 	Alerts(namespace string) AlertNamespaceLister
 	AlertListerExpansion
@@ -29,9 +30,9 @@ func NewAlertLister(indexer cache.Indexer) AlertLister {
 }
 
 // List lists all Alerts in the indexer.
-func (s *alertLister) List(selector labels.Selector) (ret []*v1.Alert, err error) {
+func (s *alertLister) List(selector labels.Selector) (ret []*nais_io_v1.Alert, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1.Alert))
+		ret = append(ret, m.(*nais_io_v1.Alert))
 	})
 	return ret, err
 }
@@ -44,9 +45,9 @@ func (s *alertLister) Alerts(namespace string) AlertNamespaceLister {
 // AlertNamespaceLister helps list and get Alerts.
 type AlertNamespaceLister interface {
 	// List lists all Alerts in the indexer for a given namespace.
-	List(selector labels.Selector) (ret []*v1.Alert, err error)
+	List(selector labels.Selector) (ret []*nais_io_v1.Alert, err error)
 	// Get retrieves the Alert from the indexer for a given namespace and name.
-	Get(name string) (*v1.Alert, error)
+	Get(name string) (*nais_io_v1.Alert, error)
 	AlertNamespaceListerExpansion
 }
 
@@ -58,21 +59,21 @@ type alertNamespaceLister struct {
 }
 
 // List lists all Alerts in the indexer for a given namespace.
-func (s alertNamespaceLister) List(selector labels.Selector) (ret []*v1.Alert, err error) {
+func (s alertNamespaceLister) List(selector labels.Selector) (ret []*nais_io_v1.Alert, err error) {
 	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1.Alert))
+		ret = append(ret, m.(*nais_io_v1.Alert))
 	})
 	return ret, err
 }
 
 // Get retrieves the Alert from the indexer for a given namespace and name.
-func (s alertNamespaceLister) Get(name string) (*v1.Alert, error) {
+func (s alertNamespaceLister) Get(name string) (*nais_io_v1.Alert, error) {
 	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
 	if err != nil {
 		return nil, err
 	}
 	if !exists {
-		return nil, errors.NewNotFound(v1.Resource("alert"), name)
+		return nil, errors.NewNotFound(schema.GroupResource{Group: "nais.io", Resource: "alert"}, name)
 	}
-	return obj.(*v1.Alert), nil
+	return obj.(*nais_io_v1.Alert), nil
 }
