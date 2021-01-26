@@ -75,11 +75,6 @@ func (n *Alerterator) synchronize(previous, alert *nais_io_v1.Alert) error {
 		return nil
 	}
 
-	err = alert.ValidateAlertFields()
-	if err != nil {
-		return fmt.Errorf("while validating alert fields: %s", err)
-	}
-
 	err = api.AddOrUpdateAlertmanagerConfigMap(n.ClientSet.CoreV1().ConfigMaps(configMapNamespace), alert)
 	if err != nil {
 		return fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
