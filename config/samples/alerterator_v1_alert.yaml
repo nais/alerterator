@@ -1,0 +1,7 @@
+apiVersion: alerterator.nais.io/v1
+kind: Alert
+metadata:
+  name: alert-sample
+spec:
+  # Add fields here
+  foo: bar
