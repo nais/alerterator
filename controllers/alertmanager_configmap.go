@@ -9,7 +9,7 @@ import (
 	"alerterator/controllers/inhibitions"
 	"alerterator/controllers/receivers"
 	"alerterator/controllers/routes"
-	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"gopkg.in/yaml.v2"
 )
 
@@ -65,7 +65,7 @@ func updateConfigMap(namespacedName types.NamespacedName, config map[interface{}
 	return nil
 }
 
-func AddOrUpdateAlertmanagerConfigMap(alertReconciler *AlertReconciler, ctx context.Context, alert *nais_io_v1.Alert) error {
+func AddOrUpdateAlertmanagerConfigMap(alertReconciler *AlertReconciler, ctx context.Context, alert *naisiov1.Alert) error {
 	currentConfig, err := getConfig(alertmanagerConfigMapName, alertReconciler, ctx)
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func AddOrUpdateAlertmanagerConfigMap(alertReconciler *AlertReconciler, ctx cont
 	return updateConfigMap(alertmanagerConfigMapName, latestConfig, alertReconciler, ctx)
 }
 
-func DeleteRouteAndReceiverFromAlertManagerConfigMap(alertReconciler *AlertReconciler, ctx context.Context, alert *nais_io_v1.Alert) error {
+func DeleteRouteAndReceiverFromAlertManagerConfigMap(alertReconciler *AlertReconciler, ctx context.Context, alert *naisiov1.Alert) error {
 	config, err := getConfig(alertmanagerConfigMapName, alertReconciler, ctx)
 	if err != nil {
 		return err

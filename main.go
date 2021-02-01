@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"alerterator/controllers"
-	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	alertv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -19,9 +19,10 @@ var (
 )
 
 func init() {
+	// TODO: Register custom metrics with the global prometheus registry
 	_ = clientgoscheme.AddToScheme(scheme)
 
-	_ = naisiov1.AddToScheme(scheme)
+	_ = alertv1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -57,7 +58,7 @@ func main() {
 		Log:    *controllerLog,
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Alert")
+		setupLog.Error(err, "unable to create controller")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

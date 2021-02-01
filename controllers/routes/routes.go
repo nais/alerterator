@@ -6,7 +6,7 @@ import (
 	"alerterator/utils"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/nais/liberator/pkg/apis/nais.io/v1"
+	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
 type routeConfig struct {
@@ -37,7 +37,7 @@ func missingAlertRoute(alertName string, routes []routeConfig) bool {
 	return true
 }
 
-func AddOrUpdateRoute(alert *nais_io_v1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (Config, error) {
+func AddOrUpdateRoute(alert *naisiov1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (Config, error) {
 	var routes Config
 	err := mapstructure.Decode(currentConfig["route"], &routes)
 	if err != nil {
@@ -79,7 +79,7 @@ func getAlertRouteIndex(alertName string, routes []routeConfig) int {
 	return -1
 }
 
-func DeleteRoute(alert *nais_io_v1.Alert, alertManager map[interface{}]interface{}) error {
+func DeleteRoute(alert *naisiov1.Alert, alertManager map[interface{}]interface{}) error {
 	var route Config
 	err := mapstructure.Decode(alertManager["route"], &route)
 	if err != nil {
