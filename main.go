@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"github.com/go-logr/zapr"
+	"go.uber.org/zap"
 	"os"
 
 	"alerterator/controllers"
@@ -36,10 +38,17 @@ func main() {
 	flag.Parse()
 
 	logger := log.New()
+	logger.SetFormatter(&log.JSONFormatter{})
 	setupLog := log.NewEntry(logger)
 	setupLog.WithField("component", "setup")
 	controllerLog := log.NewEntry(logger)
 	controllerLog.WithField("component", "controller")
+
+	zapLogger, err := zap.NewProductionConfig().Build()
+	if err != nil {
+		log.Error(err)
+	}
+	ctrl.SetLogger(zapr.NewLogger(zapLogger))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
@@ -49,7 +58,7 @@ func main() {
 		LeaderElectionID:   "ade053be.nais.io",
 	})
 	if err != nil {
-		logger.Error(err, "unable to start manager")
+		logger.Error("Unable to start manager: ", err)
 		os.Exit(1)
 	}
 
@@ -58,14 +67,14 @@ func main() {
 		Log:    *controllerLog,
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller")
+		setupLog.Error("Unable to create controller: ", err)
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-		setupLog.Error(err, "problem running manager")
+		setupLog.Error("Problem running manager: ", err)
 		os.Exit(1)
 	}
 }
