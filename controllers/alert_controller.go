@@ -26,12 +26,11 @@ type AlertReconciler struct {
 
 func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	log := r.Log.WithField("alert", req.NamespacedName)
+	log := r.Log.WithField("alert", req.Name)
 
-	var alert *naisiov1.Alert
-	err := r.Get(ctx, req.NamespacedName, alert)
+	var alert naisiov1.Alert
+	err := r.Get(ctx, req.NamespacedName, &alert)
 	if err != nil {
-		log.Error(err, "Unable to fetch Alert")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -42,15 +41,17 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		// registering our finalizer.
 		if !utils.ContainsString(alert.ObjectMeta.Finalizers, alertFinalizerName) {
 			alert.ObjectMeta.Finalizers = append(alert.ObjectMeta.Finalizers, alertFinalizerName)
-			if err := r.Update(context.Background(), alert); err != nil {
+			if err := r.Update(context.Background(), &alert); err != nil {
 				return ctrl.Result{}, err
 			}
+			return ctrl.Result{}, nil
 		}
 	} else {
 		// The object is being deleted
 		if utils.ContainsString(alert.ObjectMeta.Finalizers, alertFinalizerName) {
 			// our finalizer is present, so lets handle any external dependency
-			if err := r.deleteExternalResources(alert); err != nil {
+			log.Info("Deleting alert")
+			if err := r.deleteExternalResources(&alert); err != nil {
 				// if fail to delete the external dependency here, return with error
 				// so that it can be retried
 				return ctrl.Result{}, err
@@ -58,7 +59,7 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 			// remove our finalizer from the list and update it.
 			alert.ObjectMeta.Finalizers = utils.RemoveString(alert.ObjectMeta.Finalizers, alertFinalizerName)
-			if err := r.Update(context.Background(), alert); err != nil {
+			if err := r.Update(context.Background(), &alert); err != nil {
 				return ctrl.Result{}, err
 			}
 		}
@@ -68,12 +69,13 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	}
 
 	// your logic here
-	err = AddOrUpdateAlertmanagerConfigMap(r, ctx, alert)
+	log.Info("Reconciling alert")
+	err = AddOrUpdateAlertmanagerConfigMap(r, ctx, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
 	}
 
-	err = AddOrUpdateAlert(alert, r, ctx)
+	err = AddOrUpdateAlert(r, ctx, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while adding rules to configMap: %s", err)
 	}
@@ -87,7 +89,7 @@ func (r *AlertReconciler) deleteExternalResources(alert *naisiov1.Alert) error {
 	if err != nil {
 		return err
 	}
-	err = DeleteAlert(alert, r, ctx)
+	err = DeleteAlert(r, ctx, alert)
 	if err != nil {
 		return err
 	}

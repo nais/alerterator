@@ -16,7 +16,7 @@ var configMapAlertsNamespacedName = types.NamespacedName{
 	Name:      "alerterator-rules",
 }
 
-func AddOrUpdateAlert(alert *naisiov1.Alert, reconciler *AlertReconciler, ctx context.Context) error {
+func AddOrUpdateAlert(reconciler *AlertReconciler, ctx context.Context, alert *naisiov1.Alert) error {
 	var configMap v1.ConfigMap
 	err := reconciler.Get(ctx, configMapAlertsNamespacedName, &configMap)
 	if err != nil {
@@ -36,7 +36,7 @@ func AddOrUpdateAlert(alert *naisiov1.Alert, reconciler *AlertReconciler, ctx co
 	return nil
 }
 
-func DeleteAlert(alert *naisiov1.Alert, reconciler *AlertReconciler, ctx context.Context) error {
+func DeleteAlert(reconciler *AlertReconciler, ctx context.Context, alert *naisiov1.Alert) error {
 	var configMap v1.ConfigMap
 	err := reconciler.Get(ctx, configMapAlertsNamespacedName, &configMap)
 	if err != nil {
