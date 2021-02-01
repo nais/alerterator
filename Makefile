@@ -27,10 +27,12 @@ run: generate fmt vet manifests
 
 # Install CRDs into a cluster
 install: manifests
+	kubectl apply -f config/default/configmaps.yaml
 	kubectl apply -f ../liberator/config/crd/bases/nais.io_alerts.yaml
 
 # Uninstall CRDs from a cluster
 uninstall: manifests
+	kubectl delete -f config/default/configmaps.yaml
 	kubectl delete -f ../liberator/config/crd/bases/nais.io_alerts.yaml
 
 # Deploy controller in the configured Kubernetes cluster in ~/.kube/config
