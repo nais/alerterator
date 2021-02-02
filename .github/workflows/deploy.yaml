@@ -37,7 +37,7 @@ jobs:
           version=$(./version.sh)
           
           cat config/deploy/resources.yaml > ../nais-yaml/templates/zz-generated-alerterator.yaml
-          cat config/deploy/deployment > ../nais-yaml/templates/alerterator.yaml
+          cat config/deploy/deployment.yaml > ../nais-yaml/templates/alerterator.yaml
 
           cd ../nais-yaml
           git config user.name alerterator-actions
