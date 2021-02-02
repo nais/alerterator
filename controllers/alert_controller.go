@@ -4,7 +4,7 @@ import (
 	"alerterator/utils"
 	"context"
 	"fmt"
-	logrus "github.com/sirupsen/logrus"
+	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -17,7 +17,7 @@ const alertFinalizerName = "alert.finalizers.alerterator.nais.io"
 // AlertReconciler reconciles a Alert object
 type AlertReconciler struct {
 	client.Client
-	Log    logrus.Entry
+	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
@@ -26,7 +26,7 @@ type AlertReconciler struct {
 
 func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	log := r.Log.WithField("alert", req.Name)
+	log := r.Log.WithValues("alert", req.NamespacedName)
 
 	var alert naisiov1.Alert
 	err := r.Get(ctx, req.NamespacedName, &alert)

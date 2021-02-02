@@ -2,13 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/go-logr/zapr"
-	"go.uber.org/zap"
 	"os"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"alerterator/controllers"
 	alertv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -17,7 +15,8 @@ import (
 )
 
 var (
-	scheme = runtime.NewScheme()
+	scheme   = runtime.NewScheme()
+	setupLog = ctrl.Log.WithName("setup")
 )
 
 func init() {
@@ -37,18 +36,7 @@ func main() {
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.Parse()
 
-	logger := log.New()
-	logger.SetFormatter(&log.JSONFormatter{})
-	setupLog := log.NewEntry(logger)
-	setupLog.WithField("component", "setup")
-	controllerLog := log.NewEntry(logger)
-	controllerLog.WithField("component", "controller")
-
-	zapLogger, err := zap.NewProductionConfig().Build()
-	if err != nil {
-		log.Error(err)
-	}
-	ctrl.SetLogger(zapr.NewLogger(zapLogger))
+	ctrl.SetLogger(zap.New())
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
@@ -58,23 +46,23 @@ func main() {
 		LeaderElectionID:   "ade053be.nais.io",
 	})
 	if err != nil {
-		logger.Error("Unable to start manager: ", err)
+		setupLog.Error(err, "Unable to start manager")
 		os.Exit(1)
 	}
 
 	if err = (&controllers.AlertReconciler{
 		Client: mgr.GetClient(),
-		Log:    *controllerLog,
+		Log:    ctrl.Log.WithName("controllers"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error("Unable to create controller: ", err)
+		setupLog.Error(err, "Unable to create controller")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-		setupLog.Error("Problem running manager: ", err)
+		setupLog.Error(err, "Problem running manager: ")
 		os.Exit(1)
 	}
 }
