@@ -1,0 +1,7 @@
+domain: nais.io
+repo: alerterator
+resources:
+- group: alerterator
+  kind: Alert
+  version: v1
+version: "2"

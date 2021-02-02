@@ -1,0 +1,49 @@
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alerterator
+  namespace: nais
+  labels:
+    app: alerterator
+data:
+  pushover_token: {{ .pushover_token }}
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: alerterator
+  namespace: nais
+  labels:
+    app: alerterator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alerterator
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+      labels:
+        app: alerterator
+    spec:
+      serviceAccountName: alerterator
+      imagePullSecrets:
+        - name: gpr-credentials
+      containers:
+        - name: alerterator
+          image: {{ .image }}
+          imagePullPolicy: Always
+          env:
+            - name: NAIS_CLUSTER_NAME
+              value: {{ .env }}
+            - name: ALERTERATOR_PUSHOVER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: alerterator
+                  key: pushover_token

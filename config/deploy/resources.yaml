@@ -1,0 +1,69 @@
+
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: nais
+  labels:
+    name: nais
+
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  labels:
+    app: alerterator
+  name: alerterator
+  namespace: nais
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: alerterator
+  name: alerterator-rules
+  namespace: nais
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: alerterator
+rules:
+  - apiGroups:
+      - nais.io
+    resources:
+      - alerts
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - nais.io
+    resources:
+      - alerts/status
+    verbs:
+      - get
+      - patch
+      - update
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app: alerterator
+  name: alerterator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: alerterator
+subjects:
+  - kind: ServiceAccount
+    name: alerterator
+    namespace: nais
