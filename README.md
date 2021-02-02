@@ -10,66 +10,14 @@ that only notifes you!
 
 The documentation for how to start using alerts are over at https://doc.nais.io/observability/alerts.
 
-## Deployment
-
-### Environment
-
-* Kubernetes v1.11.0 or later
-
-### Installation
-
-You can deploy the most recent release of Alerterator by applying to your cluster:
+## Local testing
 
 ```
-kubectl apply -f ./deployment-resources/
-```
-
-## Development
-
-It's pretty simple getting started developing, download the code, run `make build` and you should be set to Go.
-
-### Prerequisites
-
-* Kubectl
-* The Go programming language, version 1.11 or later
-* [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports)
-* Docker
-* Kubernetes running locally (Minikube), or a cluster to deploy too
-
-### Code generation
-
-In order to use the Kubernetes Go library, we need to use classes that work together with the interfaces in that
-library. Those classes are mostly boilerplate code, and to ensure healthy and happy developers, we use code generators
-for that.
-
-When the CRD changes, or additional Kubernetes resources need to be generated, you have to run code generation:
-
-```
-make codegen-crd
-```
-
-### Testing
-
-There are two types of tests, automatic tests in Go, or running it locally (for example in Minikube)
-
-#### Tests
-
-To run all the automatic tests:
-
-```
-make test
-```
-
-#### Local
-
-```
-kubeclt apply -f ./testing/
-kubeclt apply -f ./pkg/apis/alerterator/v1/alert.yaml
-
-make build
-make local
+kind create cluster --image kindest/node:v1.17.11
+kubeclt apply -f ./config/local-test/
+make run
 
 # different terminal
-kubectl apply -f ./example/max_alerts.yaml
+kubectl apply -f ./config/samples/alerts.yaml
 kubectl get alerts
 ```
