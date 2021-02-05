@@ -51,6 +51,15 @@ rules:
       - get
       - patch
       - update
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - update
+      - patch
+      - list
 
 ---
 kind: ClusterRoleBinding
