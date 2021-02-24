@@ -60,6 +60,7 @@ rules:
       - update
       - patch
       - list
+      - watch
 
 ---
 kind: ClusterRoleBinding
