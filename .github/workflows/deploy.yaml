@@ -8,13 +8,13 @@ jobs:
     steps:
       - name: Checkout alerterator
         uses: actions/checkout@v2
-      - run: docker build -t docker.pkg.github.com/"$GITHUB_REPOSITORY"/alerterator:$(./version.sh) .
-      - name: Login to Github Package Registry
-        env:
-          DOCKER_USERNAME: x-access-token
-          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin docker.pkg.github.com
-      - run: docker push docker.pkg.github.com/"$GITHUB_REPOSITORY"/alerterator:$(./version.sh)
+      - run: docker build -t ghcr.io/"$GITHUB_REPOSITORY":$(./version.sh) .
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: docker push ghcr.io/"$GITHUB_REPOSITORY":$(./version.sh)
 
   nais-yaml:
     name: Release to nais-yaml
@@ -43,7 +43,7 @@ jobs:
           git config user.name alerterator-actions
           git config user.email alerterator-actions@github.com
 
-          sed -E -i "s#image: docker.pkg.github.com/"$GITHUB_REPOSITORY"/alerterator:.+#image: docker.pkg.github.com/"$GITHUB_REPOSITORY"/alerterator:${version}#" vars/alerterator.yaml
+          sed -E -i "s#image: ghcr.io/"$GITHUB_REPOSITORY":.+#image: ghcr.io/"$GITHUB_REPOSITORY":${version}#" vars/alerterator.yaml
           git add .
           git --no-pager diff --cached
           git commit -a -m "Bump Alerterator to version ${version}"
