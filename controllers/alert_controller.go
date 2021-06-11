@@ -70,12 +70,12 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// your logic here
 	log.Info("Reconciling alert")
-	err = AddOrUpdateAlertmanagerConfigMap(r, ctx, &alert)
+	err = AddOrUpdateAlertmanagerConfigMap(ctx, r, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
 	}
 
-	err = AddOrUpdateAlert(r, ctx, &alert)
+	err = AddOrUpdateAlert(ctx, r, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while adding rules to configMap: %s", err)
 	}
@@ -85,11 +85,11 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 func (r *AlertReconciler) deleteExternalResources(alert *naisiov1.Alert) error {
 	ctx := context.Background()
-	err := DeleteRouteAndReceiverFromAlertManagerConfigMap(r, ctx, alert)
+	err := DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx, r, alert)
 	if err != nil {
 		return err
 	}
-	err = DeleteAlert(r, ctx, alert)
+	err = DeleteAlert(ctx, r, alert)
 	if err != nil {
 		return err
 	}

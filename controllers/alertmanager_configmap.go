@@ -3,13 +3,13 @@ package controllers
 import (
 	"context"
 	"fmt"
+	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"alerterator/controllers/inhibitions"
 	"alerterator/controllers/receivers"
 	"alerterator/controllers/routes"
-	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"gopkg.in/yaml.v2"
 )
 
@@ -24,7 +24,7 @@ var alertmanagerTemplateConfigMapName = types.NamespacedName{
 	Name:      "alertmanager-template-config",
 }
 
-func getConfig(namespacedName types.NamespacedName, alertReconciler *AlertReconciler, ctx context.Context) (map[interface{}]interface{}, error) {
+func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertReconciler *AlertReconciler) (map[interface{}]interface{}, error) {
 	var configMap v1.ConfigMap
 	err := alertReconciler.Get(ctx, namespacedName, &configMap)
 	if err != nil {
@@ -44,7 +44,7 @@ func getConfig(namespacedName types.NamespacedName, alertReconciler *AlertReconc
 	return config, nil
 }
 
-func updateConfigMap(namespacedName types.NamespacedName, config map[interface{}]interface{}, alertReconciler *AlertReconciler, ctx context.Context) error {
+func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, config map[interface{}]interface{}, alertReconciler *AlertReconciler) error {
 	data, err := yaml.Marshal(&config)
 	if err != nil {
 		return fmt.Errorf("failed while marshaling: %s", err)
@@ -65,12 +65,12 @@ func updateConfigMap(namespacedName types.NamespacedName, config map[interface{}
 	return nil
 }
 
-func AddOrUpdateAlertmanagerConfigMap(alertReconciler *AlertReconciler, ctx context.Context, alert *naisiov1.Alert) error {
-	currentConfig, err := getConfig(alertmanagerConfigMapName, alertReconciler, ctx)
+func AddOrUpdateAlertmanagerConfigMap(ctx context.Context, alertReconciler *AlertReconciler, alert *naisiov1.Alert) error {
+	currentConfig, err := getConfig(ctx, alertmanagerConfigMapName, alertReconciler)
 	if err != nil {
 		return err
 	}
-	latestConfig, err := getConfig(alertmanagerTemplateConfigMapName, alertReconciler, ctx)
+	latestConfig, err := getConfig(ctx, alertmanagerTemplateConfigMapName, alertReconciler)
 	if err != nil {
 		return err
 	}
@@ -93,11 +93,11 @@ func AddOrUpdateAlertmanagerConfigMap(alertReconciler *AlertReconciler, ctx cont
 	}
 	latestConfig["inhibit_rules"] = updatedInhibitRules
 
-	return updateConfigMap(alertmanagerConfigMapName, latestConfig, alertReconciler, ctx)
+	return updateConfigMap(ctx, alertmanagerConfigMapName, latestConfig, alertReconciler)
 }
 
-func DeleteRouteAndReceiverFromAlertManagerConfigMap(alertReconciler *AlertReconciler, ctx context.Context, alert *naisiov1.Alert) error {
-	config, err := getConfig(alertmanagerConfigMapName, alertReconciler, ctx)
+func DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx context.Context, alertReconciler *AlertReconciler, alert *naisiov1.Alert) error {
+	config, err := getConfig(ctx, alertmanagerConfigMapName, alertReconciler)
 	if err != nil {
 		return err
 	}
@@ -117,5 +117,5 @@ func DeleteRouteAndReceiverFromAlertManagerConfigMap(alertReconciler *AlertRecon
 		return fmt.Errorf("failed while deleting receivers: %s", err)
 	}
 
-	return updateConfigMap(alertmanagerConfigMapName, config, alertReconciler, ctx)
+	return updateConfigMap(ctx, alertmanagerConfigMapName, config, alertReconciler)
 }
