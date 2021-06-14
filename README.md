@@ -1,6 +1,9 @@
 Alerterator
 ===========
 
+[![Github Actions](https://github.com/nais/alerterator/workflows/Build%20and%20deploy/badge.svg)](https://github.com/nais/alerterator/actions?query=workflow%3A%22Build+and+deploy%22)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nais/alerterator)](https://goreportcard.com/report/github.com/nais/alerterator)
+
 Alerterator is a Kubernetes operator for managing Prometheus Alertmanager alerts. With this resource you can easily get
 notified (either via Slack or email) when somethings is happening with your app.
 
