@@ -113,6 +113,9 @@ func createReceiver(alert *naisiov1.Alert) (receiver receiverConfig) {
 
 	if receivers.Slack.Channel != "" {
 		slack := getDefaultSlackConfig(receivers.Slack.Channel)
+		if !receivers.Slack.SendResolved {
+			slack.SendResolved = false
+		}
 		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
 	}
 
