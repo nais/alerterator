@@ -305,8 +305,8 @@ github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRW
 github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f/go.mod h1:ZdcZmHo+o7JKHSa8/e818NopupXU1YMK5fe1lsApnBw=
 github.com/nais/liberator v0.0.0-20210610115318-a2d5408154c8 h1:JMo2NtpYezt+j4/CJbf50bHxJUVnh7rOIKNcBZZiZwg=
 github.com/nais/liberator v0.0.0-20210610115318-a2d5408154c8/go.mod h1:Dw7TPRYZkyLJwwFarV86XIFR5u4ZhEgz2YBuBZkZIhs=
-github.com/nais/liberator v0.0.0-20210625082910-b2a7cc01254f h1:1Bg19VVq1JBb0ArXz+TfdhvJs5fynBNg9P1ClSCwym8=
-github.com/nais/liberator v0.0.0-20210625082910-b2a7cc01254f/go.mod h1:Dw7TPRYZkyLJwwFarV86XIFR5u4ZhEgz2YBuBZkZIhs=
+github.com/nais/liberator v0.0.0-20210629102419-f64a089198af h1:+JEEuwpqEtWsV2zv6mvQ5hOLKNYLKiWr9W85gqJJls0=
+github.com/nais/liberator v0.0.0-20210629102419-f64a089198af/go.mod h1:Dw7TPRYZkyLJwwFarV86XIFR5u4ZhEgz2YBuBZkZIhs=
 github.com/nxadm/tail v1.4.4 h1:DQuhQpB1tVlglWS2hLQ5OV6B5r8aGxSrPc5Qo6uTN78=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
