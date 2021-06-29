@@ -18,6 +18,8 @@ type slackConfig struct {
 	Text         string `mapstructure:"text" yaml:"text"`
 	Color        string `mapstructure:"color" yaml:"color,omitempty"`
 	Username     string `mapstructure:"username" yaml:"username"`
+	IconUrl      string `mapstructure:"icon_url" yaml:"icon_url,omitempty"`
+	IconEmoji    string `mapstructure:"icon_emoji" yaml:"icon_emoji,omitempty"`
 }
 
 type emailConfig struct {
@@ -113,6 +115,18 @@ func createReceiver(alert *naisiov1.Alert) (receiver receiverConfig) {
 
 	if receivers.Slack.Channel != "" {
 		slack := getDefaultSlackConfig(receivers.Slack.Channel)
+		if !receivers.Slack.SendResolved {
+			slack.SendResolved = false
+		}
+		if receivers.Slack.Username != "" {
+			slack.Username = receivers.Slack.Username
+		}
+		if receivers.Slack.IconEmoji != "" {
+			slack.IconEmoji = receivers.Slack.IconEmoji
+		}
+		if receivers.Slack.IconUrl != "" {
+			slack.IconUrl = receivers.Slack.IconUrl
+		}
 		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
 	}
 
