@@ -40,6 +40,19 @@ func TestReceivers(t *testing.T) {
 		assert.False(t, receiver.WebhookConfigs[0].SendResolved)
 	})
 
+	t.Run("Valider at username og ikon for slack blir beholdt", func(t *testing.T) {
+		alert := fixtures.AlertResource
+		alert.Spec.Receivers.Slack.SendResolved = false
+		alert.Spec.Receivers.Slack.IconEmoji = ":fire:"
+		alert.Spec.Receivers.Slack.IconUrl = "https://url"
+		alert.Spec.Receivers.Slack.Username = "Username"
+		receiver := createReceiver(alert)
+		assert.Equal(t, "Username", receiver.SlackConfigs[0].Username)
+		assert.Equal(t, ":fire:", receiver.SlackConfigs[0].IconEmoji)
+		assert.Equal(t, "https://url", receiver.SlackConfigs[0].IconUrl)
+		assert.False(t, receiver.SlackConfigs[0].SendResolved)
+	})
+
 	t.Run("Valider at user key blir satt", func(t *testing.T) {
 		alert := fixtures.AlertResource
 		receiver := createReceiver(alert)
