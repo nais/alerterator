@@ -5,9 +5,7 @@ go 1.13
 require (
 	github.com/go-logr/logr v0.1.0
 	github.com/mitchellh/mapstructure v1.4.1
-	github.com/nais/liberator v0.0.0-20210629102419-f64a089198af
-	github.com/onsi/ginkgo v1.12.1
-	github.com/onsi/gomega v1.10.1
+	github.com/nais/liberator v0.0.0-20210630102149-9f34012207b7
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	gopkg.in/yaml.v2 v2.4.0
