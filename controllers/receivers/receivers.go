@@ -146,14 +146,6 @@ func createReceiver(alert *naisiov1.Alert) (receiver receiverConfig) {
 		receiver.WebhookConfigs = append(receiver.WebhookConfigs, sms)
 	}
 
-	if receivers.Pushover.UserKey != "" {
-		pushover := getDefaultPushoverConfig(receivers.Pushover.UserKey)
-		if !receivers.Pushover.SendResolved {
-			pushover.SendResolved = false
-		}
-		receiver.PushoverConfigs = append(receiver.PushoverConfigs, pushover)
-	}
-
 	return
 }
 

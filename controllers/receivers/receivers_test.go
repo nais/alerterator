@@ -57,10 +57,4 @@ func TestReceivers(t *testing.T) {
 		assert.Equal(t, "https://url", receiver.SlackConfigs[0].IconUrl)
 		assert.False(t, receiver.SlackConfigs[0].SendResolved)
 	})
-
-	t.Run("Valider at user key blir satt", func(t *testing.T) {
-		alert := fixtures.AlertResource
-		receiver := createReceiver(alert)
-		assert.Equal(t, receiver.PushoverConfigs[0].UserKey, alert.Spec.Receivers.Pushover.UserKey)
-	})
 }

@@ -32,10 +32,6 @@ var AlertResource = &naisiov1.Alert{
 				Recipients:   "12346789",
 				SendResolved: false,
 			},
-			Pushover: naisiov1.Pushover{
-				UserKey:      "123Token",
-				SendResolved: false,
-			},
 		},
 		Alerts: []naisiov1.Rule{
 			{
