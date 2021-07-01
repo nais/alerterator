@@ -140,7 +140,7 @@ func createReceiver(alert *naisiov1.Alert) (receiver receiverConfig) {
 
 	if receivers.SMS.Recipients != "" {
 		sms := getDefaultSMSConfig()
-		if !receivers.SMS.SendResolved {
+		if receivers.SMS.SendResolved != nil && !*receivers.SMS.SendResolved {
 			sms.SendResolved = false
 		}
 		receiver.WebhookConfigs = append(receiver.WebhookConfigs, sms)
