@@ -29,9 +29,9 @@ func TestReceivers(t *testing.T) {
 
 	t.Run("Valider at send_resolved for e-post blir beholdt", func(t *testing.T) {
 		alert := fixtures.AlertResource
-		alert.Spec.Receivers.Email.SendResolved = true
+		alert.Spec.Receivers.Email.SendResolved = false
 		receiver := createReceiver(alert)
-		assert.True(t, receiver.EmailConfigs[0].SendResolved)
+		assert.False(t, receiver.EmailConfigs[0].SendResolved)
 	})
 
 	t.Run("Valider at send_resolved for sms blir beholdt", func(t *testing.T) {
