@@ -29,8 +29,7 @@ var AlertResource = &naisiov1.Alert{
 				To: "test@example.com",
 			},
 			SMS: naisiov1.SMS{
-				Recipients:   "12346789",
-				SendResolved: false,
+				Recipients: "12346789",
 			},
 		},
 		Alerts: []naisiov1.Rule{
