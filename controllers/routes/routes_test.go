@@ -2,6 +2,7 @@ package routes
 
 import (
 	"alerterator/controllers/fixtures"
+	"alerterator/utils"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
@@ -18,7 +19,7 @@ func TestRoutes(t *testing.T) {
 		err = yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYamlDifferentRoutes), latestConfig)
 		assert.NoError(t, err)
 
-		routesConfig, err := AddOrUpdateRoute(fixtures.AlertResource, config, latestConfig)
+		routesConfig, err := AddOrUpdateRoute(fixtures.AlertResource(), config, latestConfig)
 		assert.NoError(t, err)
 
 		assert.Equal(t, []string{"alertname", "team", "kubernetes_namespace"}, routesConfig.GroupBy)
@@ -33,7 +34,7 @@ func TestRoutes(t *testing.T) {
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), config)
 		assert.NoError(t, err)
 
-		routesConfig, err := AddOrUpdateRoute(fixtures.AlertResource, config, config)
+		routesConfig, err := AddOrUpdateRoute(fixtures.AlertResource(), config, config)
 		assert.NoError(t, err)
 
 		teamRoute := routesConfig.Routes[1]
@@ -44,18 +45,21 @@ func TestRoutes(t *testing.T) {
 
 	t.Run("Valider at group-by kommer igjennom parsing", func(t *testing.T) {
 		config := make(map[interface{}]interface{})
-		err := yaml.Unmarshal([]byte(fixtures.AlertWithGroupBy), config)
+		err := yaml.Unmarshal([]byte(fixtures.EmptyRouteConfig), config)
 		assert.NoError(t, err)
 
-		routeConfig, err := AddOrUpdateRoute(fixtures.AlertResource, config, config)
+		alert := fixtures.MinimalAlertResource()
+		alert.Spec.Route = nais_io_v1.Route{GroupBy: []string{"slack_channel"}}
+		routeConfig, err := AddOrUpdateRoute(alert, config, config)
 		assert.NoError(t, err)
+		assert.Len(t, routeConfig.Routes, 1)
 
-		groupBys := routeConfig.GroupBy
+		groupBys := routeConfig.Routes[0].GroupBy
 		assert.Equal(t, "slack_channel", groupBys[0])
 	})
 
 	t.Run("sikre at liberator-typen støtter group_by", func(t *testing.T) {
-		alert := fixtures.MinimalAlertResource
+		alert := fixtures.MinimalAlertResource()
 		alert.Spec.Route = nais_io_v1.Route{GroupBy: []string{"label!"}}
 
 		yml, err := yaml.Marshal(alert)
@@ -66,5 +70,47 @@ func TestRoutes(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, alert.Spec.Route.GroupBy, parsedAlert.Spec.Route.GroupBy)
+	})
+
+	t.Run("Valider at man kan legge til ny route", func(t *testing.T) {
+		config := make(map[interface{}]interface{})
+		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), config)
+		assert.NoError(t, err)
+
+		templateConfig := make(map[interface{}]interface{})
+		err = yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYamlDifferentRoutes), templateConfig)
+		assert.NoError(t, err)
+
+		newAlert := fixtures.AlertResource()
+		newAlert.Name = "newalert-does-not-exist"
+		routesConfig, err := AddOrUpdateRoute(newAlert, config, templateConfig)
+		assert.NoError(t, err)
+
+		found := false
+		for _, alert := range routesConfig.Routes {
+			if alert.Receiver == utils.GetCombinedName(newAlert) {
+				found = true
+			}
+		}
+		assert.True(t, found)
+	})
+
+	t.Run("Valider at man kan endre eksisterende route", func(t *testing.T) {
+		config := make(map[interface{}]interface{})
+		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), config)
+		assert.NoError(t, err)
+
+		templateConfig := make(map[interface{}]interface{})
+		err = yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYamlDifferentRoutes), templateConfig)
+		assert.NoError(t, err)
+
+		updatedAlert := fixtures.AlertResource()
+		updatedAlert.Spec.Route.GroupBy = []string{"updated-group-by"}
+		routesConfig, err := AddOrUpdateRoute(updatedAlert, config, templateConfig)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "updated-group-by", routesConfig.Routes[1].GroupBy[0])
+		assert.Len(t, routesConfig.Routes[1].GroupBy, 1)
+		assert.Len(t, routesConfig.Routes, 2)
 	})
 }

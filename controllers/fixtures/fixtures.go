@@ -6,83 +6,88 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var AlertResource = &naisiov1.Alert{
-	ObjectMeta: metav1.ObjectMeta{
-		Name:      "aura",
-		Namespace: "aura",
-		Labels: map[string]string{
-			"team": "aura",
-		},
-	},
-	Spec: naisiov1.AlertSpec{
-		Route: naisiov1.Route{
-			RepeatInterval: "4h",
-			GroupWait:      "30s",
-			GroupInterval:  "5m",
-		},
-		Receivers: naisiov1.Receivers{
-			Slack: naisiov1.Slack{
-				Channel:     "#nais-alerts-dev",
-				PrependText: "<!here>",
-			},
-			Email: naisiov1.Email{
-				To: "test@example.com",
-			},
-			SMS: naisiov1.SMS{
-				Recipients: "12346789",
+func AlertResource() *naisiov1.Alert {
+	return &naisiov1.Alert{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "aura",
+			Namespace: "aura",
+			Labels: map[string]string{
+				"team": "aura",
 			},
 		},
-		Alerts: []naisiov1.Rule{
-			{
-				Alert:         "app is down",
-				For:           "2m",
-				Expr:          "kube_deployment_status_replicas_unavailable{deployment=\"my-app\"} > 0",
-				Documentation: "some documentation, or link to documentation",
-				Action:        "kubectl describe pod -l app=my-app",
-				Description:   "this is a description of the alert",
-				SLA:           "we need to fix this ASAP",
-				Severity:      "#eeeeee",
+		Spec: naisiov1.AlertSpec{
+			Route: naisiov1.Route{
+				RepeatInterval: "4h",
+				GroupWait:      "30s",
+				GroupInterval:  "5m",
+				GroupBy:        []string{"group-by"},
 			},
-		},
-		InhibitRules: []naisiov1.InhibitRules{
-			{
-				Targets: map[string]string{
-					"alert": "kube_deployment_status_replicas_unavailable",
+			Receivers: naisiov1.Receivers{
+				Slack: naisiov1.Slack{
+					Channel:     "#nais-alerts-dev",
+					PrependText: "<!here>",
 				},
-				Sources: map[string]string{
-					"alert": "naisCluster",
+				Email: naisiov1.Email{
+					To: "test@example.com",
+				},
+				SMS: naisiov1.SMS{
+					Recipients: "12346789",
 				},
 			},
-		},
-	},
-}
-
-var MinimalAlertResource = &naisiov1.Alert{
-	ObjectMeta: metav1.ObjectMeta{
-		Name:      "aura",
-		Namespace: "aura",
-		Labels: map[string]string{
-			"alert": "aura",
-		},
-	},
-	Spec: naisiov1.AlertSpec{
-		Receivers: naisiov1.Receivers{
-			Slack: naisiov1.Slack{
-				Channel: "#nais-alerts-dev",
+			Alerts: []naisiov1.Rule{
+				{
+					Alert:         "app is down",
+					For:           "2m",
+					Expr:          "kube_deployment_status_replicas_unavailable{deployment=\"my-app\"} > 0",
+					Documentation: "some documentation, or link to documentation",
+					Action:        "kubectl describe pod -l app=my-app",
+					Description:   "this is a description of the alert",
+					SLA:           "we need to fix this ASAP",
+					Severity:      "#eeeeee",
+				},
+			},
+			InhibitRules: []naisiov1.InhibitRules{
+				{
+					Targets: map[string]string{
+						"alert": "kube_deployment_status_replicas_unavailable",
+					},
+					Sources: map[string]string{
+						"alert": "naisCluster",
+					},
+				},
 			},
 		},
-		Alerts: []naisiov1.Rule{
-			{
-				Alert:  "app is down",
-				For:    "2m",
-				Expr:   "kube_deployment_status_replicas_unavailable{deployment=\"my-app\"} > 0",
-				Action: "kubectl describe pod -l app=my-app",
-			},
-		},
-	},
+	}
 }
 
-var AlertmanagerConfigYaml = `
+func MinimalAlertResource() *naisiov1.Alert {
+	return &naisiov1.Alert{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "aura",
+			Namespace: "aura",
+			Labels: map[string]string{
+				"alert": "aura",
+			},
+		},
+		Spec: naisiov1.AlertSpec{
+			Receivers: naisiov1.Receivers{
+				Slack: naisiov1.Slack{
+					Channel: "#nais-alerts-dev",
+				},
+			},
+			Alerts: []naisiov1.Rule{
+				{
+					Alert:  "app is down",
+					For:    "2m",
+					Expr:   "kube_deployment_status_replicas_unavailable{deployment=\"my-app\"} > 0",
+					Action: "kubectl describe pod -l app=my-app",
+				},
+			},
+		},
+	}
+}
+
+const AlertmanagerConfigYaml = `
 global:
   slack_api_url: web-site.com
   http_config:
@@ -120,6 +125,11 @@ route:
       continue: true
       match:
         alert: testmann
+    - receiver: aura-aura
+      continue: true
+      group_by: ["group_by"]
+      match:
+        alert: aura-aura
 inhibit_rules:
   - target_match:
        alertname: 'applikasjon nede'
@@ -132,22 +142,26 @@ inhibit_rules:
        alertname: 'brreg_down'
     equal: ['team']`
 
-var AlertmanagerConfigYamlDifferentRoutes = `
+const AlertmanagerConfigYamlDifferentRoutes = `
 route:
   group_by: ['alertname','team', 'kubernetes_namespace']
   group_wait: 100s
   group_interval: 50m
   repeat_interval: 10h
   receiver: default-receiver
-  routes: []`
+  routes: []
+`
 
-var ConfigMapBeforeAlerts = &corev1.ConfigMap{
-	Data: map[string]string{},
+func ConfigMapBeforeAlerts() *corev1.ConfigMap {
+	return &corev1.ConfigMap{
+		Data: map[string]string{},
+	}
 }
 
-var ExpectedConfigMapAfterAlerts = &corev1.ConfigMap{
-	Data: map[string]string{
-		"aura-aura.yml": `groups:
+func ExpectedConfigMapAfterAlerts() *corev1.ConfigMap {
+	return &corev1.ConfigMap{
+		Data: map[string]string{
+			"aura-aura.yml": `groups:
 - name: aura
   rules:
   - alert: app is down
@@ -163,9 +177,10 @@ var ExpectedConfigMapAfterAlerts = &corev1.ConfigMap{
     labels:
       alert: aura-aura
 `,
-	},
+		},
+	}
 }
 
-var AlertWithGroupBy = `
-route:
-  group_by: ["slack_channel"]`
+const EmptyRouteConfig = `
+route: {}
+`

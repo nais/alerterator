@@ -28,14 +28,14 @@ type Config struct {
 	Routes         []routeConfig `mapstructure:"routes" yaml:"routes"`
 }
 
-func missingAlertRoute(alertName string, routes []routeConfig) bool {
-	for i := 0; i < len(routes); i++ {
-		route := routes[i]
-		if route.Receiver == alertName {
-			return false
+func getRouteIndex(alertName string, routes []routeConfig) int {
+	for i := range routes {
+		if routes[i].Receiver == alertName {
+			return i
 		}
 	}
-	return true
+
+	return -1
 }
 
 func AddOrUpdateRoute(alert *naisiov1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (Config, error) {
@@ -45,19 +45,24 @@ func AddOrUpdateRoute(alert *naisiov1.Alert, currentConfig, latestConfig map[int
 		return Config{}, fmt.Errorf("failed while decoding map structure: %s", err)
 	}
 
-	if missingAlertRoute(utils.GetCombinedName(alert), routes.Routes) {
-		route := routeConfig{
-			GroupBy:        alert.Spec.Route.GroupBy,
-			GroupInterval:  alert.Spec.Route.GroupInterval,
-			GroupWait:      alert.Spec.Route.GroupWait,
-			RepeatInterval: alert.Spec.Route.RepeatInterval,
-			Receiver:       utils.GetCombinedName(alert),
-			Continue:       true,
-			Match: map[string]string{
-				"alert": utils.GetCombinedName(alert),
-			},
-		}
-		routes.Routes = append(routes.Routes, route)
+	alertName := utils.GetCombinedName(alert)
+
+	routeConfig := routeConfig{
+		GroupBy:        alert.Spec.Route.GroupBy,
+		GroupInterval:  alert.Spec.Route.GroupInterval,
+		GroupWait:      alert.Spec.Route.GroupWait,
+		RepeatInterval: alert.Spec.Route.RepeatInterval,
+		Receiver:       alertName,
+		Continue:       true,
+		Match: map[string]string{
+			"alert": alertName,
+		},
+	}
+
+	if i := getRouteIndex(alertName, routes.Routes); i != -1 {
+		routes.Routes[i] = routeConfig
+	} else {
+		routes.Routes = append(routes.Routes, routeConfig)
 	}
 
 	var latestRoutes Config

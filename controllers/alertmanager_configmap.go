@@ -66,34 +66,34 @@ func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, c
 }
 
 func AddOrUpdateAlertmanagerConfigMap(ctx context.Context, alertReconciler *AlertReconciler, alert *naisiov1.Alert) error {
-	currentConfig, err := getConfig(ctx, alertmanagerConfigMapName, alertReconciler)
+	alertmanagerConfig, err := getConfig(ctx, alertmanagerConfigMapName, alertReconciler)
 	if err != nil {
 		return err
 	}
-	latestConfig, err := getConfig(ctx, alertmanagerTemplateConfigMapName, alertReconciler)
+	templateConfig, err := getConfig(ctx, alertmanagerTemplateConfigMapName, alertReconciler)
 	if err != nil {
 		return err
 	}
 
-	updatedRoutes, err := routes.AddOrUpdateRoute(alert, currentConfig, latestConfig)
+	updatedRoutes, err := routes.AddOrUpdateRoute(alert, alertmanagerConfig, templateConfig)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating routes: %s", err)
 	}
-	latestConfig["route"] = updatedRoutes
+	templateConfig["route"] = updatedRoutes
 
-	updatedReceivers, err := receivers.AddOrUpdateReceiver(alert, currentConfig)
+	updatedReceivers, err := receivers.AddOrUpdateReceiver(alert, alertmanagerConfig)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating receivers: %s", err)
 	}
-	latestConfig["receivers"] = updatedReceivers
+	templateConfig["receivers"] = updatedReceivers
 
-	updatedInhibitRules, err := inhibitions.AddOrUpdateInhibition(alert, currentConfig)
+	updatedInhibitRules, err := inhibitions.AddOrUpdateInhibition(alert, alertmanagerConfig)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating inhibitions: %s", err)
 	}
-	latestConfig["inhibit_rules"] = updatedInhibitRules
+	templateConfig["inhibit_rules"] = updatedInhibitRules
 
-	return updateConfigMap(ctx, alertmanagerConfigMapName, latestConfig, alertReconciler)
+	return updateConfigMap(ctx, alertmanagerConfigMapName, templateConfig, alertReconciler)
 }
 
 func DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx context.Context, alertReconciler *AlertReconciler, alert *naisiov1.Alert) error {

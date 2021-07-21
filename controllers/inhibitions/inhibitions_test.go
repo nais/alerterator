@@ -9,7 +9,7 @@ import (
 
 func TestRoutes(t *testing.T) {
 	t.Run("Labels should always have team", func(t *testing.T) {
-		alert := fixtures.AlertResource
+		alert := fixtures.AlertResource()
 		config := make(map[interface{}]interface{})
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), config)
 		assert.NoError(t, err)
@@ -21,7 +21,7 @@ func TestRoutes(t *testing.T) {
 	})
 
 	t.Run("Simple validation that new config don't override old config", func(t *testing.T) {
-		alert := fixtures.AlertResource
+		alert := fixtures.AlertResource()
 		config := make(map[interface{}]interface{})
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), config)
 		assert.NoError(t, err)
@@ -33,7 +33,7 @@ func TestRoutes(t *testing.T) {
 	})
 
 	t.Run("Simple deletion validation", func(t *testing.T) {
-		alert := fixtures.AlertResource
+		alert := fixtures.AlertResource()
 		config := make(map[interface{}]interface{})
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), config)
 		assert.NoError(t, err)

@@ -10,13 +10,14 @@ import (
 
 func TestAlerts(t *testing.T) {
 	t.Run("Validated that alert rules are created correctly", func(t *testing.T) {
-		alertRules := createAlertRules(fixtures.AlertResource)
+		naisAlert := fixtures.AlertResource()
+		alertRules := createAlertRules(naisAlert)
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
-		assert.Equal(t, utils.GetCombinedName(fixtures.AlertResource), alertRule.Labels["alert"])
+		assert.Equal(t, utils.GetCombinedName(naisAlert), alertRule.Labels["alert"])
 
-		alert := fixtures.AlertResource.Spec.Alerts[0]
+		alert := naisAlert.Spec.Alerts[0]
 		assert.Equal(t, alert.For, alertRule.For)
 		assert.Equal(t, alert.Expr, alertRule.Expr)
 		assert.Equal(t, alert.Alert, alertRule.Alert)
@@ -24,12 +25,13 @@ func TestAlerts(t *testing.T) {
 		assert.Equal(t, alert.Description, alertRule.Annotations["description"])
 		assert.Equal(t, alert.Action, alertRule.Annotations["action"])
 		assert.Equal(t, alert.SLA, alertRule.Annotations["sla"])
-		assert.Equal(t, fixtures.AlertResource.Spec.Receivers.Slack.PrependText, alertRule.Annotations["prependText"])
+		assert.Equal(t, naisAlert.Spec.Receivers.Slack.PrependText, alertRule.Annotations["prependText"])
 		assert.Equal(t, alert.Severity, alertRule.Annotations["severity"])
 	})
 
 	t.Run("If severity is not set, default to danger", func(t *testing.T) {
-		alertRules := createAlertRules(fixtures.MinimalAlertResource)
+		alert := fixtures.MinimalAlertResource()
+		alertRules := createAlertRules(alert)
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
