@@ -13,6 +13,7 @@ type routeConfig struct {
 	Receiver       string            `mapstructure:"receiver" yaml:"receiver"`
 	Continue       bool              `mapstructure:"continue" yaml:"continue"`
 	Match          map[string]string `mapstructure:"match" yaml:"match"`
+	GroupBy        []string          `mapstructure:"group_by" yaml:"group_by,omitempty"`
 	GroupWait      string            `mapstructure:"group_wait" yaml:"group_wait,omitempty"`
 	GroupInterval  string            `mapstructure:"group_interval" yaml:"group_interval,omitempty"`
 	RepeatInterval string            `mapstructure:"repeat_interval" yaml:"repeat_interval,omitempty"`
@@ -46,6 +47,7 @@ func AddOrUpdateRoute(alert *naisiov1.Alert, currentConfig, latestConfig map[int
 
 	if missingAlertRoute(utils.GetCombinedName(alert), routes.Routes) {
 		route := routeConfig{
+			GroupBy:        alert.Spec.Route.GroupBy,
 			GroupInterval:  alert.Spec.Route.GroupInterval,
 			GroupWait:      alert.Spec.Route.GroupWait,
 			RepeatInterval: alert.Spec.Route.RepeatInterval,
