@@ -165,3 +165,7 @@ var ExpectedConfigMapAfterAlerts = &corev1.ConfigMap{
 `,
 	},
 }
+
+var AlertWithGroupBy = `
+route:
+  group_by: ["slack_channel"]`
