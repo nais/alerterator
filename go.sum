@@ -309,6 +309,8 @@ github.com/nais/liberator v0.0.0-20210630113547-aa98c296a61b h1:Xog131PwOCx/hoCE
 github.com/nais/liberator v0.0.0-20210630113547-aa98c296a61b/go.mod h1:Dw7TPRYZkyLJwwFarV86XIFR5u4ZhEgz2YBuBZkZIhs=
 github.com/nais/liberator v0.0.0-20210701121335-90db799338cd h1:KqSyGwdJ4IDH/DuFaibH9mjya83i4k/laR8cuqq+jMc=
 github.com/nais/liberator v0.0.0-20210701121335-90db799338cd/go.mod h1:Dw7TPRYZkyLJwwFarV86XIFR5u4ZhEgz2YBuBZkZIhs=
+github.com/nais/liberator v0.0.0-20210721080131-ae0714b7affe h1:4iiL93GxstRoUPoQTwQ4MFnH84xnCjB255sP6LitTxM=
+github.com/nais/liberator v0.0.0-20210721080131-ae0714b7affe/go.mod h1:Dw7TPRYZkyLJwwFarV86XIFR5u4ZhEgz2YBuBZkZIhs=
 github.com/nxadm/tail v1.4.4 h1:DQuhQpB1tVlglWS2hLQ5OV6B5r8aGxSrPc5Qo6uTN78=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
