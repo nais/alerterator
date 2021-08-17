@@ -43,8 +43,8 @@ jobs:
           git config user.name alerterator-actions
           git config user.email alerterator-actions@github.com
 
-          sed -E -i "s#image: .+#image: ghcr.io/"$GITHUB_REPOSITORY":${version}#" vars/alerterator.yaml
+          sed -E -i "s#image: ghcr.io/"$GITHUB_REPOSITORY":.+#image: ghcr.io/"$GITHUB_REPOSITORY":${version}#" vars/global.yaml
           git add .
           git --no-pager diff --cached
-          git commit -a -m "Bump Alerterator to version ${version}"
+          git commit --no-verify -a -m "Bump Alerterator to version ${version}"
           git push
