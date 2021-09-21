@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"alerterator/controllers/rules"
+	"github.com/nais/alerterator/controllers/rules"
 	"testing"
 
-	"alerterator/controllers/fixtures"
+	"github.com/nais/alerterator/controllers/fixtures"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,14 +1,17 @@
 package controllers
 
 import (
-	"alerterator/controllers/rules"
 	"context"
 	"fmt"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"alerterator/utils"
+	"github.com/nais/alerterator/controllers/rules"
+
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+
+	"github.com/nais/alerterator/utils"
 )
 
 var configMapAlertsNamespacedName = types.NamespacedName{

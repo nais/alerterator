@@ -5,7 +5,7 @@ import (
 	"os"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"alerterator/controllers"
+	"github.com/nais/alerterator/controllers"
 	alertv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"

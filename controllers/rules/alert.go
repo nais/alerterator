@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 	corev1 "k8s.io/api/core/v1"
 
-	"alerterator/utils"
+	"github.com/nais/alerterator/utils"
 )
 
 type Groups struct {

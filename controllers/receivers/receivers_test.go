@@ -3,9 +3,9 @@ package receivers
 import (
 	"testing"
 
-	"alerterator/utils"
+	"github.com/nais/alerterator/utils"
 
-	"alerterator/controllers/fixtures"
+	"github.com/nais/alerterator/controllers/fixtures"
 	"github.com/stretchr/testify/assert"
 )
 

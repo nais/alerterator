@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"alerterator/utils"
 	"github.com/mitchellh/mapstructure"
+	"github.com/nais/alerterator/utils"
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/spf13/viper"
 )

@@ -3,7 +3,7 @@ package routes
 import (
 	"fmt"
 
-	"alerterator/utils"
+	"github.com/nais/alerterator/utils"
 
 	"github.com/mitchellh/mapstructure"
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"

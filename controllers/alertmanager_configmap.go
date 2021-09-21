@@ -7,9 +7,9 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 
-	"alerterator/controllers/inhibitions"
-	"alerterator/controllers/receivers"
-	"alerterator/controllers/routes"
+	"github.com/nais/alerterator/controllers/inhibitions"
+	"github.com/nais/alerterator/controllers/receivers"
+	"github.com/nais/alerterator/controllers/routes"
 	"gopkg.in/yaml.v2"
 )
 

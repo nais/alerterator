@@ -3,8 +3,8 @@ package rules
 import (
 	"testing"
 
-	"alerterator/controllers/fixtures"
-	"alerterator/utils"
+	"github.com/nais/alerterator/controllers/fixtures"
+	"github.com/nais/alerterator/utils"
 	"github.com/stretchr/testify/assert"
 )
 

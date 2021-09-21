@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"alerterator/utils"
 	"context"
 	"fmt"
 	"github.com/go-logr/logr"
+	"github.com/nais/alerterator/utils"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
