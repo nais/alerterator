@@ -11,7 +11,7 @@ import (
 func TestAlerts(t *testing.T) {
 	t.Run("Validated that alert rules are created correctly", func(t *testing.T) {
 		naisAlert := fixtures.AlertResource()
-		alertRules := createAlertRules(naisAlert)
+		alertRules := CreateAlertRules(naisAlert)
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
@@ -31,7 +31,7 @@ func TestAlerts(t *testing.T) {
 
 	t.Run("If severity is not set, default to danger", func(t *testing.T) {
 		alert := fixtures.MinimalAlertResource()
-		alertRules := createAlertRules(alert)
+		alertRules := CreateAlertRules(alert)
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
