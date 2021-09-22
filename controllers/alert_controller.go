@@ -3,11 +3,13 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"github.com/go-logr/logr"
-	"github.com/nais/alerterator/utils"
+
+	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
@@ -17,7 +19,6 @@ const alertFinalizerName = "alert.finalizers.alerterator.nais.io"
 // AlertReconciler reconciles a Alert object
 type AlertReconciler struct {
 	client.Client
-	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
@@ -26,7 +27,12 @@ type AlertReconciler struct {
 
 func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	log := r.Log.WithValues("alert", req.NamespacedName)
+
+	logger := log.WithFields(log.Fields{
+		"alert":         req.NamespacedName,
+		"correlationId": uuid.New().String(),
+	})
+	logger.Info("Reconciling alert")
 
 	var alert naisiov1.Alert
 	err := r.Get(ctx, req.NamespacedName, &alert)
@@ -34,52 +40,56 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// examine DeletionTimestamp to determine if object is under deletion
-	if alert.ObjectMeta.DeletionTimestamp.IsZero() {
-		// The object is not being deleted, so if it does not have our finalizer,
-		// then lets add the finalizer and update the object. This is equivalent
-		// registering our finalizer.
-		if !utils.ContainsString(alert.ObjectMeta.Finalizers, alertFinalizerName) {
-			alert.ObjectMeta.Finalizers = append(alert.ObjectMeta.Finalizers, alertFinalizerName)
-			if err := r.Update(context.Background(), &alert); err != nil {
-				return ctrl.Result{}, err
-			}
-			return ctrl.Result{}, nil
-		}
-	} else {
+	if !alert.GetDeletionTimestamp().IsZero() {
+		logger.Info("Alert resource is being deleted")
 		// The object is being deleted
-		if utils.ContainsString(alert.ObjectMeta.Finalizers, alertFinalizerName) {
+		if controllerutil.ContainsFinalizer(&alert, alertFinalizerName) {
 			// our finalizer is present, so lets handle any external dependency
-			log.Info("Deleting alert")
+			logger.Debug("Deleting alert from Alertmanager")
 			if err := r.deleteExternalResources(&alert); err != nil {
 				// if fail to delete the external dependency here, return with error
 				// so that it can be retried
 				return ctrl.Result{}, err
 			}
 
-			// remove our finalizer from the list and update it.
-			alert.ObjectMeta.Finalizers = utils.RemoveString(alert.ObjectMeta.Finalizers, alertFinalizerName)
+			logger.Debug("Removing finalizer")
+			controllerutil.RemoveFinalizer(&alert, alertFinalizerName)
 			if err := r.Update(context.Background(), &alert); err != nil {
 				return ctrl.Result{}, err
 			}
+
+			logger.Info("Finalizer processed")
 		}
 
 		// Stop reconciliation as the item is being deleted
 		return ctrl.Result{}, nil
 	}
 
-	// your logic here
-	log.Info("Reconciling alert")
+	// Add finalizer if not found
+	if !controllerutil.ContainsFinalizer(&alert, alertFinalizerName) {
+		logger.Debug("Finalizer not found; registering...")
+		controllerutil.AddFinalizer(&alert, alertFinalizerName)
+		if err := r.Update(context.Background(), &alert); err != nil {
+			return ctrl.Result{}, err
+		}
+
+		logger.Info("Finalizer registered")
+		return ctrl.Result{}, nil
+	}
+
+	logger.Debug("Updating Alertmanager config map")
 	err = AddOrUpdateAlertmanagerConfigMap(ctx, r, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
 	}
 
+	logger.Debug("Updating Alerterator rules config map")
 	err = AddOrUpdateAlert(ctx, r, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while adding rules to configMap: %s", err)
 	}
 
+	logger.Info("Done")
 	return ctrl.Result{}, nil
 }
 

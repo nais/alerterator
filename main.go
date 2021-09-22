@@ -3,14 +3,18 @@ package main
 import (
 	"flag"
 	"os"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"time"
 
-	"github.com/nais/alerterator/controllers"
+	"github.com/go-logr/zapr"
 	alertv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
+
+	"github.com/nais/alerterator/controllers"
+	"github.com/nais/alerterator/utils"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -25,6 +29,12 @@ func init() {
 
 	_ = alertv1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
+
+	formatter := &log.JSONFormatter{
+		TimestampFormat: time.RFC3339Nano,
+	}
+	log.SetFormatter(formatter)
+	log.SetLevel(log.DebugLevel)
 }
 
 func main() {
@@ -36,7 +46,13 @@ func main() {
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.Parse()
 
-	ctrl.SetLogger(zap.New())
+	zapLogger, err := utils.ZapLogger()
+	if err != nil {
+		setupLog.Error(err, "Unable to set up controller logger")
+		os.Exit(1)
+	}
+
+	ctrl.SetLogger(zapr.NewLogger(zapLogger))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
@@ -52,7 +68,6 @@ func main() {
 
 	if err = (&controllers.AlertReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "Unable to create controller")
