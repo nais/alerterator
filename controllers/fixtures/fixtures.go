@@ -20,7 +20,7 @@ func AlertResource() *naisiov1.Alert {
 				RepeatInterval: "4h",
 				GroupWait:      "30s",
 				GroupInterval:  "5m",
-				GroupBy:        []string{"group-by"},
+				GroupBy:        []string{"alertname", "team", "kubernetes_namespace"},
 			},
 			Receivers: naisiov1.Receivers{
 				Slack: naisiov1.Slack{
@@ -115,7 +115,7 @@ receivers:
       title: '{{ template "nais-alert.title" . }}'
       text: '{{ template "nais-alert.text" . }}'
 route:
-  group_by: ['alertname','team', 'kubernetes_namespace']
+  group_by: ['alertname', 'team', 'kubernetes_namespace']
   group_wait: 10s
   group_interval: 5m
   repeat_interval: 1h
@@ -142,6 +142,13 @@ const AlertmanagerConfigYamlDifferentRoutes = `
 global:
   slack_api_url: https://web-site.com
 receivers:
+  - name: default-receiver
+    slack_configs:
+    - channel: '#nais-alerts-default'
+      send_resolved: true
+      title: '{{ template "nais-alert.title" . }}'
+      text: '{{ template "nais-alert.text" . }}'
+      username: 'Alertmanager in preprod-fss'
   - name: aura-aura
     slack_configs:
     - channel: '#nais-alerts-default'
@@ -150,12 +157,20 @@ receivers:
       text: '{{ template "nais-alert.text" . }}'
       username: 'Alertmanager in preprod-fss'
 route:
-  group_by: ['alertname','team', 'kubernetes_namespace']
-  group_wait: 100s
-  group_interval: 50m
-  repeat_interval: 10h
-  receiver: aura-aura
-  routes: []
+  group_by: ['alertname', 'team', 'kubernetes_namespace']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: default-receiver
+  routes:
+    - receiver: aura-aura
+      group_by: ['alertname', 'team', 'kubernetes_namespace']
+      group_wait: 100s
+      group_interval: 50m
+      repeat_interval: 10h
+      continue: true
+      match:
+        alert: aura-aura
 `
 
 func ConfigMapBeforeAlerts() *corev1.ConfigMap {

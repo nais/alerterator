@@ -27,7 +27,11 @@ func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, er
 	if err != nil {
 		return nil, err
 	}
-	repeatInterval, err := model.ParseDuration(alert.Spec.Route.GroupInterval)
+	groupInterval, err := model.ParseDuration(alert.Spec.Route.GroupInterval)
+	if err != nil {
+		return nil, err
+	}
+	repeatInterval, err := model.ParseDuration(alert.Spec.Route.RepeatInterval)
 	if err != nil {
 		return nil, err
 	}
@@ -38,31 +42,32 @@ func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, er
 	}
 
 	return &alertmanager.Route{
-		GroupBy:       groupBy,
-		GroupInterval: &repeatInterval,
-		GroupWait:     &groupWait,
-		Receiver:      name,
-		Continue:      true,
+		GroupBy:        groupBy,
+		GroupInterval:  &groupInterval,
+		GroupWait:      &groupWait,
+		RepeatInterval: &repeatInterval,
+		Receiver:       name,
+		Continue:       true,
 		Match: map[string]string{
 			"alert": name,
 		},
 	}, nil
 }
 
-func AddOrUpdateRoute(alert *naisiov1.Alert, currentConfig, latestConfig alertmanager.Config) ([]*alertmanager.Route, error) {
+func AddOrUpdateRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*alertmanager.Route, error) {
 	alertName := utils.GetCombinedName(alert)
 	alertRoute, err := createNewRoute(alertName, alert)
 	if err != nil {
 		return nil, err
 	}
 
-	if i := getRouteIndex(alertName, currentConfig.Route.Routes); i != -1 {
-		currentConfig.Route.Routes[i] = alertRoute
+	if i := getRouteIndex(alertName, routes); i != -1 {
+		routes[i] = alertRoute
 	} else {
-		currentConfig.Route.Routes = append(currentConfig.Route.Routes, alertRoute)
+		routes = append(routes, alertRoute)
 	}
 
-	return currentConfig.Route.Routes, nil
+	return routes, nil
 }
 
 func getAlertRouteIndex(alertName string, routes []*alertmanager.Route) int {
