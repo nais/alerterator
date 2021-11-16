@@ -46,7 +46,7 @@ func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertRe
 	return &config, nil
 }
 
-func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, config map[interface{}]interface{}, alertReconciler *AlertReconciler) error {
+func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, config alertmanager.Config, alertReconciler *AlertReconciler) error {
 	data, err := yaml.Marshal(&config)
 	if err != nil {
 		return fmt.Errorf("failed while marshaling: %s", err)
@@ -83,17 +83,17 @@ func AddOrUpdateAlertmanagerConfigMap(ctx context.Context, alertReconciler *Aler
 	}
 	newConfig.Route.Routes = routes
 
-	updatedReceivers, err := receivers.AddOrUpdateReceiver(alert, oldConfig)
+	receivers, err := receivers.AddOrUpdateReceiver(alert, oldConfig.Receivers)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating receivers: %s", err)
 	}
-	newConfig["receivers"] = updatedReceivers
+	newConfig.Receivers = receivers
 
-	updatedInhibitRules, err := inhibitions.AddOrUpdateInhibition(alert, oldConfig)
+	inhibitRules, err := inhibitions.AddOrUpdateInhibition(alert, oldConfig.InhibitRules)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating inhibitions: %s", err)
 	}
-	newConfig["inhibit_rules"] = updatedInhibitRules
+	newConfig.InhibitRules = inhibitRules
 
 	return updateConfigMap(ctx, alertmanagerConfigMapName, newConfig, alertReconciler)
 }
