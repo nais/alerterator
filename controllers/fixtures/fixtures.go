@@ -89,7 +89,7 @@ func MinimalAlertResource() *naisiov1.Alert {
 
 const AlertmanagerConfigYaml = `
 global:
-  slack_api_url: web-site.com
+  slack_api_url: https://web-site.com
   http_config:
     proxy_url: http://webproxy.nais:8088
   smtp_from: srvKubernetesAlarm@nav.no
@@ -121,10 +121,6 @@ route:
   repeat_interval: 1h
   receiver: default-receiver
   routes:
-    - receiver: testmann
-      continue: true
-      match:
-        alert: testmann
     - receiver: aura-aura
       continue: true
       group_by: ["group_by"]
@@ -143,12 +139,22 @@ inhibit_rules:
     equal: ['team']`
 
 const AlertmanagerConfigYamlDifferentRoutes = `
+global:
+  slack_api_url: https://web-site.com
+receivers:
+  - name: aura-aura
+    slack_configs:
+    - channel: '#nais-alerts-default'
+      send_resolved: true
+      title: '{{ template "nais-alert.title" . }}'
+      text: '{{ template "nais-alert.text" . }}'
+      username: 'Alertmanager in preprod-fss'
 route:
   group_by: ['alertname','team', 'kubernetes_namespace']
   group_wait: 100s
   group_interval: 50m
   repeat_interval: 10h
-  receiver: default-receiver
+  receiver: aura-aura
   routes: []
 `
 
