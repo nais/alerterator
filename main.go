@@ -8,13 +8,14 @@ import (
 	"github.com/go-logr/zapr"
 	alertv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/nais/alerterator/controllers"
-	"github.com/nais/alerterator/utils"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -46,7 +47,12 @@ func main() {
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.Parse()
 
-	zapLogger, err := utils.ZapLogger()
+	cfg := zap.NewProductionConfig()
+	cfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+	cfg.EncoderConfig.TimeKey = "timestamp"
+	cfg.EncoderConfig.EncodeTime = zapcore.RFC3339NanoTimeEncoder
+	zapLogger, err := cfg.Build()
+
 	if err != nil {
 		setupLog.Error(err, "Unable to set up controller logger")
 		os.Exit(1)
