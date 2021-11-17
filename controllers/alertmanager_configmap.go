@@ -46,7 +46,7 @@ func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertRe
 	return &config, nil
 }
 
-func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, config alertmanager.Config, alertReconciler *AlertReconciler) error {
+func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, config *alertmanager.Config, alertReconciler *AlertReconciler) error {
 	data, err := yaml.Marshal(&config)
 	if err != nil {
 		return fmt.Errorf("failed while marshaling: %s", err)
@@ -99,25 +99,23 @@ func AddOrUpdateAlertmanagerConfigMap(ctx context.Context, alertReconciler *Aler
 }
 
 func DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx context.Context, alertReconciler *AlertReconciler, alert *naisiov1.Alert) error {
-	config, err := getConfig(ctx, alertmanagerConfigMapName, alertReconciler)
+	oldConfig, err := getConfig(ctx, alertmanagerConfigMapName, alertReconciler)
+	if err != nil {
+		return err
+	}
+	newConfig, err := getConfig(ctx, alertmanagerTemplateConfigMapName, alertReconciler)
 	if err != nil {
 		return err
 	}
 
-	err = routes.DeleteRoute(alert, config)
-	if err != nil {
-		return fmt.Errorf("failed while deleting route: %s", err)
-	}
+	routes := routes.DeleteRoute(alert, oldConfig.Route.Routes)
+	newConfig.Route.Routes = routes
 
-	err = receivers.DeleteReceiver(alert, config)
-	if err != nil {
-		return fmt.Errorf("failed while deleting receivers: %s", err)
-	}
+	receivers := receivers.DeleteReceiver(alert, oldConfig.Receivers)
+	newConfig.Receivers = receivers
 
-	err = inhibitions.DeleteInhibition(alert, config)
-	if err != nil {
-		return fmt.Errorf("failed while deleting receivers: %s", err)
-	}
+	inhibitions := inhibitions.DeleteInhibition(alert, oldConfig.InhibitRules)
+	newConfig.InhibitRules = inhibitions
 
-	return updateConfigMap(ctx, alertmanagerConfigMapName, config, alertReconciler)
+	return updateConfigMap(ctx, alertmanagerConfigMapName, newConfig, alertReconciler)
 }

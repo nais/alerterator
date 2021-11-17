@@ -123,7 +123,6 @@ func AddOrUpdateReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiv
 
 func DeleteReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) []*alertmanager.Receiver {
 	name := utils.GetCombinedName(alert)
-
 	if i := getReceiverIndexByName(name, receivers); i != -1 {
 		receivers = append(receivers[:i], receivers[i+1:]...)
 	}

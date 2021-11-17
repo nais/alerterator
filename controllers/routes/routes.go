@@ -1,11 +1,8 @@
 package routes
 
 import (
-	"fmt"
-
 	"github.com/nais/alerterator/utils"
 
-	"github.com/mitchellh/mapstructure"
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 
 	alertmanager "github.com/prometheus/alertmanager/config"
@@ -70,28 +67,11 @@ func AddOrUpdateRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*a
 	return routes, nil
 }
 
-func getAlertRouteIndex(alertName string, routes []*alertmanager.Route) int {
-	for i := 0; i < len(routes); i++ {
-		route := routes[i]
-		if route.Receiver == alertName {
-			return i
-		}
-	}
-	return -1
-}
-
-func DeleteRoute(alert *naisiov1.Alert, alertManager map[interface{}]interface{}) error {
-	var route alertmanager.Route
-	err := mapstructure.Decode(alertManager["route"], &route)
-	if err != nil {
-		return fmt.Errorf("failed while decoding map structure: %s", err)
+func DeleteRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) []*alertmanager.Route {
+	name := utils.GetCombinedName(alert)
+	if i := getRouteIndex(name, routes); i != -1 {
+		routes = append(routes[:i], routes[i+1:]...)
 	}
 
-	index := getAlertRouteIndex(utils.GetCombinedName(alert), route.Routes)
-	if index != -1 {
-		route.Routes = append(route.Routes[:index], route.Routes[index+1:]...)
-		alertManager["route"] = route
-	}
-
-	return nil
+	return routes
 }
