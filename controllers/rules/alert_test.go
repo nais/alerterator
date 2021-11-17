@@ -5,20 +5,27 @@ import (
 
 	"github.com/nais/alerterator/controllers/fixtures"
 	"github.com/nais/alerterator/utils"
+	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAlerts(t *testing.T) {
 	t.Run("Validated that alert rules are created correctly", func(t *testing.T) {
 		naisAlert := fixtures.AlertResource()
-		alertRules := CreateAlertRules(naisAlert)
+		name := utils.GetCombinedName(naisAlert)
+		alertRules, err := createAlertRules(name, naisAlert.Spec.Receivers.Slack.PrependText, naisAlert.Spec.Receivers.SMS.Recipients, naisAlert.Spec.Alerts)
+		assert.NoError(t, err)
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
 		assert.Equal(t, utils.GetCombinedName(naisAlert), alertRule.Labels["alert"])
 
 		alert := naisAlert.Spec.Alerts[0]
-		assert.Equal(t, alert.For, alertRule.For)
+
+		forDuration, err := model.ParseDuration(alert.For)
+		assert.NoError(t, err)
+
+		assert.Equal(t, forDuration, alertRule.For)
 		assert.Equal(t, alert.Expr, alertRule.Expr)
 		assert.Equal(t, alert.Alert, alertRule.Alert)
 		assert.Equal(t, alert.Documentation, alertRule.Annotations["documentation"])
@@ -31,7 +38,9 @@ func TestAlerts(t *testing.T) {
 
 	t.Run("If severity is not set, default to danger", func(t *testing.T) {
 		alert := fixtures.MinimalAlertResource()
-		alertRules := CreateAlertRules(alert)
+		name := utils.GetCombinedName(alert)
+		alertRules, err := createAlertRules(name, alert.Spec.Receivers.Slack.PrependText, alert.Spec.Receivers.SMS.Recipients, alert.Spec.Alerts)
+		assert.NoError(t, err)
 		assert.Len(t, alertRules, 1)
 
 		alertRule := alertRules[0]
