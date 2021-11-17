@@ -71,7 +71,7 @@ func AddOrUpdateAlert(alert *naisiov1.Alert, configMap corev1.ConfigMap) (corev1
 
 	alertGroupYamlBytes, err := yaml.Marshal(alertGroups)
 	if err != nil {
-		return configMap, fmt.Errorf("failed to marshal %v to yaml\n", alertGroups)
+		return configMap, fmt.Errorf("failed to marshal %v to yaml", alertGroups)
 	}
 
 	if configMap.Data == nil {
