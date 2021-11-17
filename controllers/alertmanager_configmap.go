@@ -38,7 +38,7 @@ func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertRe
 	}
 
 	config := alertmanager.Config{}
-	err = yaml.Unmarshal([]byte(configMap.Data[alertmanagerConfigName]), config)
+	err = yaml.Unmarshal([]byte(configMap.Data[alertmanagerConfigName]), &config)
 	if err != nil {
 		return nil, fmt.Errorf("failed while unmarshling %s: %s", alertmanagerConfigName, err)
 	}
