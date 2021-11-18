@@ -25,10 +25,6 @@ type AlertReconciler struct {
 
 func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-	// logger := log.WithFields(log.Fields{
-	// 	"alert":         req.NamespacedName,
-	// 	"correlationId": uuid.New().String(),
-	// })
 	logger.Info("Reconciling alert")
 
 	var alert naisiov1.Alert
