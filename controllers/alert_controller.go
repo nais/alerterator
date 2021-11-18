@@ -16,7 +16,6 @@ import (
 
 const alertFinalizerName = "alert.finalizers.alerterator.nais.io"
 
-// AlertReconciler reconciles a Alert object
 type AlertReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
@@ -25,9 +24,7 @@ type AlertReconciler struct {
 // +kubebuilder:rbac:groups=alerterator.nais.io,resources=alerts,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=alerterator.nais.io,resources=alerts/status,verbs=get;update;patch
 
-func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
-
+func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.WithFields(log.Fields{
 		"alert":         req.NamespacedName,
 		"correlationId": uuid.New().String(),
@@ -46,7 +43,7 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		if controllerutil.ContainsFinalizer(&alert, alertFinalizerName) {
 			// our finalizer is present, so lets handle any external dependency
 			logger.Debug("Deleting alert from Alertmanager")
-			if err := r.deleteExternalResources(&alert); err != nil {
+			if err := r.deleteExternalResources(ctx, &alert); err != nil {
 				// if fail to delete the external dependency here, return with error
 				// so that it can be retried
 				return ctrl.Result{}, err
@@ -93,8 +90,7 @@ func (r *AlertReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-func (r *AlertReconciler) deleteExternalResources(alert *naisiov1.Alert) error {
-	ctx := context.Background()
+func (r *AlertReconciler) deleteExternalResources(ctx context.Context, alert *naisiov1.Alert) error {
 	err := DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx, r, alert)
 	if err != nil {
 		return err
