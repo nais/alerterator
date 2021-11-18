@@ -2,60 +2,22 @@ package receivers
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/nais/alerterator/utils"
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	"github.com/spf13/viper"
+	alertmanager "github.com/prometheus/alertmanager/config"
+	"github.com/prometheus/common/config"
 )
 
-type slackConfig struct {
-	Channel      string `mapstructure:"channel" yaml:"channel"`
-	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
-	Title        string `mapstructure:"title" yaml:"title"`
-	Text         string `mapstructure:"text" yaml:"text"`
-	Color        string `mapstructure:"color" yaml:"color,omitempty"`
-	Username     string `mapstructure:"username" yaml:"username"`
-	IconUrl      string `mapstructure:"icon_url" yaml:"icon_url,omitempty"`
-	IconEmoji    string `mapstructure:"icon_emoji" yaml:"icon_emoji,omitempty"`
-}
-
-type emailConfig struct {
-	To           string `mapstructure:"to" yaml:"to"`
-	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
-}
-
-type webhookConfig struct {
-	URL          string   `mapstructure:"url" yaml:"url"`
-	SendResolved bool     `mapstructure:"send_resolved" yaml:"send_resolved"`
-	HttpConfig   struct{} `mapstructure:"http_config" yaml:"http_config"`
-}
-
-type pushoverConfig struct {
-	SendResolved bool   `mapstructure:"send_resolved" yaml:"send_resolved"`
-	UserKey      string `mapstructure:"user_key" yaml:"user_key"`
-	Token        string `mapstructure:"token" yaml:"token"`
-	Title        string `mapstructure:"title" yaml:"title"`
-	Message      string `mapstructure:"message" yaml:"message"`
-	Priority     string `mapstructure:"priority" yaml:"priority"`
-	Retry        string `mapstructure:"retry" yaml:"retry"`
-	Expire       string `mapstructure:"expire" yaml:"expire"`
-}
-
-type receiverConfig struct {
-	Name            string           `mapstructure:"name" yaml:"name"`
-	SlackConfigs    []slackConfig    `mapstructure:"slack_configs" yaml:"slack_configs,omitempty"`
-	EmailConfigs    []emailConfig    `mapstructure:"email_configs" yaml:"email_configs,omitempty"`
-	WebhookConfigs  []webhookConfig  `mapstructure:"webhook_configs" yaml:"webhook_configs,omitempty"`
-	PushoverConfigs []pushoverConfig `mapstructure:"pushover_configs" yaml:"pushover_configs,omitempty"`
-}
-
-func getDefaultEmailConfig(to string) emailConfig {
-	return emailConfig{
-		To:           to,
-		SendResolved: false,
+func getDefaultEmailConfig(to string) alertmanager.EmailConfig {
+	return alertmanager.EmailConfig{
+		To: to,
+		NotifierConfig: alertmanager.NotifierConfig{
+			VSendResolved: false,
+		},
 	}
 }
 
@@ -63,43 +25,38 @@ func getDefaultEmailConfig(to string) emailConfig {
 // in the alert-request.
 //
 // HttpConfig needs to be an empty object to turn off the default httpConfig which uses proxy-settings
-func getDefaultSMSConfig() webhookConfig {
-	return webhookConfig{
-		URL:          "http://smsmanager/sms",
-		SendResolved: true,
-		HttpConfig:   struct{}{},
+func getDefaultSMSConfig() alertmanager.WebhookConfig {
+	return alertmanager.WebhookConfig{
+		URL: &alertmanager.URL{
+			URL: &url.URL{
+				RawPath: "http://smsmanager/sms",
+			},
+		},
+		NotifierConfig: alertmanager.NotifierConfig{
+			VSendResolved: true,
+		},
+		HTTPConfig: &config.HTTPClientConfig{},
 	}
 }
 
-func getDefaultPushoverConfig(userKey string) pushoverConfig {
-	return pushoverConfig{
-		SendResolved: true,
-		UserKey:      userKey,
-		Token:        viper.GetString("pushover_token"),
-		Title:        "{{ template \"nais-pushover.title\" . }}",
-		Message:      "{{ template \"nais-pushover.text\" . }}",
-		Priority:     "{{ template \"nais-pushover.priority\" }}",
-		Retry:        "1m",
-		Expire:       "1h",
-	}
-}
-
-func getDefaultSlackConfig(channel string) slackConfig {
+func getDefaultSlackConfig(channel string) alertmanager.SlackConfig {
 	if !strings.HasPrefix(channel, "#") {
 		channel = "#" + channel
 	}
 
-	return slackConfig{
-		Channel:      channel,
-		SendResolved: true,
-		Title:        "{{ template \"nais-alert.title\" . }}",
-		Text:         "{{ template \"nais-alert.text\" . }}",
-		Color:        "{{ template \"nais-alert.color\" . }}",
-		Username:     fmt.Sprintf("Alertmanager in %s", os.Getenv("NAIS_CLUSTER_NAME")),
+	return alertmanager.SlackConfig{
+		Channel: channel,
+		NotifierConfig: alertmanager.NotifierConfig{
+			VSendResolved: true,
+		},
+		Title:    "{{ template \"nais-alert.title\" . }}",
+		Text:     "{{ template \"nais-alert.text\" . }}",
+		Color:    "{{ template \"nais-alert.color\" . }}",
+		Username: fmt.Sprintf("Alertmanager in %s", os.Getenv("NAIS_CLUSTER_NAME")),
 	}
 }
 
-func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
+func getReceiverIndexByName(alert string, receivers []*alertmanager.Receiver) int {
 	for i := 0; i < len(receivers); i++ {
 		receiver := receivers[i]
 		if receiver.Name == alert {
@@ -109,14 +66,16 @@ func getReceiverIndexByName(alert string, receivers []receiverConfig) int {
 	return -1
 }
 
-func createReceiver(alert *naisiov1.Alert) (receiver receiverConfig) {
+func createReceiver(name string, alert *naisiov1.Alert) *alertmanager.Receiver {
 	receivers := alert.Spec.Receivers
-	receiver.Name = utils.GetCombinedName(alert)
+	receiver := alertmanager.Receiver{
+		Name: name,
+	}
 
 	if receivers.Slack.Channel != "" {
 		slack := getDefaultSlackConfig(receivers.Slack.Channel)
 		if receivers.Slack.SendResolved != nil && !*receivers.Slack.SendResolved {
-			slack.SendResolved = false
+			slack.NotifierConfig.VSendResolved = false
 		}
 		if receivers.Slack.Username != "" {
 			slack.Username = receivers.Slack.Username
@@ -125,41 +84,36 @@ func createReceiver(alert *naisiov1.Alert) (receiver receiverConfig) {
 			slack.IconEmoji = receivers.Slack.IconEmoji
 		}
 		if receivers.Slack.IconUrl != "" {
-			slack.IconUrl = receivers.Slack.IconUrl
+			slack.IconURL = receivers.Slack.IconUrl
 		}
-		receiver.SlackConfigs = append(receiver.SlackConfigs, slack)
+		receiver.SlackConfigs = append(receiver.SlackConfigs, &slack)
 	}
 
 	if receivers.Email.To != "" {
 		email := getDefaultEmailConfig(receivers.Email.To)
 		if receivers.Email.SendResolved {
-			email.SendResolved = true
+			email.NotifierConfig.VSendResolved = true
 		}
-		receiver.EmailConfigs = append(receiver.EmailConfigs, email)
+		receiver.EmailConfigs = append(receiver.EmailConfigs, &email)
 	}
 
 	if receivers.SMS.Recipients != "" {
 		sms := getDefaultSMSConfig()
 		if receivers.SMS.SendResolved != nil && !*receivers.SMS.SendResolved {
-			sms.SendResolved = false
+			sms.NotifierConfig.VSendResolved = false
 		}
-		receiver.WebhookConfigs = append(receiver.WebhookConfigs, sms)
+		receiver.WebhookConfigs = append(receiver.WebhookConfigs, &sms)
 	}
 
-	return
+	return &receiver
 }
 
-func AddOrUpdateReceiver(alert *naisiov1.Alert, alertManager map[interface{}]interface{}) ([]receiverConfig, error) {
-	var receivers []receiverConfig
-	err := mapstructure.Decode(alertManager["receivers"], &receivers)
-	if err != nil {
-		return nil, fmt.Errorf("failed while decoding map structure: %s", err)
-	}
+func AddOrUpdateReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) ([]*alertmanager.Receiver, error) {
+	name := utils.GetCombinedName(alert)
+	receiver := createReceiver(name, alert)
 
-	receiver := createReceiver(alert)
-	index := getReceiverIndexByName(utils.GetCombinedName(alert), receivers)
-	if index != -1 {
-		receivers[index] = receiver
+	if i := getReceiverIndexByName(name, receivers); i != -1 {
+		receivers[i] = receiver
 	} else {
 		receivers = append(receivers, receiver)
 	}
@@ -167,18 +121,11 @@ func AddOrUpdateReceiver(alert *naisiov1.Alert, alertManager map[interface{}]int
 	return receivers, nil
 }
 
-func DeleteReceiver(alert *naisiov1.Alert, alertManager map[interface{}]interface{}) error {
-	var receivers []receiverConfig
-	err := mapstructure.Decode(alertManager["receivers"], &receivers)
-	if err != nil {
-		return fmt.Errorf("failed while decoding map structure: %s", err)
+func DeleteReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) []*alertmanager.Receiver {
+	name := utils.GetCombinedName(alert)
+	if i := getReceiverIndexByName(name, receivers); i != -1 {
+		receivers = append(receivers[:i], receivers[i+1:]...)
 	}
 
-	index := getReceiverIndexByName(utils.GetCombinedName(alert), receivers)
-	if index != -1 {
-		receivers = append(receivers[:index], receivers[index+1:]...)
-	}
-	alertManager["receivers"] = receivers
-
-	return nil
+	return receivers
 }

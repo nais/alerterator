@@ -20,7 +20,7 @@ func AlertResource() *naisiov1.Alert {
 				RepeatInterval: "4h",
 				GroupWait:      "30s",
 				GroupInterval:  "5m",
-				GroupBy:        []string{"group-by"},
+				GroupBy:        []string{"alertname", "team", "kubernetes_namespace"},
 			},
 			Receivers: naisiov1.Receivers{
 				Slack: naisiov1.Slack{
@@ -89,7 +89,7 @@ func MinimalAlertResource() *naisiov1.Alert {
 
 const AlertmanagerConfigYaml = `
 global:
-  slack_api_url: web-site.com
+  slack_api_url: https://web-site.com
   http_config:
     proxy_url: http://webproxy.nais:8088
   smtp_from: srvKubernetesAlarm@nav.no
@@ -115,16 +115,12 @@ receivers:
       title: '{{ template "nais-alert.title" . }}'
       text: '{{ template "nais-alert.text" . }}'
 route:
-  group_by: ['alertname','team', 'kubernetes_namespace']
+  group_by: ['alertname', 'team', 'kubernetes_namespace']
   group_wait: 10s
   group_interval: 5m
   repeat_interval: 1h
   receiver: default-receiver
   routes:
-    - receiver: testmann
-      continue: true
-      match:
-        alert: testmann
     - receiver: aura-aura
       continue: true
       group_by: ["group_by"]
@@ -143,13 +139,38 @@ inhibit_rules:
     equal: ['team']`
 
 const AlertmanagerConfigYamlDifferentRoutes = `
+global:
+  slack_api_url: https://web-site.com
+receivers:
+  - name: default-receiver
+    slack_configs:
+    - channel: '#nais-alerts-default'
+      send_resolved: true
+      title: '{{ template "nais-alert.title" . }}'
+      text: '{{ template "nais-alert.text" . }}'
+      username: 'Alertmanager in preprod-fss'
+  - name: aura-aura
+    slack_configs:
+    - channel: '#nais-alerts-default'
+      send_resolved: true
+      title: '{{ template "nais-alert.title" . }}'
+      text: '{{ template "nais-alert.text" . }}'
+      username: 'Alertmanager in preprod-fss'
 route:
-  group_by: ['alertname','team', 'kubernetes_namespace']
-  group_wait: 100s
-  group_interval: 50m
-  repeat_interval: 10h
+  group_by: ['alertname', 'team', 'kubernetes_namespace']
+  group_wait: 10s
+  group_interval: 5m
+  repeat_interval: 1h
   receiver: default-receiver
-  routes: []
+  routes:
+    - receiver: aura-aura
+      group_by: ['alertname', 'team', 'kubernetes_namespace']
+      group_wait: 100s
+      group_interval: 50m
+      repeat_interval: 10h
+      continue: true
+      match:
+        alert: aura-aura
 `
 
 func ConfigMapBeforeAlerts() *corev1.ConfigMap {

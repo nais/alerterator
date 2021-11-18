@@ -1,34 +1,15 @@
 package routes
 
 import (
-	"fmt"
-
 	"github.com/nais/alerterator/utils"
 
-	"github.com/mitchellh/mapstructure"
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
+
+	alertmanager "github.com/prometheus/alertmanager/config"
+	model "github.com/prometheus/common/model"
 )
 
-type routeConfig struct {
-	Receiver       string            `mapstructure:"receiver" yaml:"receiver"`
-	Continue       bool              `mapstructure:"continue" yaml:"continue"`
-	Match          map[string]string `mapstructure:"match" yaml:"match"`
-	GroupBy        []string          `mapstructure:"group_by" yaml:"group_by,omitempty"`
-	GroupWait      string            `mapstructure:"group_wait" yaml:"group_wait,omitempty"`
-	GroupInterval  string            `mapstructure:"group_interval" yaml:"group_interval,omitempty"`
-	RepeatInterval string            `mapstructure:"repeat_interval" yaml:"repeat_interval,omitempty"`
-}
-
-type Config struct {
-	GroupBy        []string      `mapstructure:"group_by" yaml:"group_by"`
-	GroupWait      string        `mapstructure:"group_wait" yaml:"group_wait"`
-	GroupInterval  string        `mapstructure:"group_interval" yaml:"group_interval"`
-	RepeatInterval string        `mapstructure:"repeat_interval" yaml:"repeat_interval"`
-	Receiver       string        `mapstructure:"receiver" yaml:"receiver"`
-	Routes         []routeConfig `mapstructure:"routes" yaml:"routes"`
-}
-
-func getRouteIndex(alertName string, routes []routeConfig) int {
+func getRouteIndex(alertName string, routes []*alertmanager.Route) int {
 	for i := range routes {
 		if routes[i].Receiver == alertName {
 			return i
@@ -38,66 +19,71 @@ func getRouteIndex(alertName string, routes []routeConfig) int {
 	return -1
 }
 
-func AddOrUpdateRoute(alert *naisiov1.Alert, currentConfig, latestConfig map[interface{}]interface{}) (Config, error) {
-	var routes Config
-	err := mapstructure.Decode(currentConfig["route"], &routes)
-	if err != nil {
-		return Config{}, fmt.Errorf("failed while decoding map structure: %s", err)
+func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, error) {
+	var groupWait, groupInterval, repeatInterval *model.Duration
+
+	if len(alert.Spec.Route.GroupWait) > 0 {
+		gw, err := model.ParseDuration(alert.Spec.Route.GroupWait)
+		if err != nil {
+			return nil, err
+		}
+		groupWait = &gw
+	}
+	if len(alert.Spec.Route.GroupInterval) > 0 {
+		gi, err := model.ParseDuration(alert.Spec.Route.GroupInterval)
+		if err != nil {
+			return nil, err
+		}
+
+		groupInterval = &gi
+	}
+	if len(alert.Spec.Route.RepeatInterval) > 0 {
+		ri, err := model.ParseDuration(alert.Spec.Route.RepeatInterval)
+		if err != nil {
+			return nil, err
+		}
+		repeatInterval = &ri
 	}
 
-	alertName := utils.GetCombinedName(alert)
+	var groupBy []model.LabelName
+	for _, v := range alert.Spec.Route.GroupBy {
+		groupBy = append(groupBy, model.LabelName(v))
+	}
 
-	routeConfig := routeConfig{
-		GroupBy:        alert.Spec.Route.GroupBy,
-		GroupInterval:  alert.Spec.Route.GroupInterval,
-		GroupWait:      alert.Spec.Route.GroupWait,
-		RepeatInterval: alert.Spec.Route.RepeatInterval,
-		Receiver:       alertName,
+	return &alertmanager.Route{
+		GroupBy:        groupBy,
+		GroupInterval:  groupInterval,
+		GroupWait:      groupWait,
+		RepeatInterval: repeatInterval,
+		Receiver:       name,
 		Continue:       true,
 		Match: map[string]string{
-			"alert": alertName,
+			"alert": name,
 		},
+	}, nil
+}
+
+func AddOrUpdateRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*alertmanager.Route, error) {
+	alertName := utils.GetCombinedName(alert)
+	alertRoute, err := createNewRoute(alertName, alert)
+	if err != nil {
+		return nil, err
 	}
 
-	if i := getRouteIndex(alertName, routes.Routes); i != -1 {
-		routes.Routes[i] = routeConfig
+	if i := getRouteIndex(alertName, routes); i != -1 {
+		routes[i] = alertRoute
 	} else {
-		routes.Routes = append(routes.Routes, routeConfig)
+		routes = append(routes, alertRoute)
 	}
 
-	var latestRoutes Config
-	err = mapstructure.Decode(latestConfig["route"], &latestRoutes)
-	if err != nil {
-		return Config{}, fmt.Errorf("failed while decoding map structure: %s", err)
-	}
-
-	latestRoutes.Routes = routes.Routes
-
-	return latestRoutes, nil
+	return routes, nil
 }
 
-func getAlertRouteIndex(alertName string, routes []routeConfig) int {
-	for i := 0; i < len(routes); i++ {
-		route := routes[i]
-		if route.Receiver == alertName {
-			return i
-		}
-	}
-	return -1
-}
-
-func DeleteRoute(alert *naisiov1.Alert, alertManager map[interface{}]interface{}) error {
-	var route Config
-	err := mapstructure.Decode(alertManager["route"], &route)
-	if err != nil {
-		return fmt.Errorf("failed while decoding map structure: %s", err)
+func DeleteRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) []*alertmanager.Route {
+	name := utils.GetCombinedName(alert)
+	if i := getRouteIndex(name, routes); i != -1 {
+		routes = append(routes[:i], routes[i+1:]...)
 	}
 
-	index := getAlertRouteIndex(utils.GetCombinedName(alert), route.Routes)
-	if index != -1 {
-		route.Routes = append(route.Routes[:index], route.Routes[index+1:]...)
-		alertManager["route"] = route
-	}
-
-	return nil
+	return routes
 }
