@@ -3,11 +3,9 @@ package main
 import (
 	"flag"
 	"os"
-	"time"
 
 	"github.com/go-logr/zapr"
 	alertv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-	log "github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -30,12 +28,6 @@ func init() {
 
 	_ = alertv1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
-
-	formatter := &log.JSONFormatter{
-		TimestampFormat: time.RFC3339Nano,
-	}
-	log.SetFormatter(formatter)
-	log.SetLevel(log.DebugLevel)
 }
 
 func main() {

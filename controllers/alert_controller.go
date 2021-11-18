@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	log "sigs.k8s.io/controller-runtime/pkg/log"
 
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
@@ -25,10 +24,11 @@ type AlertReconciler struct {
 // +kubebuilder:rbac:groups=alerterator.nais.io,resources=alerts/status,verbs=get;update;patch
 
 func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	logger := log.WithFields(log.Fields{
-		"alert":         req.NamespacedName,
-		"correlationId": uuid.New().String(),
-	})
+	logger := log.FromContext(ctx)
+	// logger := log.WithFields(log.Fields{
+	// 	"alert":         req.NamespacedName,
+	// 	"correlationId": uuid.New().String(),
+	// })
 	logger.Info("Reconciling alert")
 
 	var alert naisiov1.Alert
@@ -42,14 +42,14 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		// The object is being deleted
 		if controllerutil.ContainsFinalizer(&alert, alertFinalizerName) {
 			// our finalizer is present, so lets handle any external dependency
-			logger.Debug("Deleting alert from Alertmanager")
+			logger.Info("Deleting alert from Alertmanager")
 			if err := r.deleteExternalResources(ctx, &alert); err != nil {
 				// if fail to delete the external dependency here, return with error
 				// so that it can be retried
 				return ctrl.Result{}, err
 			}
 
-			logger.Debug("Removing finalizer")
+			logger.Info("Removing finalizer")
 			controllerutil.RemoveFinalizer(&alert, alertFinalizerName)
 			if err := r.Update(context.Background(), &alert); err != nil {
 				return ctrl.Result{}, err
@@ -64,7 +64,7 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	// Add finalizer if not found
 	if !controllerutil.ContainsFinalizer(&alert, alertFinalizerName) {
-		logger.Debug("Finalizer not found; registering...")
+		logger.Info("Finalizer not found; registering...")
 		controllerutil.AddFinalizer(&alert, alertFinalizerName)
 		if err := r.Update(context.Background(), &alert); err != nil {
 			return ctrl.Result{}, err
@@ -74,13 +74,13 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, nil
 	}
 
-	logger.Debug("Updating Alertmanager config map")
+	logger.Info("Updating Alertmanager config map")
 	err = AddOrUpdateAlertmanagerConfigMap(ctx, r, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
 	}
 
-	logger.Debug("Updating Alerterator rules config map")
+	logger.Info("Updating Alerterator rules config map")
 	err = AddOrUpdateAlert(ctx, r, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while adding rules to configMap: %s", err)
