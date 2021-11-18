@@ -60,15 +60,11 @@ func createAlertRules(name, slackPrependText, smsRecipients string, naisAlerts [
 				"prependText":   slackPrependText,
 				"sla":           ar.SLA,
 				"severity":      ar.Severity,
-				"priority":      ar.Priority,
 				"recipients":    smsRecipients,
 			},
 		}
 		if rule.Annotations["severity"] == "" {
 			rule.Annotations["severity"] = "danger"
-		}
-		if rule.Annotations["priority"] == "" {
-			rule.Annotations["priority"] = "0"
 		}
 		rules = append(rules, rule)
 	}
