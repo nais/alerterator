@@ -72,8 +72,8 @@ func TestRoutes(t *testing.T) {
 		name := utils.GetCombinedName(naisAlert)
 		route, err := createNewRoute(name, naisAlert)
 		assert.NoError(t, err)
-		assert.Equal(t, "0s", route.GroupInterval.String())
-		assert.Equal(t, "0s", route.GroupWait.String())
-		assert.Equal(t, "0s", route.RepeatInterval.String())
+		assert.Nil(t, route.GroupInterval)
+		assert.Nil(t, route.GroupInterval)
+		assert.Nil(t, route.RepeatInterval)
 	})
 }

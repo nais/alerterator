@@ -20,27 +20,29 @@ func getRouteIndex(alertName string, routes []*alertmanager.Route) int {
 }
 
 func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, error) {
-	if len(alert.Spec.Route.GroupWait) == 0 {
-		alert.Spec.Route.GroupWait = "0"
-	}
-	if len(alert.Spec.Route.GroupInterval) == 0 {
-		alert.Spec.Route.GroupInterval = "0"
-	}
-	if len(alert.Spec.Route.RepeatInterval) == 0 {
-		alert.Spec.Route.RepeatInterval = "0"
-	}
+	var groupWait, groupInterval, repeatInterval *model.Duration
 
-	groupWait, err := model.ParseDuration(alert.Spec.Route.GroupWait)
-	if err != nil {
-		return nil, err
+	if len(alert.Spec.Route.GroupWait) > 0 {
+		gw, err := model.ParseDuration(alert.Spec.Route.GroupWait)
+		if err != nil {
+			return nil, err
+		}
+		groupWait = &gw
 	}
-	groupInterval, err := model.ParseDuration(alert.Spec.Route.GroupInterval)
-	if err != nil {
-		return nil, err
+	if len(alert.Spec.Route.GroupInterval) > 0 {
+		gi, err := model.ParseDuration(alert.Spec.Route.GroupInterval)
+		if err != nil {
+			return nil, err
+		}
+
+		groupInterval = &gi
 	}
-	repeatInterval, err := model.ParseDuration(alert.Spec.Route.RepeatInterval)
-	if err != nil {
-		return nil, err
+	if len(alert.Spec.Route.RepeatInterval) > 0 {
+		ri, err := model.ParseDuration(alert.Spec.Route.RepeatInterval)
+		if err != nil {
+			return nil, err
+		}
+		repeatInterval = &ri
 	}
 
 	var groupBy []model.LabelName
@@ -50,9 +52,9 @@ func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, er
 
 	return &alertmanager.Route{
 		GroupBy:        groupBy,
-		GroupInterval:  &groupInterval,
-		GroupWait:      &groupWait,
-		RepeatInterval: &repeatInterval,
+		GroupInterval:  groupInterval,
+		GroupWait:      groupWait,
+		RepeatInterval: repeatInterval,
 		Receiver:       name,
 		Continue:       true,
 		Match: map[string]string{
