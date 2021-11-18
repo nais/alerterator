@@ -46,4 +46,16 @@ func TestAlerts(t *testing.T) {
 		alertRule := alertRules[0]
 		assert.Equal(t, "danger", alertRule.Annotations["severity"])
 	})
+
+	t.Run("Ensure that for==0 if not set", func(t *testing.T) {
+		naisAlert := fixtures.MinimalAlertResource()
+		naisAlert.Spec.Alerts[0].For = ""
+		name := utils.GetCombinedName(naisAlert)
+		rules, err := createAlertRules(name, naisAlert.Spec.Receivers.Slack.PrependText, naisAlert.Spec.Receivers.SMS.Recipients, naisAlert.Spec.Alerts)
+		assert.NoError(t, err)
+		assert.Len(t, rules, 1)
+
+		rule := rules[0]
+		assert.Equal(t, model.Duration(0), rule.For)
+	})
 }

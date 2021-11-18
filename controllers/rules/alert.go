@@ -38,6 +38,10 @@ func createAlertRules(name, slackPrependText, smsRecipients string, naisAlerts [
 	var rules []Rule
 
 	for _, ar := range naisAlerts {
+		if len(ar.For) == 0 {
+			ar.For = "0"
+		}
+
 		forDuration, err := model.ParseDuration(ar.For)
 		if err != nil {
 			return nil, err

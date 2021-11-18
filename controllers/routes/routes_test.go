@@ -63,4 +63,17 @@ func TestRoutes(t *testing.T) {
 		}
 		assert.True(t, found)
 	})
+
+	t.Run("Ensure that unset duration are 0", func(t *testing.T) {
+		naisAlert := fixtures.MinimalAlertResource()
+		naisAlert.Spec.Route.GroupInterval = ""
+		naisAlert.Spec.Route.GroupWait = ""
+		naisAlert.Spec.Route.RepeatInterval = ""
+		name := utils.GetCombinedName(naisAlert)
+		route, err := createNewRoute(name, naisAlert)
+		assert.NoError(t, err)
+		assert.Equal(t, "0s", route.GroupInterval.String())
+		assert.Equal(t, "0s", route.GroupWait.String())
+		assert.Equal(t, "0s", route.RepeatInterval.String())
+	})
 }

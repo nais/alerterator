@@ -20,6 +20,16 @@ func getRouteIndex(alertName string, routes []*alertmanager.Route) int {
 }
 
 func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, error) {
+	if len(alert.Spec.Route.GroupWait) == 0 {
+		alert.Spec.Route.GroupWait = "0"
+	}
+	if len(alert.Spec.Route.GroupInterval) == 0 {
+		alert.Spec.Route.GroupInterval = "0"
+	}
+	if len(alert.Spec.Route.RepeatInterval) == 0 {
+		alert.Spec.Route.RepeatInterval = "0"
+	}
+
 	groupWait, err := model.ParseDuration(alert.Spec.Route.GroupWait)
 	if err != nil {
 		return nil, err
