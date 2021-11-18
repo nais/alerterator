@@ -1,7 +1,6 @@
 package inhibitions
 
 import (
-	"fmt"
 	"reflect"
 	"regexp"
 
@@ -79,7 +78,6 @@ func AddOrUpdateInhibition(alert *naisiov1.Alert, inhibitions []*alertmanager.In
 		}
 	}
 
-	fmt.Println(inhibitions)
 	return inhibitions, nil
 }
 
