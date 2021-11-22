@@ -9,9 +9,9 @@ import (
 	model "github.com/prometheus/common/model"
 )
 
-func getRouteIndex(alertName string, routes []*alertmanager.Route) int {
+func getRouteIndexByName(receiver string, routes []*alertmanager.Route) int {
 	for i := range routes {
-		if routes[i].Receiver == alertName {
+		if routes[i].Receiver == receiver {
 			return i
 		}
 	}
@@ -81,13 +81,13 @@ func deleteDuplicates(name string, routes []*alertmanager.Route) []*alertmanager
 }
 
 func AddOrUpdateRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*alertmanager.Route, error) {
-	alertName := utils.GetCombinedName(alert)
-	alertRoute, err := createNewRoute(alertName, alert)
+	name := utils.GetCombinedName(alert)
+	alertRoute, err := createNewRoute(name, alert)
 	if err != nil {
 		return nil, err
 	}
 
-	if i := getRouteIndex(alertName, routes); i != -1 {
+	if i := getRouteIndexByName(name, routes); i != -1 {
 		routes[i] = alertRoute
 	} else {
 		routes = append(routes, alertRoute)
@@ -100,7 +100,7 @@ func AddOrUpdateRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*a
 
 func DeleteRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) []*alertmanager.Route {
 	name := utils.GetCombinedName(alert)
-	if i := getRouteIndex(name, routes); i != -1 {
+	if i := getRouteIndexByName(name, routes); i != -1 {
 		routes = append(routes[:i], routes[i+1:]...)
 	}
 

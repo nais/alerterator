@@ -56,10 +56,9 @@ func getDefaultSlackConfig(channel string) alertmanager.SlackConfig {
 	}
 }
 
-func getReceiverIndexByName(alert string, receivers []*alertmanager.Receiver) int {
-	for i := 0; i < len(receivers); i++ {
-		receiver := receivers[i]
-		if receiver.Name == alert {
+func getReceiverIndexByName(name string, receivers []*alertmanager.Receiver) int {
+	for i := range receivers {
+		if receivers[i].Name == name {
 			return i
 		}
 	}
