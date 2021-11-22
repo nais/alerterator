@@ -76,4 +76,19 @@ func TestRoutes(t *testing.T) {
 		assert.Nil(t, route.GroupInterval)
 		assert.Nil(t, route.RepeatInterval)
 	})
+
+	t.Run("Ensure duplicated routes are deleted", func(t *testing.T) {
+		config := alertmanager.Config{}
+		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
+		assert.NoError(t, err)
+
+		name := "aura-aura"
+		duplicatedRoute := &alertmanager.Route{
+			Receiver: name,
+		}
+		config.Route.Routes = append(config.Route.Routes, duplicatedRoute)
+		assert.Len(t, config.Route.Routes, 2)
+		config.Route.Routes = deleteDuplicates(name, config.Route.Routes)
+		assert.Len(t, config.Route.Routes, 1)
+	})
 }
