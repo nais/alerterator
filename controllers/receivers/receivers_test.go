@@ -4,8 +4,10 @@ import (
 	"testing"
 
 	"github.com/nais/alerterator/utils"
+	"gopkg.in/yaml.v2"
 
 	"github.com/nais/alerterator/controllers/fixtures"
+	alertmanager "github.com/prometheus/alertmanager/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -64,5 +66,20 @@ func TestReceivers(t *testing.T) {
 		assert.Equal(t, ":fire:", receiver.SlackConfigs[0].IconEmoji)
 		assert.Equal(t, "https://url", receiver.SlackConfigs[0].IconURL)
 		assert.False(t, receiver.SlackConfigs[0].SendResolved())
+	})
+
+	t.Run("Ensure duplicated receivers are deleted", func(t *testing.T) {
+		config := alertmanager.Config{}
+		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
+		assert.NoError(t, err)
+
+		name := "aura-aura"
+		duplicatedReceiver := &alertmanager.Receiver{
+			Name: name,
+		}
+		config.Receivers = append(config.Receivers, duplicatedReceiver)
+		assert.Len(t, config.Receivers, 3)
+		config.Receivers = deleteDuplicates(name, config.Receivers)
+		assert.Len(t, config.Receivers, 2)
 	})
 }

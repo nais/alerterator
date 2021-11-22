@@ -107,6 +107,23 @@ func createReceiver(name string, alert *naisiov1.Alert) *alertmanager.Receiver {
 	return &receiver
 }
 
+func deleteDuplicates(name string, receivers []*alertmanager.Receiver) []*alertmanager.Receiver {
+	var indices []int
+	for i := range receivers {
+		if receivers[i].Name == name {
+			indices = append(indices, i)
+		}
+	}
+
+	if len(indices) > 1 {
+		for i := 1; i < len(indices); i++ {
+			receivers = append(receivers[:i], receivers[i+1:]...)
+		}
+	}
+
+	return receivers
+}
+
 func AddOrUpdateReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) ([]*alertmanager.Receiver, error) {
 	name := utils.GetCombinedName(alert)
 	receiver := createReceiver(name, alert)
@@ -116,6 +133,8 @@ func AddOrUpdateReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiv
 	} else {
 		receivers = append(receivers, receiver)
 	}
+
+	receivers = deleteDuplicates(name, receivers)
 
 	return receivers, nil
 }
