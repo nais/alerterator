@@ -10,6 +10,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	log "sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/nais/alerterator/controllers/alertmanager"
+	"github.com/nais/alerterator/controllers/prometheus"
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
@@ -38,7 +40,7 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		// The object is being deleted
 		if controllerutil.ContainsFinalizer(&alert, alertFinalizerName) {
 			// our finalizer is present, so lets handle any external dependency
-			logger.Info("Deleting alert from Alertmanager")
+			logger.Info("Deleting alert from config")
 			if err := r.deleteExternalResources(ctx, &alert); err != nil {
 				// if fail to delete the external dependency here, return with error
 				// so that it can be retried
@@ -71,15 +73,15 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	logger.Info("Updating Alertmanager config map")
-	err = AddOrUpdateAlertmanagerConfigMap(ctx, r, &alert)
+	err = alertmanager.AddOrUpdate(ctx, r.Client, &alert)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("while updating Alertanager config map: %s", err)
+		return ctrl.Result{}, fmt.Errorf("while updating Alertmanager config map: %s", err)
 	}
 
 	logger.Info("Updating Prometheus rules config map")
-	err = AddOrUpdateRules(ctx, r, &alert)
+	err = prometheus.AddOrUpdateRules(ctx, r.Client, &alert)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("while adding rules to config map: %s", err)
+		return ctrl.Result{}, fmt.Errorf("while updating Prometheus rules to config map: %s", err)
 	}
 
 	logger.Info("Done")
@@ -87,11 +89,11 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 }
 
 func (r *AlertReconciler) deleteExternalResources(ctx context.Context, alert *naisiov1.Alert) error {
-	err := DeleteFromAlertmanagerConfigMap(ctx, r, alert)
+	err := alertmanager.Delete(ctx, r.Client, alert)
 	if err != nil {
 		return err
 	}
-	err = DeleteRules(ctx, r, alert)
+	err = prometheus.DeleteRules(ctx, r.Client, alert)
 	if err != nil {
 		return err
 	}
