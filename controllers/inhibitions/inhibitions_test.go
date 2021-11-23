@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/nais/alerterator/controllers/fixtures"
-	alertmanager "github.com/prometheus/alertmanager/config"
+	"github.com/nais/alerterator/controllers/overrides"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
@@ -13,7 +13,7 @@ import (
 func TestRoutes(t *testing.T) {
 	t.Run("Labels should always have team", func(t *testing.T) {
 		alert := fixtures.AlertResource()
-		config := alertmanager.Config{}
+		config := overrides.Config{}
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
@@ -25,7 +25,7 @@ func TestRoutes(t *testing.T) {
 
 	t.Run("Simple validation that new config don't override old config", func(t *testing.T) {
 		alert := fixtures.AlertResource()
-		config := alertmanager.Config{}
+		config := overrides.Config{}
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
@@ -37,7 +37,7 @@ func TestRoutes(t *testing.T) {
 
 	t.Run("Simple deletion validation", func(t *testing.T) {
 		alert := fixtures.AlertResource()
-		config := alertmanager.Config{}
+		config := overrides.Config{}
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 

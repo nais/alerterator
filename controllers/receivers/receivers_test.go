@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/nais/alerterator/controllers/fixtures"
+	"github.com/nais/alerterator/controllers/overrides"
 	alertmanager "github.com/prometheus/alertmanager/config"
 	"github.com/stretchr/testify/assert"
 )
@@ -69,7 +70,7 @@ func TestReceivers(t *testing.T) {
 	})
 
 	t.Run("Ensure duplicated receivers are deleted", func(t *testing.T) {
-		config := alertmanager.Config{}
+		config := overrides.Config{}
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 

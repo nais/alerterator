@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/nais/alerterator/controllers/fixtures"
+	"github.com/nais/alerterator/controllers/overrides"
 	"github.com/nais/alerterator/utils"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,7 @@ import (
 
 func TestRoutes(t *testing.T) {
 	t.Run("Validate that merge of config uses latest values", func(t *testing.T) {
-		config := alertmanager.Config{}
+		config := overrides.Config{}
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
@@ -46,7 +47,7 @@ func TestRoutes(t *testing.T) {
 	})
 
 	t.Run("Valider at man kan legge til ny route", func(t *testing.T) {
-		config := alertmanager.Config{}
+		config := overrides.Config{}
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
@@ -78,7 +79,7 @@ func TestRoutes(t *testing.T) {
 	})
 
 	t.Run("Ensure duplicated routes are deleted", func(t *testing.T) {
-		config := alertmanager.Config{}
+		config := overrides.Config{}
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 

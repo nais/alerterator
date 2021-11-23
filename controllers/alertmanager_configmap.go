@@ -9,9 +9,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/nais/alerterator/controllers/inhibitions"
+	"github.com/nais/alerterator/controllers/overrides"
 	"github.com/nais/alerterator/controllers/receivers"
 	"github.com/nais/alerterator/controllers/routes"
-	alertmanager "github.com/prometheus/alertmanager/config"
 	"gopkg.in/yaml.v2"
 )
 
@@ -26,7 +26,7 @@ var alertmanagerTemplateConfigMapName = types.NamespacedName{
 	Name:      "alertmanager-template-config",
 }
 
-func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertReconciler *AlertReconciler) (*alertmanager.Config, error) {
+func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertReconciler *AlertReconciler) (*overrides.Config, error) {
 	var configMap v1.ConfigMap
 	err := alertReconciler.Get(ctx, namespacedName, &configMap)
 	if err != nil {
@@ -37,7 +37,7 @@ func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertRe
 		return nil, fmt.Errorf("alertmanager is not properly set up, data is empty")
 	}
 
-	config := alertmanager.Config{}
+	config := overrides.Config{}
 	err = yaml.Unmarshal([]byte(configMap.Data[alertmanagerConfigName]), &config)
 	if err != nil {
 		return nil, fmt.Errorf("failed while unmarshling %s: %s", alertmanagerConfigName, err)
@@ -46,7 +46,7 @@ func getConfig(ctx context.Context, namespacedName types.NamespacedName, alertRe
 	return &config, nil
 }
 
-func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, config *alertmanager.Config, alertReconciler *AlertReconciler) error {
+func updateConfigMap(ctx context.Context, namespacedName types.NamespacedName, config *overrides.Config, alertReconciler *AlertReconciler) error {
 	data, err := yaml.Marshal(&config)
 	if err != nil {
 		return fmt.Errorf("failed while marshaling: %s", err)
