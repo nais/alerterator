@@ -77,7 +77,7 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	logger.Info("Updating Alerterator rules config map")
-	err = AddOrUpdateAlert(ctx, r, &alert)
+	err = AddOrUpdateRules(ctx, r, &alert)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("while adding rules to configMap: %s", err)
 	}
@@ -91,7 +91,7 @@ func (r *AlertReconciler) deleteExternalResources(ctx context.Context, alert *na
 	if err != nil {
 		return err
 	}
-	err = DeleteAlert(ctx, r, alert)
+	err = DeleteRules(ctx, r, alert)
 	if err != nil {
 		return err
 	}

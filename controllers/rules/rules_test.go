@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAlerts(t *testing.T) {
+func TestRules(t *testing.T) {
 	t.Run("Validated that alert rules are created correctly", func(t *testing.T) {
 		naisAlert := fixtures.AlertResource()
 		name := utils.GetCombinedName(naisAlert)
-		alertRules, err := createAlertRules(name, naisAlert.Spec.Receivers.Slack.PrependText, naisAlert.Spec.Receivers.SMS.Recipients, naisAlert.Spec.Alerts)
+		alertRules, err := createRules(name, naisAlert.Spec.Receivers.Slack.PrependText, naisAlert.Spec.Receivers.SMS.Recipients, naisAlert.Spec.Alerts)
 		assert.NoError(t, err)
 		assert.Len(t, alertRules, 1)
 
@@ -39,7 +39,7 @@ func TestAlerts(t *testing.T) {
 	t.Run("If severity is not set, default to danger", func(t *testing.T) {
 		alert := fixtures.MinimalAlertResource()
 		name := utils.GetCombinedName(alert)
-		alertRules, err := createAlertRules(name, alert.Spec.Receivers.Slack.PrependText, alert.Spec.Receivers.SMS.Recipients, alert.Spec.Alerts)
+		alertRules, err := createRules(name, alert.Spec.Receivers.Slack.PrependText, alert.Spec.Receivers.SMS.Recipients, alert.Spec.Alerts)
 		assert.NoError(t, err)
 		assert.Len(t, alertRules, 1)
 
@@ -51,11 +51,20 @@ func TestAlerts(t *testing.T) {
 		naisAlert := fixtures.MinimalAlertResource()
 		naisAlert.Spec.Alerts[0].For = ""
 		name := utils.GetCombinedName(naisAlert)
-		rules, err := createAlertRules(name, naisAlert.Spec.Receivers.Slack.PrependText, naisAlert.Spec.Receivers.SMS.Recipients, naisAlert.Spec.Alerts)
+		rules, err := createRules(name, naisAlert.Spec.Receivers.Slack.PrependText, naisAlert.Spec.Receivers.SMS.Recipients, naisAlert.Spec.Alerts)
 		assert.NoError(t, err)
 		assert.Len(t, rules, 1)
 
 		rule := rules[0]
 		assert.Equal(t, model.Duration(0), rule.For)
+	})
+}
+
+func TestConfigMapUpdater(t *testing.T) {
+	t.Run("Test that alerts get added", func(t *testing.T) {
+		alert := fixtures.AlertResource()
+		configMap, err := AddOrUpdate(alert, *fixtures.ConfigMapBeforeAlerts())
+		assert.NoError(t, err)
+		assert.Equal(t, fixtures.ExpectedConfigMapAfterAlerts().Data["aura.yml"], configMap.Data["aura.yml"])
 	})
 }

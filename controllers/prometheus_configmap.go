@@ -4,14 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/alerterator/controllers/rules"
+	"github.com/nais/alerterator/utils"
+	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
-
-	"github.com/nais/alerterator/controllers/rules"
-
-	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
-
-	"github.com/nais/alerterator/utils"
 )
 
 var configMapAlertsNamespacedName = types.NamespacedName{
@@ -19,14 +16,14 @@ var configMapAlertsNamespacedName = types.NamespacedName{
 	Name:      "alerterator-rules",
 }
 
-func AddOrUpdateAlert(ctx context.Context, reconciler *AlertReconciler, alert *naisiov1.Alert) error {
+func AddOrUpdateRules(ctx context.Context, reconciler *AlertReconciler, alert *naisiov1.Alert) error {
 	var configMap v1.ConfigMap
 	err := reconciler.Get(ctx, configMapAlertsNamespacedName, &configMap)
 	if err != nil {
 		return fmt.Errorf("failing while retrieving %s configMap: %s", configMapAlertsNamespacedName.Name, err)
 	}
 
-	configMap, err = rules.AddOrUpdateAlert(alert, configMap)
+	configMap, err = rules.AddOrUpdate(alert, configMap)
 	if err != nil {
 		return err
 	}
@@ -39,7 +36,7 @@ func AddOrUpdateAlert(ctx context.Context, reconciler *AlertReconciler, alert *n
 	return nil
 }
 
-func DeleteAlert(ctx context.Context, reconciler *AlertReconciler, alert *naisiov1.Alert) error {
+func DeleteRules(ctx context.Context, reconciler *AlertReconciler, alert *naisiov1.Alert) error {
 	var configMap v1.ConfigMap
 	err := reconciler.Get(ctx, configMapAlertsNamespacedName, &configMap)
 	if err != nil {

@@ -34,7 +34,7 @@ type Rule struct {
 	Annotations map[string]string `yaml:"annotations,omitempty"`
 }
 
-func createAlertRules(name, slackPrependText, smsRecipients string, naisAlerts []naisiov1.Rule) ([]Rule, error) {
+func createRules(name, slackPrependText, smsRecipients string, naisAlerts []naisiov1.Rule) ([]Rule, error) {
 	var rules []Rule
 
 	for _, ar := range naisAlerts {
@@ -71,30 +71,30 @@ func createAlertRules(name, slackPrependText, smsRecipients string, naisAlerts [
 	return rules, nil
 }
 
-func AddOrUpdateAlert(alert *naisiov1.Alert, configMap corev1.ConfigMap) (corev1.ConfigMap, error) {
+func AddOrUpdate(alert *naisiov1.Alert, configMap corev1.ConfigMap) (corev1.ConfigMap, error) {
 	name := utils.GetCombinedName(alert)
-	alertRules, err := createAlertRules(name, alert.Spec.Receivers.Slack.PrependText, alert.Spec.Receivers.SMS.Recipients, alert.Spec.Alerts)
+	rules, err := createRules(name, alert.Spec.Receivers.Slack.PrependText, alert.Spec.Receivers.SMS.Recipients, alert.Spec.Alerts)
 	if err != nil {
 		return corev1.ConfigMap{}, err
 	}
-	alertGroups := RuleGroups{
+	ruleGroups := RuleGroups{
 		Groups: []RuleGroup{
 			{
 				Name:  name,
-				Rules: alertRules},
+				Rules: rules},
 		},
 	}
 
-	alertGroupYamlBytes, err := yaml.Marshal(alertGroups)
+	bytes, err := yaml.Marshal(ruleGroups)
 	if err != nil {
-		return corev1.ConfigMap{}, fmt.Errorf("failed to marshal %v to yaml", alertGroups)
+		return corev1.ConfigMap{}, fmt.Errorf("failed to marshal %v to yaml", ruleGroups)
 	}
 
 	if configMap.Data == nil {
 		configMap.Data = make(map[string]string)
 	}
 
-	configMap.Data[utils.GetCombinedName(alert)+".yml"] = string(alertGroupYamlBytes)
+	configMap.Data[utils.GetCombinedName(alert)+".yml"] = string(bytes)
 
 	return configMap, nil
 }
