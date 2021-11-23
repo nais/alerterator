@@ -73,13 +73,13 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	logger.Info("Updating Alertmanager config map")
 	err = AddOrUpdateAlertmanagerConfigMap(ctx, r, &alert)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("while updating AlertManager.yml configMap: %s", err)
+		return ctrl.Result{}, fmt.Errorf("while updating Alertanager config map: %s", err)
 	}
 
-	logger.Info("Updating Alerterator rules config map")
+	logger.Info("Updating Prometheus rules config map")
 	err = AddOrUpdateRules(ctx, r, &alert)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("while adding rules to configMap: %s", err)
+		return ctrl.Result{}, fmt.Errorf("while adding rules to config map: %s", err)
 	}
 
 	logger.Info("Done")
@@ -87,7 +87,7 @@ func (r *AlertReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 }
 
 func (r *AlertReconciler) deleteExternalResources(ctx context.Context, alert *naisiov1.Alert) error {
-	err := DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx, r, alert)
+	err := DeleteFromAlertmanagerConfigMap(ctx, r, alert)
 	if err != nil {
 		return err
 	}

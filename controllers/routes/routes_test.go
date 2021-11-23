@@ -20,7 +20,7 @@ func TestRoutes(t *testing.T) {
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
-		routes, err := AddOrUpdateRoute(fixtures.AlertResource(), config.Route.Routes)
+		routes, err := AddOrUpdate(fixtures.AlertResource(), config.Route.Routes)
 		assert.NoError(t, err)
 		assert.Len(t, routes, 1)
 
@@ -53,7 +53,7 @@ func TestRoutes(t *testing.T) {
 
 		newAlert := fixtures.AlertResource()
 		newAlert.Name = "newalert-does-not-exist"
-		routes, err := AddOrUpdateRoute(newAlert, config.Route.Routes)
+		routes, err := AddOrUpdate(newAlert, config.Route.Routes)
 		assert.NoError(t, err)
 
 		found := false

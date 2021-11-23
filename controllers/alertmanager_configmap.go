@@ -77,19 +77,19 @@ func AddOrUpdateAlertmanagerConfigMap(ctx context.Context, alertReconciler *Aler
 		return err
 	}
 
-	routes, err := routes.AddOrUpdateRoute(alert, oldConfig.Route.Routes)
+	routes, err := routes.AddOrUpdate(alert, oldConfig.Route.Routes)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating routes: %s", err)
 	}
 	newConfig.Route.Routes = routes
 
-	receivers, err := receivers.AddOrUpdateReceiver(alert, oldConfig.Receivers)
+	receivers, err := receivers.AddOrUpdate(alert, oldConfig.Receivers)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating receivers: %s", err)
 	}
 	newConfig.Receivers = receivers
 
-	inhibitRules, err := inhibitions.AddOrUpdateInhibition(alert, oldConfig.InhibitRules)
+	inhibitRules, err := inhibitions.AddOrUpdate(alert, oldConfig.InhibitRules)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating inhibitions: %s", err)
 	}
@@ -98,7 +98,7 @@ func AddOrUpdateAlertmanagerConfigMap(ctx context.Context, alertReconciler *Aler
 	return updateConfigMap(ctx, alertmanagerConfigMapName, newConfig, alertReconciler)
 }
 
-func DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx context.Context, alertReconciler *AlertReconciler, alert *naisiov1.Alert) error {
+func DeleteFromAlertmanagerConfigMap(ctx context.Context, alertReconciler *AlertReconciler, alert *naisiov1.Alert) error {
 	oldConfig, err := getConfig(ctx, alertmanagerConfigMapName, alertReconciler)
 	if err != nil {
 		return err
@@ -108,13 +108,13 @@ func DeleteRouteAndReceiverFromAlertManagerConfigMap(ctx context.Context, alertR
 		return err
 	}
 
-	routes := routes.DeleteRoute(alert, oldConfig.Route.Routes)
+	routes := routes.Delete(alert, oldConfig.Route.Routes)
 	newConfig.Route.Routes = routes
 
-	receivers := receivers.DeleteReceiver(alert, oldConfig.Receivers)
+	receivers := receivers.Delete(alert, oldConfig.Receivers)
 	newConfig.Receivers = receivers
 
-	inhibitions := inhibitions.DeleteInhibition(alert, oldConfig.InhibitRules)
+	inhibitions := inhibitions.Delete(alert, oldConfig.InhibitRules)
 	newConfig.InhibitRules = inhibitions
 
 	return updateConfigMap(ctx, alertmanagerConfigMapName, newConfig, alertReconciler)

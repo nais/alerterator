@@ -64,7 +64,7 @@ func createInhibitRule(rule naisiov1.InhibitRules) (*alertmanager.InhibitRule, e
 	}, nil
 }
 
-func AddOrUpdateInhibition(alert *naisiov1.Alert, inhibitions []*alertmanager.InhibitRule) ([]*alertmanager.InhibitRule, error) {
+func AddOrUpdate(alert *naisiov1.Alert, inhibitions []*alertmanager.InhibitRule) ([]*alertmanager.InhibitRule, error) {
 	for _, ir := range alert.Spec.InhibitRules {
 		inhibitRule, err := createInhibitRule(ir)
 		if err != nil {
@@ -92,7 +92,7 @@ func getInhibitionIndex(target map[string]string, inhibitions []*alertmanager.In
 	return -1
 }
 
-func DeleteInhibition(alert *naisiov1.Alert, inhibitions []*alertmanager.InhibitRule) []*alertmanager.InhibitRule {
+func Delete(alert *naisiov1.Alert, inhibitions []*alertmanager.InhibitRule) []*alertmanager.InhibitRule {
 	for _, ir := range alert.Spec.InhibitRules {
 		if i := getInhibitionIndex(ir.Targets, inhibitions); i != -1 {
 			inhibitions = append(inhibitions[:i], inhibitions[i+1:]...)

@@ -17,7 +17,7 @@ func TestRoutes(t *testing.T) {
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
-		inhibitions, err := AddOrUpdateInhibition(alert, config.InhibitRules)
+		inhibitions, err := AddOrUpdate(alert, config.InhibitRules)
 		assert.NoError(t, err)
 		rule := inhibitions[len(inhibitions)-1]
 		assert.Contains(t, rule.Equal, model.LabelName("team"))
@@ -29,7 +29,7 @@ func TestRoutes(t *testing.T) {
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
-		inhibitionConfig, err := AddOrUpdateInhibition(alert, config.InhibitRules)
+		inhibitionConfig, err := AddOrUpdate(alert, config.InhibitRules)
 		assert.NoError(t, err)
 		assert.Len(t, inhibitionConfig, 3)
 
@@ -41,11 +41,11 @@ func TestRoutes(t *testing.T) {
 		err := yaml.Unmarshal([]byte(fixtures.AlertmanagerConfigYaml), &config)
 		assert.NoError(t, err)
 
-		inhibitionConfig, err := AddOrUpdateInhibition(alert, config.InhibitRules)
+		inhibitionConfig, err := AddOrUpdate(alert, config.InhibitRules)
 		assert.NoError(t, err)
 		assert.Len(t, inhibitionConfig, 3)
 
-		inhibitRules := DeleteInhibition(alert, config.InhibitRules)
+		inhibitRules := Delete(alert, config.InhibitRules)
 		assert.Len(t, inhibitRules, 2)
 	})
 }

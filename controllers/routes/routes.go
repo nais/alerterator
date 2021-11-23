@@ -80,7 +80,7 @@ func deleteDuplicates(name string, routes []*alertmanager.Route) []*alertmanager
 	return routes
 }
 
-func AddOrUpdateRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*alertmanager.Route, error) {
+func AddOrUpdate(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*alertmanager.Route, error) {
 	name := utils.GetCombinedName(alert)
 	alertRoute, err := createNewRoute(name, alert)
 	if err != nil {
@@ -98,7 +98,7 @@ func AddOrUpdateRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*a
 	return routes, nil
 }
 
-func DeleteRoute(alert *naisiov1.Alert, routes []*alertmanager.Route) []*alertmanager.Route {
+func Delete(alert *naisiov1.Alert, routes []*alertmanager.Route) []*alertmanager.Route {
 	name := utils.GetCombinedName(alert)
 	if i := getRouteIndexByName(name, routes); i != -1 {
 		routes = append(routes[:i], routes[i+1:]...)

@@ -124,7 +124,7 @@ func deleteDuplicates(name string, receivers []*alertmanager.Receiver) []*alertm
 	return receivers
 }
 
-func AddOrUpdateReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) ([]*alertmanager.Receiver, error) {
+func AddOrUpdate(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) ([]*alertmanager.Receiver, error) {
 	name := utils.GetCombinedName(alert)
 	receiver := createReceiver(name, alert)
 
@@ -139,7 +139,7 @@ func AddOrUpdateReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiv
 	return receivers, nil
 }
 
-func DeleteReceiver(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) []*alertmanager.Receiver {
+func Delete(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) []*alertmanager.Receiver {
 	name := utils.GetCombinedName(alert)
 	if i := getReceiverIndexByName(name, receivers); i != -1 {
 		receivers = append(receivers[:i], receivers[i+1:]...)
