@@ -59,12 +59,3 @@ func TestRules(t *testing.T) {
 		assert.Equal(t, model.Duration(0), rule.For)
 	})
 }
-
-func TestConfigMapUpdater(t *testing.T) {
-	t.Run("Test that alerts get added", func(t *testing.T) {
-		alert := fixtures.AlertResource()
-		configMap, err := AddOrUpdate(alert, *fixtures.ConfigMapBeforeAlerts())
-		assert.NoError(t, err)
-		assert.Equal(t, fixtures.ExpectedConfigMapAfterAlerts().Data["aura.yml"], configMap.Data["aura.yml"])
-	})
-}

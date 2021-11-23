@@ -12,6 +12,7 @@ import (
 	"github.com/nais/alerterator/controllers/alertmanager/receivers"
 	"github.com/nais/alerterator/controllers/alertmanager/routes"
 	"github.com/nais/alerterator/controllers/configmap"
+	"github.com/nais/alerterator/controllers/overrides"
 )
 
 const alertmanagerConfigName = "alertmanager.yml"
@@ -26,11 +27,13 @@ var alertmanagerTemplateConfigMapName = types.NamespacedName{
 }
 
 func AddOrUpdate(ctx context.Context, client client.Client, alert *naisiov1.Alert) error {
-	oldConfig, err := configmap.Get(ctx, alertmanagerConfigMapName, client, alertmanagerConfigName)
+	var oldConfig *overrides.Config
+	err := configmap.GetAndUnmarshal(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, &oldConfig)
 	if err != nil {
 		return err
 	}
-	newConfig, err := configmap.Get(ctx, alertmanagerTemplateConfigMapName, client, alertmanagerConfigName)
+	var newConfig *overrides.Config
+	err = configmap.GetAndUnmarshal(ctx, client, alertmanagerTemplateConfigMapName, alertmanagerConfigName, &newConfig)
 	if err != nil {
 		return err
 	}
@@ -53,15 +56,17 @@ func AddOrUpdate(ctx context.Context, client client.Client, alert *naisiov1.Aler
 	}
 	newConfig.InhibitRules = inhibitRules
 
-	return configmap.Update(ctx, alertmanagerConfigMapName, newConfig, client, alertmanagerConfigName)
+	return configmap.MarshalAndUpdateData(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, newConfig)
 }
 
 func Delete(ctx context.Context, client client.Client, alert *naisiov1.Alert) error {
-	oldConfig, err := configmap.Get(ctx, alertmanagerConfigMapName, client, alertmanagerConfigName)
+	var oldConfig overrides.Config
+	err := configmap.GetAndUnmarshal(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, &oldConfig)
 	if err != nil {
 		return err
 	}
-	newConfig, err := configmap.Get(ctx, alertmanagerTemplateConfigMapName, client, alertmanagerConfigName)
+	var newConfig overrides.Config
+	err = configmap.GetAndUnmarshal(ctx, client, alertmanagerTemplateConfigMapName, alertmanagerConfigName, &newConfig)
 	if err != nil {
 		return err
 	}
@@ -75,5 +80,5 @@ func Delete(ctx context.Context, client client.Client, alert *naisiov1.Alert) er
 	inhibitions := inhibitions.Delete(alert, oldConfig.InhibitRules)
 	newConfig.InhibitRules = inhibitions
 
-	return configmap.Update(ctx, alertmanagerConfigMapName, newConfig, client, alertmanagerConfigName)
+	return configmap.MarshalAndUpdateData(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, newConfig)
 }

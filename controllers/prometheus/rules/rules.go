@@ -1,12 +1,8 @@
 package rules
 
 import (
-	"fmt"
-
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/prometheus/common/model"
-	"gopkg.in/yaml.v2"
-	corev1 "k8s.io/api/core/v1"
 
 	"github.com/nais/alerterator/utils"
 )
@@ -71,11 +67,11 @@ func createRules(name, slackPrependText, smsRecipients string, naisAlerts []nais
 	return rules, nil
 }
 
-func AddOrUpdate(alert *naisiov1.Alert, configMap corev1.ConfigMap) (corev1.ConfigMap, error) {
+func AddOrUpdate(alert *naisiov1.Alert) (RuleGroups, error) {
 	name := utils.GetCombinedName(alert)
 	rules, err := createRules(name, alert.Spec.Receivers.Slack.PrependText, alert.Spec.Receivers.SMS.Recipients, alert.Spec.Alerts)
 	if err != nil {
-		return corev1.ConfigMap{}, err
+		return RuleGroups{}, err
 	}
 	ruleGroups := RuleGroups{
 		Groups: []RuleGroup{
@@ -85,16 +81,5 @@ func AddOrUpdate(alert *naisiov1.Alert, configMap corev1.ConfigMap) (corev1.Conf
 		},
 	}
 
-	bytes, err := yaml.Marshal(ruleGroups)
-	if err != nil {
-		return corev1.ConfigMap{}, fmt.Errorf("failed to marshal %v to yaml", ruleGroups)
-	}
-
-	if configMap.Data == nil {
-		configMap.Data = make(map[string]string)
-	}
-
-	configMap.Data[utils.GetCombinedName(alert)+".yml"] = string(bytes)
-
-	return configMap, nil
+	return ruleGroups, nil
 }
