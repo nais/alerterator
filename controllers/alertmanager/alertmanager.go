@@ -37,6 +37,7 @@ func mergeRoutes(a, b []*alertmanager.Route) []*alertmanager.Route {
 	for _, r := range b {
 		if _, ok := m[r.Receiver]; !ok {
 			a = append(a, r)
+			m[r.Receiver] = true
 		}
 	}
 	return a
@@ -52,6 +53,7 @@ func mergeReceivers(a, b []*alertmanager.Receiver) []*alertmanager.Receiver {
 	for _, r := range b {
 		if _, ok := m[r.Name]; !ok {
 			a = append(a, r)
+			m[r.Name] = true
 		}
 	}
 	return a
