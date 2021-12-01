@@ -35,7 +35,7 @@ func mergeRoutes(a, b []*alertmanager.Route) []*alertmanager.Route {
 	}
 
 	for _, r := range b {
-		if _, ok := m[r.Receiver]; !ok {
+		if !m[r.Receiver] {
 			a = append(a, r)
 			m[r.Receiver] = true
 		}
@@ -51,7 +51,7 @@ func mergeReceivers(a, b []*alertmanager.Receiver) []*alertmanager.Receiver {
 	}
 
 	for _, r := range b {
-		if _, ok := m[r.Name]; !ok {
+		if !m[r.Name] {
 			a = append(a, r)
 			m[r.Name] = true
 		}
@@ -75,13 +75,13 @@ func AddOrUpdate(ctx context.Context, client client.Client, alert *naisiov1.Aler
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating routes: %s", err)
 	}
-	newConfig.Route.Routes = mergeRoutes(newConfig.Route.Routes, routes)
+	mergeRoutes(newConfig.Route.Routes, routes)
 
 	receivers, err := receivers.AddOrUpdate(alert, oldConfig.Receivers)
 	if err != nil {
 		return fmt.Errorf("failed while adding/updating receivers: %s", err)
 	}
-	newConfig.Receivers = mergeReceivers(newConfig.Receivers, receivers)
+	mergeReceivers(newConfig.Receivers, receivers)
 
 	inhibitRules, err := inhibitions.AddOrUpdate(alert, oldConfig.InhibitRules)
 	if err != nil {
