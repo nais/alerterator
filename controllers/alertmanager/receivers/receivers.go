@@ -26,11 +26,10 @@ func getDefaultEmailConfig(to string) alertmanager.EmailConfig {
 //
 // HttpConfig needs to be an empty object to turn off the default httpConfig which uses proxy-settings
 func getDefaultSMSConfig() alertmanager.WebhookConfig {
+	url, _ := url.Parse("http://smsmanager/sms")
 	return alertmanager.WebhookConfig{
 		URL: &alertmanager.URL{
-			URL: &url.URL{
-				RawPath: "http://smsmanager/sms",
-			},
+			URL: url,
 		},
 		NotifierConfig: alertmanager.NotifierConfig{
 			VSendResolved: true,
@@ -107,23 +106,6 @@ func createReceiver(name string, alert *naisiov1.Alert) *alertmanager.Receiver {
 	return &receiver
 }
 
-func deleteDuplicates(name string, receivers []*alertmanager.Receiver) []*alertmanager.Receiver {
-	var indices []int
-	for i := range receivers {
-		if receivers[i].Name == name {
-			indices = append(indices, i)
-		}
-	}
-
-	if len(indices) > 1 {
-		for i := 1; i < len(indices); i++ {
-			receivers = append(receivers[:i], receivers[i+1:]...)
-		}
-	}
-
-	return receivers
-}
-
 func AddOrUpdate(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) ([]*alertmanager.Receiver, error) {
 	name := utils.GetCombinedName(alert)
 	receiver := createReceiver(name, alert)
@@ -133,8 +115,6 @@ func AddOrUpdate(alert *naisiov1.Alert, receivers []*alertmanager.Receiver) ([]*
 	} else {
 		receivers = append(receivers, receiver)
 	}
-
-	receivers = deleteDuplicates(name, receivers)
 
 	return receivers, nil
 }

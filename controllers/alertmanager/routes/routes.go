@@ -45,13 +45,13 @@ func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, er
 		repeatInterval = &ri
 	}
 
-	var groupBy []model.LabelName
+	var groupBy []string
 	for _, v := range alert.Spec.Route.GroupBy {
-		groupBy = append(groupBy, model.LabelName(v))
+		groupBy = append(groupBy, v)
 	}
 
 	return &alertmanager.Route{
-		GroupBy:        groupBy,
+		GroupByStr:     groupBy,
 		GroupInterval:  groupInterval,
 		GroupWait:      groupWait,
 		RepeatInterval: repeatInterval,
@@ -61,23 +61,6 @@ func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, er
 			"alert": name,
 		},
 	}, nil
-}
-
-func deleteDuplicates(name string, routes []*alertmanager.Route) []*alertmanager.Route {
-	var indices []int
-	for i := range routes {
-		if routes[i].Receiver == name {
-			indices = append(indices, i)
-		}
-	}
-
-	if len(indices) > 1 {
-		for i := 1; i < len(indices); i++ {
-			routes = append(routes[:i], routes[i+1:]...)
-		}
-	}
-
-	return routes
 }
 
 func AddOrUpdate(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*alertmanager.Route, error) {
@@ -92,8 +75,6 @@ func AddOrUpdate(alert *naisiov1.Alert, routes []*alertmanager.Route) ([]*alertm
 	} else {
 		routes = append(routes, alertRoute)
 	}
-
-	routes = deleteDuplicates(name, routes)
 
 	return routes, nil
 }
