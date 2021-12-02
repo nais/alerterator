@@ -26,11 +26,10 @@ func getDefaultEmailConfig(to string) alertmanager.EmailConfig {
 //
 // HttpConfig needs to be an empty object to turn off the default httpConfig which uses proxy-settings
 func getDefaultSMSConfig() alertmanager.WebhookConfig {
+	url, _ := url.Parse("http://smsmanager/sms")
 	return alertmanager.WebhookConfig{
 		URL: &alertmanager.URL{
-			URL: &url.URL{
-				RawPath: "http://smsmanager/sms",
-			},
+			URL: url,
 		},
 		NotifierConfig: alertmanager.NotifierConfig{
 			VSendResolved: true,
