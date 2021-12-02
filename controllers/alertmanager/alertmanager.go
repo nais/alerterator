@@ -59,6 +59,28 @@ func mergeReceivers(a, b []*alertmanager.Receiver) []*alertmanager.Receiver {
 	return a
 }
 
+func addOrUpdate(alert *naisiov1.Alert, oldConfig, newConfig *overrides.Config) (*overrides.Config, error) {
+	routes, err := routes.AddOrUpdate(alert, oldConfig.Route.Routes)
+	if err != nil {
+		return nil, fmt.Errorf("failed while adding/updating routes: %s", err)
+	}
+	newConfig.Route.Routes = mergeRoutes(newConfig.Route.Routes, routes)
+
+	receivers, err := receivers.AddOrUpdate(alert, oldConfig.Receivers)
+	if err != nil {
+		return nil, fmt.Errorf("failed while adding/updating receivers: %s", err)
+	}
+	newConfig.Receivers = mergeReceivers(newConfig.Receivers, receivers)
+
+	inhibitRules, err := inhibitions.AddOrUpdate(alert, oldConfig.InhibitRules)
+	if err != nil {
+		return nil, fmt.Errorf("failed while adding/updating inhibitions: %s", err)
+	}
+	newConfig.InhibitRules = inhibitRules
+
+	return newConfig, nil
+}
+
 func AddOrUpdate(ctx context.Context, client client.Client, alert *naisiov1.Alert) error {
 	var oldConfig *overrides.Config
 	err := configmap.GetAndUnmarshal(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, &oldConfig)
@@ -71,23 +93,10 @@ func AddOrUpdate(ctx context.Context, client client.Client, alert *naisiov1.Aler
 		return err
 	}
 
-	routes, err := routes.AddOrUpdate(alert, oldConfig.Route.Routes)
+	newConfig, err = addOrUpdate(alert, oldConfig, newConfig)
 	if err != nil {
-		return fmt.Errorf("failed while adding/updating routes: %s", err)
+		return err
 	}
-	mergeRoutes(newConfig.Route.Routes, routes)
-
-	receivers, err := receivers.AddOrUpdate(alert, oldConfig.Receivers)
-	if err != nil {
-		return fmt.Errorf("failed while adding/updating receivers: %s", err)
-	}
-	mergeReceivers(newConfig.Receivers, receivers)
-
-	inhibitRules, err := inhibitions.AddOrUpdate(alert, oldConfig.InhibitRules)
-	if err != nil {
-		return fmt.Errorf("failed while adding/updating inhibitions: %s", err)
-	}
-	newConfig.InhibitRules = inhibitRules
 
 	return configmap.MarshalAndUpdateData(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, newConfig)
 }

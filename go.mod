@@ -17,6 +17,11 @@ require (
 )
 
 require (
+	github.com/nxadm/tail v1.4.8 // indirect
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
+)
+
+require (
 	cloud.google.com/go v0.65.0 // indirect
 	github.com/aws/aws-sdk-go v1.40.11 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -44,6 +49,8 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
+	github.com/onsi/ginkgo v1.16.5
+	github.com/onsi/gomega v1.17.0
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
