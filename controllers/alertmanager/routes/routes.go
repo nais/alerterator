@@ -45,13 +45,13 @@ func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, er
 		repeatInterval = &ri
 	}
 
-	var groupBy []model.LabelName
+	var groupBy []string
 	for _, v := range alert.Spec.Route.GroupBy {
-		groupBy = append(groupBy, model.LabelName(v))
+		groupBy = append(groupBy, v)
 	}
 
 	return &alertmanager.Route{
-		GroupBy:        groupBy,
+		GroupByStr:     groupBy,
 		GroupInterval:  groupInterval,
 		GroupWait:      groupWait,
 		RepeatInterval: repeatInterval,
