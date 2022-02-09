@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/go-logr/zapr v0.4.0
-	github.com/nais/liberator v0.0.0-20220128144410-113269615db1
+	github.com/nais/liberator v0.0.0-20220209071801-bc203f9a40d9
 	github.com/prometheus/alertmanager v0.23.0
 	github.com/prometheus/common v0.30.0
 	github.com/stretchr/testify v1.7.0
