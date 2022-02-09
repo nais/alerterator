@@ -167,6 +167,12 @@ receivers:
       follow_redirects: false
     url: http://smsmanager/sms
     max_alerts: 0
+  - send_resolved: true
+    http_config:
+      proxy_url: http://no-proxy.nav
+      follow_redirects: false
+    url: http://historymanager.nais
+    max_alerts: 0
 templates:
 - /etc/config/alert.tmpl
 `

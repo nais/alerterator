@@ -42,6 +42,17 @@ func AlertResource() *naisiov1.Alert {
 					Recipients:   "12346789",
 					SendResolved: boolp(false),
 				},
+				Webhook: naisiov1.Webhook{
+					URL:          "http://historymanager.nais",
+					MaxAlerts:    0,
+					SendResolved: boolp(true),
+					HttpConfig: naisiov1.HttpConfig{
+						ProxyUrl: "http://no-proxy.nav",
+						TLSConfig: naisiov1.TLSConfig{
+							InsecureSkipVerify: false,
+						},
+					},
+				},
 			},
 			Alerts: []naisiov1.Rule{
 				{
