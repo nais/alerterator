@@ -23,7 +23,7 @@ func AlertResource() *naisiov1.Alert {
 				RepeatInterval: "4h",
 				GroupWait:      "30s",
 				GroupInterval:  "5m",
-				GroupBy:        []string{"my_alert", "my_team", "my_kubernetes_namespace"},
+				GroupBy:        []naisiov1.LabelName{"my_alert", "my_team", "my_kubernetes_namespace"},
 			},
 			Receivers: naisiov1.Receivers{
 				Slack: naisiov1.Slack{

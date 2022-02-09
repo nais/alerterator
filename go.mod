@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/go-logr/zapr v0.4.0
-	github.com/nais/liberator v0.0.0-20211109143252-c975da8f1201
+	github.com/nais/liberator v0.0.0-20220128144410-113269615db1
 	github.com/prometheus/alertmanager v0.23.0
 	github.com/prometheus/common v0.30.0
 	github.com/stretchr/testify v1.7.0
@@ -14,11 +14,6 @@ require (
 	k8s.io/apimachinery v0.21.5
 	k8s.io/client-go v0.21.5
 	sigs.k8s.io/controller-runtime v0.9.5
-)
-
-require (
-	github.com/nxadm/tail v1.4.8 // indirect
-	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )
 
 require (
@@ -49,8 +44,8 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
-	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.17.0
+	github.com/onsi/ginkgo v1.16.5 // indirect
+	github.com/onsi/gomega v1.17.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect

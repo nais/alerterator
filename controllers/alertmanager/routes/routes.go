@@ -47,7 +47,7 @@ func createNewRoute(name string, alert *naisiov1.Alert) (*alertmanager.Route, er
 
 	var groupBy []string
 	for _, v := range alert.Spec.Route.GroupBy {
-		groupBy = append(groupBy, v)
+		groupBy = append(groupBy, string(v))
 	}
 
 	return &alertmanager.Route{
