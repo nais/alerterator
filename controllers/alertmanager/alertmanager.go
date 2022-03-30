@@ -113,14 +113,9 @@ func Delete(ctx context.Context, client client.Client, alert *naisiov1.Alert) er
 		return err
 	}
 
-	routes := routes.Delete(alert, oldConfig.Route.Routes)
-	newConfig.Route.Routes = routes
-
-	receivers := receivers.Delete(alert, oldConfig.Receivers)
-	newConfig.Receivers = receivers
-
-	inhibitions := inhibitions.Delete(alert, oldConfig.InhibitRules)
-	newConfig.InhibitRules = inhibitions
+	newConfig.Route.Routes = routes.Delete(alert, oldConfig.Route.Routes)
+	newConfig.Receivers = receivers.Delete(alert, oldConfig.Receivers)
+	newConfig.InhibitRules = inhibitions.Delete(alert, oldConfig.InhibitRules)
 
 	return configmap.MarshalAndUpdateData(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, newConfig)
 }
