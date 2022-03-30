@@ -3,6 +3,7 @@ package alertmanager
 import (
 	"context"
 	"fmt"
+	"github.com/go-logr/logr"
 
 	naisiov1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	alertmanager "github.com/prometheus/alertmanager/config"
@@ -118,4 +119,25 @@ func Delete(ctx context.Context, client client.Client, alert *naisiov1.Alert) er
 	newConfig.InhibitRules = inhibitions.Delete(alert, oldConfig.InhibitRules)
 
 	return configmap.MarshalAndUpdateData(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, newConfig)
+}
+
+func EnsureConfigExists(ctx context.Context, client client.Client, logger logr.Logger) error {
+	configMap, err := configmap.Get(ctx, client, alertmanagerConfigMapName)
+	if err != nil {
+		return err
+	}
+	exists := configMap.Data[alertmanagerConfigName]
+	if exists == "" {
+		logger.Info(fmt.Sprintf("Configmap %v was missing %v, creating it based on %v",
+			alertmanagerConfigMapName.Name, alertmanagerConfigName, alertmanagerTemplateConfigMapName.Name))
+		var newConfig *overrides.Config
+		err = configmap.GetAndUnmarshal(ctx, client, alertmanagerTemplateConfigMapName, alertmanagerConfigName, &newConfig)
+		if err != nil {
+			return err
+		}
+
+		return configmap.MarshalAndUpdateData(ctx, client, alertmanagerConfigMapName, alertmanagerConfigName, newConfig)
+	}
+
+	return nil
 }

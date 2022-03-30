@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"github.com/nais/alerterator/controllers/alertmanager"
 	"os"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/go-logr/zapr"
 	alertv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -51,6 +54,20 @@ func main() {
 	}
 
 	ctrl.SetLogger(zapr.NewLogger(zapLogger))
+
+	kconfig, err := ctrl.GetConfig()
+	simpleClient, err := client.New(kconfig, client.Options{
+		Scheme: scheme,
+	})
+	if err != nil {
+		setupLog.Error(err, "Unable to create go client")
+		os.Exit(1)
+	}
+	err = alertmanager.EnsureConfigExists(context.Background(), simpleClient, setupLog)
+	if err != nil {
+		setupLog.Error(err, "Unable to set up config")
+		os.Exit(1)
+	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
