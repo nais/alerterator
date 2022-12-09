@@ -3,12 +3,13 @@ module github.com/nais/alerterator
 go 1.17
 
 require (
+	github.com/go-logr/logr v0.4.0
 	github.com/go-logr/zapr v0.4.0
 	github.com/nais/liberator v0.0.0-20220209071801-bc203f9a40d9
 	github.com/prometheus/alertmanager v0.23.0
 	github.com/prometheus/common v0.30.0
-	github.com/stretchr/testify v1.7.0
-	go.uber.org/zap v1.18.1
+	github.com/stretchr/testify v1.8.0
+	go.uber.org/zap v1.24.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.21.5
 	k8s.io/apimachinery v0.21.5
@@ -26,7 +27,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/go-kit/log v0.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.0 // indirect
-	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -66,7 +66,7 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.21.5 // indirect
 	k8s.io/component-base v0.21.5 // indirect
 	k8s.io/klog/v2 v2.8.0 // indirect
